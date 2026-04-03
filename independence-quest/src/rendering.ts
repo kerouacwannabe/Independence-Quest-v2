@@ -53,6 +53,8 @@ export function createRendering(deps) {
   const { state, meta, persistenceStatus } = createGameProxies(ctx);
 
 function renderAll() {
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
   document.body.classList.toggle('focus-mode', !!state.settings.focusMode);
   renderHeader();
   renderJourney();
@@ -68,6 +70,9 @@ function renderAll() {
   renderSectionCollapseStates();
   saveState();
   renderIdentityPanel();
+  if (document.getElementById('campaignSetupOverlay')?.hidden !== false && document.getElementById('questFlowOverlay')?.hidden !== false && document.getElementById('timerOverlay')?.hidden !== false) {
+    window.scrollTo(scrollX, scrollY);
+  }
 }
 
 function renderHeader() {
