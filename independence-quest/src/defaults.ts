@@ -42,6 +42,7 @@ export function defaultState() {
       familyMode: false,
       focusMode: false,
       showFullMap: false,
+      nameLocked: false,
       collapsedSections: {
         bosses: true,
         rewards: true,

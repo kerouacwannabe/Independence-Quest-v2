@@ -199,7 +199,9 @@ function advanceCampaignSetup() {
     state.campaign.firstProofDone = true;
     state.campaign.vow = state.campaign.vow || '';
     state.campaign.pathMode = state.campaign.pathMode || 'guided';
+    state.settings.nameLocked = !!(state.characterName || '').trim();
     state.settings.showFullMap = false;
+    syncSlotName();
     renderAll();
     window.requestAnimationFrame(() => {
       const currentChapterCard = document.getElementById(`chapter-${getCurrentChapter().id}`);
@@ -225,12 +227,35 @@ function toggleSectionCollapse(key) {
 
 function bindIdentityEvents() {
   const input = document.getElementById('characterNameInput');
-  input.oninput = (event) => {
-    state.characterName = event.target.value;
+  input.oninput = null;
+
+  document.getElementById('saveCharacterName').onclick = () => {
+    const nextName = input.value.trim();
+    if (!nextName) {
+      deps.showToast('Name the hero first. Even legends need a label.');
+      input.focus();
+      return;
+    }
+    state.characterName = nextName;
+    state.settings.nameLocked = true;
     syncSlotName();
     saveState();
     renderHeader();
     renderIdentityPanel();
+    deps.showToast(`Name locked in as ${nextName}.`);
+  };
+
+  document.getElementById('editCharacterName').onclick = () => {
+    state.settings.nameLocked = false;
+    renderIdentityPanel();
+    window.requestAnimationFrame(() => {
+      const refreshedInput = document.getElementById('characterNameInput');
+      if (refreshedInput) {
+        refreshedInput.focus();
+        refreshedInput.setSelectionRange(refreshedInput.value.length, refreshedInput.value.length);
+      }
+    });
+    deps.showToast('Name unlocked for editing.');
   };
 
   document.querySelectorAll('[data-slot-id]').forEach((button) => {

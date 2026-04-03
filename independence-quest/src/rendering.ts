@@ -293,7 +293,18 @@ function renderSupportPanel(chapter) {
 
 function renderIdentityPanel() {
   const input = document.getElementById('characterNameInput');
-  input.value = state.characterName || '';
+  const nameLocked = !!state.settings.nameLocked;
+  if (!document.activeElement || document.activeElement !== input || nameLocked) {
+    input.value = state.characterName || '';
+  }
+  input.readOnly = nameLocked;
+  input.setAttribute('aria-readonly', String(nameLocked));
+  input.classList.toggle('is-locked', nameLocked);
+  document.getElementById('saveCharacterName').hidden = nameLocked;
+  document.getElementById('editCharacterName').hidden = !nameLocked;
+  document.getElementById('nameLockCopy').textContent = nameLocked
+    ? `Name locked in as ${getCharacterName()}. Tap Edit name if you want to change it.`
+    : 'Submit the name to lock it in before wandering onward.';
 
   document.getElementById('slotGrid').innerHTML = ['slot1', 'slot2', 'slot3'].map((slotId) => {
     const preview = getSlotPreview(slotId);

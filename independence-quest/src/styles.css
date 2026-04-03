@@ -429,6 +429,12 @@
       gap: 10px;
     }
 
+    .name-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .slot-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
