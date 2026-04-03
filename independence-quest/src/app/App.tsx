@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { AppShell } from './shell/AppShell';
 import { TodayScreen } from '../features/today/TodayScreen';
 import { QuestsScreen } from '../features/quests/QuestsScreen';
@@ -11,8 +12,8 @@ import { selectCurrentChapter, selectCurrentObjectiveCopy, selectNextMove, selec
 export function App() {
   const activeTab = useGameStore((s) => s.ui.activeTab);
   const currentChapter = useGameStore(selectCurrentChapter);
-  const nextMove = useGameStore(selectNextMove);
-  const stats = useGameStore(selectStats);
+  const nextMove = useGameStore(useShallow(selectNextMove));
+  const stats = useGameStore(useShallow(selectStats));
   const objectiveCopy = useGameStore(selectCurrentObjectiveCopy);
 
   const screen = useMemo(() => {
