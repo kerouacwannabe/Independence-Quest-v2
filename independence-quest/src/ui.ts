@@ -444,9 +444,10 @@ function closeQuestFlowModal() {
 }
 
 function submitQuestFlowModal() {
-  if (!ctx.questFlowContext) return;
-  const entry = ctx.questFlowContext.targetType === 'quest' ? getQuestEntry(ctx.questFlowContext.targetId) : state.bosses[ctx.questFlowContext.targetId];
-  if (ctx.questFlowContext.mode === 'blocked' || ctx.questFlowContext.mode === 'boss-blocked') {
+  const flowContext = ctx.questFlowContext;
+  if (!flowContext) return;
+  const entry = flowContext.targetType === 'quest' ? getQuestEntry(flowContext.targetId) : state.bosses[flowContext.targetId];
+  if (flowContext.mode === 'blocked' || flowContext.mode === 'boss-blocked') {
     entry.blockedReason = document.getElementById('questBlockReason').value.trim() || 'No reason recorded.';
     entry.blockerType = document.getElementById('questBlockType').value.trim();
     entry.blockPlan = {
@@ -457,7 +458,7 @@ function submitQuestFlowModal() {
     entry.status = 'blocked';
     closeQuestFlowModal();
     renderAll();
-    deps.showToast(`${ctx.questFlowContext.targetType === 'boss' ? 'Boss' : 'Quest'} marked blocked, but now with an actual bridge back in.`);
+    deps.showToast(`${flowContext.targetType === 'boss' ? 'Boss' : 'Quest'} marked blocked, but now with an actual bridge back in.`);
     return;
   }
   entry.waitingPlan = {
