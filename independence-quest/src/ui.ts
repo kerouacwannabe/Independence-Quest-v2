@@ -183,18 +183,21 @@ function advanceCampaignSetup() {
   }
   if (step >= 2) {
     state.campaign.complete = true;
-    state.campaign.firstProofDone = false;
+    state.campaign.firstProofDone = true;
     state.campaign.vow = state.campaign.vow || '';
     state.campaign.pathMode = state.campaign.pathMode || 'guided';
     state.settings.showFullMap = false;
     renderAll();
     window.requestAnimationFrame(() => {
-      const target = document.getElementById('nextMoveButton') || ctx.lastSetupFocusBeforeDialog;
+      const currentChapterCard = document.getElementById(`chapter-${getCurrentChapter().id}`);
+      const target = currentChapterCard || document.getElementById('nextMoveButton') || ctx.lastSetupFocusBeforeDialog;
       if (target && typeof target.focus === 'function') target.focus();
+      if (currentChapterCard) currentChapterCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
       ctx.lastSetupFocusBeforeDialog = null;
     });
     deps.celebrate('chapter');
-    deps.showBanner(`${getCharacterName()} enters the campaign. First proof: ${getCampaignFirstProof()?.title || 'survive the day with style'}. Do that in real life, then hit Next Move when you come back.`, 'chapter');
+    deps.showBanner(`${getCharacterName()} enters the campaign. Chapter 0 is complete and the road is open. Your first proof is ${getCampaignFirstProof()?.title || 'logged'} — now start the first real quest.`, 'chapter');
+    deps.showToast('Chapter 0 complete. No extra confirmation rite required. Onward.');
     return;
   }
   state.campaign.step = step + 1;

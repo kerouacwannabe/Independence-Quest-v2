@@ -668,7 +668,7 @@ function renderCampaignSetup() {
   document.getElementById('campaignSetupTitle').textContent = 'Forge Your Character — Required Setup';
   document.getElementById('campaignSetupStepCount').textContent = `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`;
   back.style.visibility = step === 0 ? 'hidden' : 'visible';
-  next.textContent = step >= totalSteps - 1 ? 'Begin campaign' : 'Next';
+  next.textContent = step >= totalSteps - 1 ? 'Begin Chapter 1' : 'Next';
 
   if (step === 0) {
     body.innerHTML = `
