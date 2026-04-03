@@ -38,7 +38,20 @@ function syncOverlayLock() {
   document.body.classList.toggle('overlay-open', anyOpen);
 }
 
+function blurFocusedTextInputForAction(target) {
+  const active = document.activeElement;
+  if (!active || active === target || typeof active.matches !== 'function') return;
+  if (!active.matches('input[type="text"], input[type="search"], input[type="email"], input[type="tel"], input[type="url"], textarea')) return;
+  if (target && typeof target.closest === 'function' && active.closest && active.closest('#campaignSetupOverlay, #questFlowOverlay') && target.closest('#campaignSetupOverlay, #questFlowOverlay')) return;
+  if (typeof active.blur === 'function') active.blur();
+}
+
 function bindGlobalEvents() {
+  document.addEventListener('click', (event) => {
+    const actionable = event.target.closest('button, [data-action], input[type="checkbox"], input[type="radio"]');
+    if (actionable) blurFocusedTextInputForAction(actionable);
+  }, true);
+
   document.getElementById('nextMoveButton').addEventListener('click', () => {
     executeNextMove();
   });

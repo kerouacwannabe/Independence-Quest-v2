@@ -71,7 +71,9 @@ function renderAll() {
   saveState();
   renderIdentityPanel();
   if (document.getElementById('campaignSetupOverlay')?.hidden !== false && document.getElementById('questFlowOverlay')?.hidden !== false && document.getElementById('timerOverlay')?.hidden !== false) {
-    window.scrollTo(scrollX, scrollY);
+    window.requestAnimationFrame(() => {
+      window.scrollTo(scrollX, scrollY);
+    });
   }
 }
 
