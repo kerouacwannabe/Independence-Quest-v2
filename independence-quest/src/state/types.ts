@@ -1,4 +1,5 @@
 export type EntryStatus = 'available' | 'started' | 'waiting' | 'blocked' | 'completed';
+export type AppTab = 'today' | 'quests' | 'profile' | 'advisor';
 
 export type QuestEntry = {
   status: EntryStatus;
@@ -12,3 +13,42 @@ export type QuestEntry = {
   startedAt: number | null;
   completedAt: number | null;
 };
+
+export type BossStatus = 'locked' | 'available' | 'started' | 'completed';
+export type BossEntryStatus = { status: BossStatus; subquests: Record<string, boolean>; completedAt?: number };
+
+export interface GameState {
+  classId: string;
+  characterName: string;
+  createdAt: number | null;
+  updatedAt: number | null;
+  campaign: {
+    complete: boolean;
+    step: number;
+    origin: string;
+    motivation: string;
+    vow: string;
+    firstProof: string;
+    firstProofDone: boolean;
+    pathMode: 'guided' | 'free';
+  };
+  quests: Record<string, QuestEntry>;
+  bosses: Record<string, BossEntryStatus>;
+  chapterBosses: Record<string, string>;
+  supportTasks: Record<string, { status: string; completedAt?: number }>;
+  rogueRun: { active: boolean; completedQuestIds: string[]; bonusAwarded: boolean };
+  monk: { discipline: number };
+  rewardsClaimed: number[];
+  streaks: { daily: number; weekly: number; lastActiveDate: string };
+  vgmAdvisor: { lastMessage: string; lastShownDate: string; history: string[] };
+  settings: {
+    soundEnabled: boolean;
+    effectsEnabled: boolean;
+    familyMode: boolean;
+    focusMode: boolean;
+    showFullMap: boolean;
+    nameLocked: boolean;
+    collapsedSections: Record<string, boolean>;
+  };
+  version: number;
+}

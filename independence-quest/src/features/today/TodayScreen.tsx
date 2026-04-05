@@ -1,41 +1,57 @@
-import { useGameStore, CHAPTERS } from '../../state/store';
+import { useGameStore, selectNextMove } from '../../state/store';
 
 export function TodayScreen() {
   const state = useGameStore((s) => s.state);
   const setTab = useGameStore((s) => s.setActiveTab);
-
-  const chapter = (() => {
-    for (const c of CHAPTERS) {
-      const allDone = c.quests.every((q) => state.quests[q.id]?.status === 'completed');
-      if (!allDone) return c;
-    }
-    return CHAPTERS[0];
-  })();
-
-  const activeQuest = CHAPTERS.flatMap((c) => c.quests).find((quest) => state.quests[quest.id]?.status === 'started');
+  const nextMove = selectNextMove(state);
+  const classId = state.classId;
+  const CLASS_DEFS = [
+    { id: 'barbarian', emoji: '🪓', name: 'Barbarian' },
+    { id: 'rogue', emoji: '🗡️', name: 'Rogue' },
+    { id: 'wizard', emoji: '📜', name: 'Wizard' },
+    { id: 'monk', emoji: '🕯️', name: 'Monk' },
+  ];
+  const classDef = CLASS_DEFS.find(c => c.id === classId);
 
   return (
     <div className="screen-stack">
-      <section className="card hero-card">
-        <p className="eyebrow">Today</p>
-        <h2>{activeQuest?.title || chapter.title}</h2>
-        <p>{activeQuest?.summary || chapter.intro}</p>
-        <div className="pill-row">
-          <span className="pill">Chapter {chapter.level}</span>
-          <span className="pill">{chapter.quests.filter((q) => state.quests[q.id]?.status === 'completed').length}/{chapter.quests.length} quests cleared</span>
-        </div>
-        <button className="primary-button" onClick={() => setTab('quests')}>Open quests</button>
-      </section>
+      {nextMove ? (
+        <section className="card hero-card" style={{ borderTop: nextMove.type === 'firstProof' ? '3px solid #f59e0b' : '3px solid #3b82f6' }}>
+          <p className="eyebrow">{nextMove.type === 'firstProof' ? '🔑 First Proof' : nextMove.type === 'boss-available' ? '🐉 Boss' : '⚔️ Next Move'}</p>
+          <h2>{nextMove.heading}</h2>
+          <p>{nextMove.copy}</p>
+          <button className="primary-button" onClick={() => {
+            if (nextMove.questId) setTab('quests');
+            if (nextMove.type === 'activeQuest') setTab('quests');
+          }}>
+            {nextMove.button}
+          </button>
+        </section>
+      ) : (
+        <section className="card hero-card">
+          <p className="eyebrow">All Caught Up</p>
+          <h2>Well done</h2>
+          <p>All quests in the current chapter are complete. A new boss or chapter awaits.</p>
+          <button className="primary-button" onClick={() => setTab('quests')}>View Quests</button>
+        </section>
+      )}
+
+      {classDef && (
+        <section className="card compact-list-card">
+          <p className="eyebrow">Your Class</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '1.5rem' }}>{classDef.emoji}</span>
+            <strong>{classDef.name}</strong>
+          </div>
+        </section>
+      )}
 
       <section className="card compact-list-card">
-        <p className="eyebrow">Current flow</p>
+        <p className="eyebrow">Quick Tips</p>
         <ul className="mini-list">
-          {chapter.quests.slice(0, 3).map((quest) => (
-            <li key={quest.id}>
-              <strong>{quest.title}</strong>
-              <span>{state.quests[quest.id]?.status || 'available'}</span>
-            </li>
-          ))}
+          <li><strong>Start</strong> a quest from the quest log</li>
+          <li><strong>Check</strong> subquests as you complete them</li>
+          <li><strong>Watch</strong> for bosses after enough progress</li>
         </ul>
       </section>
     </div>

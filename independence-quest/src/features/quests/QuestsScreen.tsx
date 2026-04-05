@@ -1,13 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CHAPTERS, useGameStore } from '../../state/store';
+import { useGameStore, selectUnlockedChapters } from '../../state/store';
 import { CelebrationParticles } from '../../components/CelebrationParticles';
 
 const STATUS_ORDER = { started: 0, available: 1, completed: 2, blocked: 3, waiting: 4 };
-
-/* Identify boss entries by their title containing 'Boss' or 'Dragon' or the word 'Boss' */
-function isBossQuest(title: string) {
-  return /boss|dragon|final/i.test(title);
-}
+function isBossQuest(title: string) { return /boss|dragon|final/i.test(title); }
 
 export function QuestsScreen() {
   const state = useGameStore((s) => s.state);
@@ -17,13 +13,14 @@ export function QuestsScreen() {
   const startQuest = useGameStore((s) => s.startQuest);
   const toggleSubquest = useGameStore((s) => s.toggleSubquest);
 
+  const unlockedChapters = useMemo(() => selectUnlockedChapters(state), [state]);
+
   const [celebrating, setCelebrating] = useState<{ id: string; isBoss: boolean } | null>(null);
   const [collapsedChapters, setCollapsedChapters] = useState<Record<string, boolean>>({});
 
-  /* Auto-close expanded panel on quest completion */
   useEffect(() => {
     if (lastCompleted) {
-      const allQuests = CHAPTERS.flatMap((c) => c.quests);
+      const allQuests = unlockedChapters.flatMap((c) => c.quests);
       const completedQuest = allQuests.find((q) => q.id === lastCompleted);
       if (completedQuest) {
         setCelebrating({ id: lastCompleted, isBoss: isBossQuest(completedQuest.title) });
@@ -31,11 +28,10 @@ export function QuestsScreen() {
         return () => clearTimeout(timer);
       }
     }
-  }, [lastCompleted]);
+  }, [lastCompleted, unlockedChapters]);
 
-  /* Chapter quest list: started quests always on top */
   const chapterQuestLists = useMemo(() => {
-    return CHAPTERS.map((chapter) => {
+    return unlockedChapters.map((chapter) => {
       const questsWithStatus = chapter.quests.map((quest) => ({
         quest,
         status: state.quests[quest.id]?.status || 'available',
@@ -43,23 +39,18 @@ export function QuestsScreen() {
       questsWithStatus.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
       return { chapter, sorted: questsWithStatus };
     });
-  }, [state.quests]);
+  }, [unlockedChapters, state.quests]);
 
-  /* Find expanded quest info */
   const expandedData = useMemo(() => {
     if (!expandedQuestId) return null;
-    const quest = CHAPTERS.flatMap((c) => c.quests).find((q) => q.id === expandedQuestId);
+    const quest = unlockedChapters.flatMap((c) => c.quests).find((q) => q.id === expandedQuestId);
     return quest ? { quest, entry: state.quests[expandedQuestId] } : null;
-  }, [expandedQuestId, state.quests]);
+  }, [expandedQuestId, unlockedChapters, state.quests]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* ── CELEBRATION OVERLAY ── */}
-      {celebrating && (
-        <CelebrationParticles intensity={celebrating.isBoss ? 'large' : 'medium'} />
-      )}
+      {celebrating && <CelebrationParticles intensity={celebrating.isBoss ? 'large' : 'medium'} />}
 
-      {/* ── EXPANDED QUEST DETAIL — always at top ── */}
       {expandedData && (
         <div style={{
           background: celebrating ? '#0a2e14' : '#1e293b',
@@ -70,7 +61,6 @@ export function QuestsScreen() {
           boxShadow: '0 0 24px rgba(59,130,246,0.15)',
           animation: 'slideIn 0.3s ease-out'
         }}>
-          {/* Close button */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.05 }}>Quest Details</span>
             <button onClick={() => toggleQuestExpanded(expandedQuestId, 'collapsed')}
@@ -125,7 +115,6 @@ export function QuestsScreen() {
         </div>
       )}
 
-      {/* ── CHAPTER CARDS ── */}
       {chapterQuestLists.map(({ chapter, sorted }) => {
         const collapsed = collapsedChapters[chapter.id];
         const completedCount = sorted.filter((q) => q.status === 'completed').length;
@@ -133,30 +122,38 @@ export function QuestsScreen() {
         const isComplete = completedCount >= totalCount;
 
         return (
-          <div key={chapter.id} style={{ background: '#111827', borderRadius: 12, border: '1px solid #1e293b', overflow: 'hidden' }}>
+          <div key={chapter.id} style={{ background: '#111827', borderRadius: 12, border: '1px solid #1e293b', overflow: 'hidden', position: 'relative' }}>
             <button
               onClick={() => setCollapsedChapters((p) => ({ ...p, [chapter.id]: !p[chapter.id] }))}
+              disabled={isComplete}
               style={{
                 width: '100%', padding: '0.85rem 1rem', background: collapsed ? undefined : '#1e293b',
                 border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                color: '#e2e8f0', cursor: 'pointer', textAlign: 'left'
+                color: isComplete ? '#64748b' : '#e2e8f0', cursor: isComplete ? 'default' : 'pointer', textAlign: 'left'
               }}
             >
-              <div>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                {isComplete ? (
+                  <div style={{
+                    position: 'absolute', top: 0, right: 0, bottom: 0, width: 40,
+                    background: '#059669', borderRadius: '0 12px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem'
+                  }}>🔒</div>
+                ) : null}
+              </div>
+              <div style={{ marginRight: isComplete ? 40 : 0 }}>
                 <span style={{ color: '#94a3b8', fontSize: '0.65rem', letterSpacing: 0.05, textTransform: 'uppercase' }}>Chapter {chapter.level}</span>
                 <div style={{ fontSize: '1rem', fontWeight: 600 }}>{chapter.title}</div>
                 <span style={{ fontSize: '0.7rem', color: isComplete ? '#22c55e' : '#3b82f6' }}>{completedCount}/{totalCount} cleared {isComplete ? '✅' : ''}</span>
               </div>
-              <span style={{ fontSize: '1.2rem', color: '#94a3b8' }}>{collapsed ? '▶' : '▼'}</span>
+              {!isComplete && <span style={{ color: '#94a3b8', fontSize: '1.2rem' }}>{collapsed ? '▶' : '▼'}</span>}
             </button>
 
-            {!collapsed && (
+            {!collapsed && !isComplete && (
               <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '0.5rem' }}>
                 {sorted.map(({ quest, status }) => {
                   const isExpanded = expandedQuestId === quest.id;
                   const statusColor = status === 'completed' ? '#22c55e' : status === 'started' ? '#f59e0b' : '#94a3b8';
                   const isBoss = isBossQuest(quest.title);
-
                   return (
                     <button key={quest.id} onClick={() => toggleQuestExpanded(quest.id)}
                       style={{
@@ -166,8 +163,7 @@ export function QuestsScreen() {
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                         color: isBoss ? '#fca5a5' : '#e2e8f0',
                         cursor: 'pointer', textAlign: 'left'
-                      }}
-                    >
+                      }}>
                       <div style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 6 }}>
                         {isBoss && <span>🐉</span>}
                         <div>
@@ -187,7 +183,6 @@ export function QuestsScreen() {
         );
       })}
 
-      {/* Celebration toast text overlay */}
       {celebrating && (
         <div style={{
           position: 'fixed', top: '20%', left: 0, right: 0, zIndex: 1001,

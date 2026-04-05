@@ -36,6 +36,9 @@ export function defaultState() {
     supportTasks: {},
     rogueRun: { active: false, completedQuestIds: [], bonusAwarded: false },
     monk: { discipline: 0 },
+    rewardsClaimed: [],
+    streaks: { daily: 0, weekly: 0, lastActiveDate: '' },
+    vgmAdvisor: { lastMessage: '', lastShownDate: '', history: [] },
     settings: {
       soundEnabled: true,
       effectsEnabled: true,

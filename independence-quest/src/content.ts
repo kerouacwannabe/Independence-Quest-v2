@@ -58,11 +58,11 @@ export const RESCUE_ITEMS = [
 ];
 
 export const REWARDS = [
-  { at: 3, title: 'Minor Loot Drop', copy: 'Choose dinner, a favorite snack, or guilt-free game time.' },
-  { at: 6, title: 'Level 2 Reward', copy: 'Small purchase, nice outing, or a properly smug evening.' },
-  { at: 9, title: 'Rare Loot', copy: 'Comfort item, hobby item, or a deliberate lazy night with no guilt tax.' },
-  { at: 12, title: 'Epic Reward', copy: 'Something useful and memorable. You are not merely collecting stickers now.' },
-  { at: 15, title: 'Legendary Loot', copy: 'Celebrate the fact that this campaign now points at real independence.' }
+  { at: 3, title: 'Minor Loot Drop', copy: 'A small but well-earned reward: favorite snack, a simple pleasure, or guilt-free leisure.' },
+  { at: 6, title: 'Level 2 Reward', copy: 'A step up: a modest purchase, a refreshing outing, or a satisfyingly smug evening of rest.' },
+  { at: 9, title: 'Rare Loot', copy: 'Something meaningful: a comfort object, a hobby upgrade, or a lazy night with zero guilt tax.' },
+  { at: 12, title: 'Epic Reward', copy: 'A substantial token of progress: useful, memorable, and thoroughly deserved.' },
+  { at: 15, title: 'Legendary Loot', copy: 'Celebrate the milestone. This campaign now points directly at real independence.' }
 ];
 
 export const BUDGET_EXAMPLES = [
@@ -157,18 +157,18 @@ export const CAMPAIGN_MOTIVATIONS = [
 ];
 
 export const CAMPAIGN_VOWS = [
-  { id: 'start', title: 'I will prove I can start.', copy: 'Perfect for action paralysis and stalled momentum.' },
-  { id: 'finish', title: 'I will prove I can finish.', copy: 'Best when half-done tasks breed in the dark.' },
-  { id: 'routine', title: 'I will prove I can keep a routine.', copy: 'Best when chaos is caused by missing basics, not lack of intelligence.' },
-  { id: 'admin', title: 'I will prove I can face adult admin.', copy: 'Best when paperwork and messages are the dragon at the gate.' }
+  { id: 'start', title: 'I commit to starting my journey towards independence.', copy: 'Empowering those struggling with action paralysis and stalled momentum.' },
+  { id: 'finish', title: 'I will see my tasks through to completion.', copy: 'Ideal for individuals with multiple unfinished tasks, helping them regain control.' },
+  { id: 'routine', title: 'I strive to maintain a consistent routine.', copy: 'Suitable for those whose lives are chaotic due to lack of structure, not lack of intelligence.' },
+  { id: 'admin', title: 'I am ready to tackle adult administrative tasks.', copy: 'Perfect for individuals overwhelmed by paperwork and messages, helping them regain confidence.' }
 ];
 
 export const CAMPAIGN_FIRST_PROOFS = [
-  { id: 'dress', title: 'Put on real clothes or handle hygiene', copy: 'A tiny declaration that the day has, regrettably, begun.' },
-  { id: 'water-surface', title: 'Drink water and clear one surface', copy: 'A humble anti-chaos ritual.' },
-  { id: 'open-doc', title: 'Open the résumé or budget doc', copy: 'The door to the scary task counts as a door.' },
-  { id: 'trash', title: 'Take out one bag of trash', copy: 'Concrete, visible, and satisfyingly mortal.' },
-  { id: 'send-message', title: 'Send one needed message', copy: 'A small act of civilization.' }
+  { id: 'dress', title: 'Put on real clothes or handle hygiene', copy: 'A tangible first step that signals the day has begun.' },
+  { id: 'water-surface', title: 'Drink water and clear one surface', copy: 'A simple ritual that immediately reduces chaos.' },
+  { id: 'open-doc', title: 'Open the résumé or budget doc', copy: 'Starting the scary task is half the victory.' },
+  { id: 'trash', title: 'Take out one bag of trash', copy: 'A quick win that creates visible, satisfying progress.' },
+  { id: 'send-message', title: 'Send one needed message', copy: 'A small but meaningful act of engagement.' }
 ];
 
 export const LOW_ENERGY_OPTIONS = {
@@ -573,3 +573,22 @@ export const CHAPTERS = [
     ]
   }
 ];
+
+// ─── Boss Reveal Messages (one per boss) ───
+export const BOSS_REVEAL_MESSAGES: Record<string, string> = {
+  // Chapter 1: Personal Stability
+  'slime-of-disorder': 'The mess you ignored coalesces. Clean your space or the Slime of Disorder swallows it whole.',
+  'clockwork-ghoul': 'Your sleep drift has summoned the Clockwork Ghoul. Lock in a wake time before it unravels your mornings.',
+  // Chapter 2: Household Competence
+  'chore-hydra': `Skipped chores don't vanish — they multiply. Cut each head of the Chore Hydra before the kitchen fights back.`,
+  'negotiation-specter': 'Vague expectations materialise into the Negotiation Specter. Name who owns what before it haunts the group chat.',
+  // Chapter 3: Income & Admin
+  'bureaucratic-wraith': 'The Bureaucratic Wraith feeds on unanswered calls and draft résumés. Gather your papers and strike.',
+  'interview-minotaur': 'The Interview Minotaur lurks in the maze of self-doubt. Practice your answers and find the exit.',
+  // Chapter 4: Budget & Housing
+  'rent-lich': 'The Rent Lich demands a tribute of deposits, fees, and cold arithmetic. Build the budget or be buried by it.',
+  'utility-chimera': 'Electric, internet, groceries — the Utility Chimera devours the unprepared. Estimate every cost before the fight.',
+  // Chapter 5: Trial Independence
+  'trial-week-leviathan': 'The Trial Week Leviathan rises from routine drift and crumpled receipts. Track honestly and prove what holds.',
+  'gatekeeper-lease-readiness': 'The Gatekeeper is not evil, merely unimpressed. Demonstrate routine, budget, and support clarity to pass.'
+};

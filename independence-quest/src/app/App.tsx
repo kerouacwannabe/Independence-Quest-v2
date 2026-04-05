@@ -5,10 +5,13 @@ import { MapScreen } from '../features/map/MapScreen';
 import { ToolkitScreen } from '../features/toolkit/ToolkitScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { CampaignWizard } from '../features/setup/CampaignWizard';
+import { FirstProofScreen } from '../features/setup/FirstProofScreen';
+import { AdvisorScreen } from '../features/advisor/AdvisorScreen';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
   { id: 'quests', icon: '🗂️', label: 'Quests' },
+  { id: 'advisor', icon: '💡', label: 'Advisor' },
   { id: 'map', icon: '🗺️', label: 'Map' },
   { id: 'toolkit', icon: '🧰', label: 'Toolkit' },
   { id: 'profile', icon: '🧙', label: 'Profile' },
@@ -18,17 +21,25 @@ export function App() {
   const activeTab = useGameStore((s) => s.ui.activeTab);
   const setActiveTab = useGameStore((s) => s.setActiveTab);
   const classId = useGameStore((s) => s.state.classId);
+  const campaign = useGameStore((s) => s.state.campaign);
 
-  if (!classId) {
+  // Setup wizard gate
+  if (!classId || campaign.step < 5 || !campaign.complete) {
     return <CampaignWizard />;
   }
 
+  // First proof overlay
+  if (!campaign.firstProofDone) {
+    return <FirstProofScreen />;
+  }
+
   const screen = (() => {
-    switch (activeTab as string) {
+    switch (activeTab as any) {
       case 'quests': return <QuestsScreen />;
       case 'map': return <MapScreen />;
       case 'toolkit': return <ToolkitScreen />;
       case 'profile': return <ProfileScreen />;
+      case 'advisor': return <AdvisorScreen />;
       case 'today':
       default: return <TodayScreen />;
     }
