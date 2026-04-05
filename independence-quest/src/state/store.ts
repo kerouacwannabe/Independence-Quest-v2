@@ -8,9 +8,9 @@ export type AppTab = 'today' | 'quests' | 'map' | 'toolkit' | 'profile';
 type GameStore = {
   meta: ReturnType<typeof defaultMeta>;
   state: ReturnType<typeof defaultState>;
-  ui: { activeTab: AppTab; expandedQuestId: string | null };
+  ui: { activeTab: AppTab; expandedQuestId: string | null; lastCompletedQuestId: string | null };
   setActiveTab: (tab: AppTab) => void;
-  toggleQuestExpanded: (questId: string) => void;
+  toggleQuestExpanded: (questId: string, forceState?: 'expanded' | 'collapsed') => void;
   startCampaign: (payload: { name?: string; classId: string; origin: string; motivation: string }) => void;
   startQuest: (questId: string) => void;
   toggleSubquest: (questId: string, subquestId: string) => void;
@@ -89,14 +89,14 @@ const initialState = loadState(meta);
 export const useGameStore = create<GameStore>((set, get) => ({
   meta,
   state: initialState,
-  ui: { activeTab: 'today', expandedQuestId: null },
+  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null },
   setActiveTab: (tab) => set((store) => ({ ui: { ...store.ui, activeTab: tab } })),
-  toggleQuestExpanded: (questId) => set((store) => ({ ui: { ...store.ui, expandedQuestId: store.ui.expandedQuestId === questId ? null : questId } })),
-  completeFirstProof: () => set((store) => {
-    const next = { ...store.state, campaign: { ...store.state.campaign, complete: true, firstProofDone: true } };
-    persist(store.meta, next);
-    return { state: next };
-  }),
+  toggleQuestExpanded: (questId, forceState) => set((store) => ({
+    ui: {
+      ...store.ui,
+      expandedQuestId: forceState === 'collapsed' ? null : (store.ui.expandedQuestId === questId && forceState !== 'expanded' ? null : questId)
+    }
+  })),
   startCampaign: (payload) => set((store) => {
     const next = {
       ...store.state,
@@ -119,11 +119,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const needed = quest.requiredCount || quest.subquests.filter((sub) => sub.required).length;
     const done = quest.subquests.filter((sub) => sub.required && nextEntry.subquests[sub.id]).length;
     nextEntry.status = done >= needed ? 'completed' : done > 0 ? 'started' : 'available';
-    if (nextEntry.status === 'completed') nextEntry.completedAt = nextEntry.completedAt || Date.now();
+    if (nextEntry.status === 'completed') {
+      nextEntry.completedAt = nextEntry.completedAt || Date.now();
+    }
     const next = { ...store.state, quests: { ...store.state.quests, [questId]: nextEntry } };
     persist(store.meta, next);
-    return { state: next };
-  })
-}));
+    const nextUi = nextEntry.status === 'completed' ? { ...store.ui, expandedQuestId: null, lastCompletedQuestId: questId } : store.ui;
+    return { state: next, ui: nextUi };
+  })}));
 
 export { CHAPTERS, LOW_ENERGY_OPTIONS, RESCUE_ITEMS };
