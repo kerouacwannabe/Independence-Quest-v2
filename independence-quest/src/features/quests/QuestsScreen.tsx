@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CHAPTERS, useGameStore } from '../../state/store';
+
+const STATUS_ORDER = { started: 0, available: 1, completed: 2, blocked: 3, waiting: 4 };
 
 export function QuestsScreen() {
   const state = useGameStore((s) => s.state);
@@ -10,11 +12,32 @@ export function QuestsScreen() {
 
   const [collapsedChapters, setCollapsedChapters] = useState<Record<string, boolean>>({});
 
+  // For each chapter, compute sorted list: started first, then others
+  const chapterQuestLists = useMemo(() => {
+    return CHAPTERS.map((chapter) => {
+      const questsWithStatus = chapter.quests.map((quest) => ({
+        quest,
+        status: state.quests[quest.id]?.status || 'available',
+      }));
+      questsWithStatus.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+      return { chapter, sorted: questsWithStatus };
+    });
+  }, [state.quests]);
+
+  // Auto-expand first started quest per chapter if none expanded yet in that chapter
+  const getExpandedQuest = (chapterId: string) => {
+    if (expandedQuestId) return expandedQuestId;
+    const list = chapterQuestLists.find((c) => c.chapter.id === chapterId);
+    if (!list) return null;
+    const firstStarted = list.sorted.find((q) => q.status === 'started');
+    return firstStarted?.quest.id ?? null;
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {CHAPTERS.map((chapter) => {
+      {chapterQuestLists.map(({ chapter, sorted }) => {
         const collapsed = collapsedChapters[chapter.id];
-        const completedCount = chapter.quests.filter((q) => state.quests[q.id]?.status === 'completed').length;
+        const completedCount = sorted.filter((q) => q.status === 'completed').length;
         const totalCount = chapter.quests.length;
         const isComplete = completedCount >= totalCount;
 
@@ -38,19 +61,24 @@ export function QuestsScreen() {
 
             {!collapsed && (
               <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '0.5rem' }}>
-                {chapter.quests.map((quest) => {
+                {sorted.map(({ quest, status }) => {
                   const entry = state.quests[quest.id];
-                  const expanded = expandedQuestId === quest.id;
-                  const status = entry?.status || 'available';
+                  const isExpanded = expandedQuestId === quest.id || (status === 'started' && !expandedQuestId);
                   const statusColor = status === 'completed' ? '#22c55e' : status === 'started' ? '#f59e0b' : '#94a3b8';
 
                   return (
                     <button key={quest.id} onClick={() => toggleQuestExpanded(quest.id)}
                       style={{
-                        width: '100%', padding: '0.65rem 1rem', background: expanded ? '#0f172a' : 'transparent',
-                        border: 'none', borderTop: '1px solid #1e293b',
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        color: '#e2e8f0', cursor: 'pointer', textAlign: 'left'
+                        width: '100%', padding: '0.65rem 1rem',
+                        background: isExpanded ? '#0f172a' : 'transparent',
+                        border: 'none',
+                        borderTop: '1px solid #1e293b',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        color: '#e2e8f0',
+                        cursor: 'pointer',
+                        textAlign: 'left'
                       }}
                     >
                       <div style={{ overflow: 'hidden' }}>
@@ -59,7 +87,7 @@ export function QuestsScreen() {
                           <span style={{ fontSize: '0.9rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{quest.title}</span>
                         </div>
                       </div>
-                      <span style={{ color: '#64748b', fontSize: '1.1rem', flexShrink: 0 }}>{expanded ? '−' : '+'}</span>
+                      <span style={{ color: '#64748b', fontSize: '1.1rem', flexShrink: 0 }}>{isExpanded ? '−' : '+'}</span>
                     </button>
                   );
                 })}
@@ -69,12 +97,13 @@ export function QuestsScreen() {
         );
       })}
 
-      {/* Expanded quest details — full panel at bottom */}
+      {/* Expanded quest details */}
       {expandedQuestId && (() => {
         for (const chapter of CHAPTERS) {
           const quest = chapter.quests.find((q) => q.id === expandedQuestId);
           if (!quest) continue;
           const entry = state.quests[quest.id] || {};
+          const status = entry.status || 'available';
           return (
             <div key={quest.id} style={{ background: '#1e293b', borderRadius: 12, border: '1px solid #3b82f6', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
@@ -92,9 +121,9 @@ export function QuestsScreen() {
               <button onClick={() => startQuest(quest.id)}
                 style={{
                   padding: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer',
-                  background: entry.status === 'started' ? '#2563eb' : '#059669', color: '#fff', fontWeight: 600, fontSize: '1rem'
+                  background: status === 'started' ? '#2563eb' : status === 'completed' ? '#475569' : '#059669', color: '#fff', fontWeight: 600, fontSize: '1rem'
                 }}>
-                {entry.status === 'started' ? '▶ Resume' : '⚔ Start'} Quest
+                {status === 'started' ? '▶ Resume' : status === 'completed' ? '✓ Completed' : '⚔ Start'} Quest
               </button>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
