@@ -4,6 +4,7 @@ import { QuestsScreen } from '../features/quests/QuestsScreen';
 import { MapScreen } from '../features/map/MapScreen';
 import { ToolkitScreen } from '../features/toolkit/ToolkitScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
+import { CampaignWizard } from '../features/setup/CampaignWizard';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
@@ -16,6 +17,11 @@ const TABS = [
 export function App() {
   const activeTab = useGameStore((s) => s.ui.activeTab);
   const setActiveTab = useGameStore((s) => s.setActiveTab);
+  const classId = useGameStore((s) => s.state.classId);
+
+  if (!classId) {
+    return <CampaignWizard />;
+  }
 
   const screen = (() => {
     switch (activeTab as string) {

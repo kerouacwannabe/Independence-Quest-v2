@@ -11,6 +11,7 @@ type GameStore = {
   ui: { activeTab: AppTab; expandedQuestId: string | null };
   setActiveTab: (tab: AppTab) => void;
   toggleQuestExpanded: (questId: string) => void;
+  startCampaign: (payload: { name?: string; classId: string; origin: string; motivation: string }) => void;
   startQuest: (questId: string) => void;
   toggleSubquest: (questId: string, subquestId: string) => void;
   completeFirstProof: () => void;
@@ -93,6 +94,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
   toggleQuestExpanded: (questId) => set((store) => ({ ui: { ...store.ui, expandedQuestId: store.ui.expandedQuestId === questId ? null : questId } })),
   completeFirstProof: () => set((store) => {
     const next = { ...store.state, campaign: { ...store.state.campaign, complete: true, firstProofDone: true } };
+    persist(store.meta, next);
+    return { state: next };
+  }),
+  startCampaign: (payload) => set((store) => {
+    const next = {
+      ...store.state,
+      characterName: payload.name || store.state.characterName,
+      classId: payload.classId,
+      campaign: { ...store.state.campaign, origin: payload.origin, motivation: payload.motivation, complete: true }
+    };
     persist(store.meta, next);
     return { state: next };
   }),
