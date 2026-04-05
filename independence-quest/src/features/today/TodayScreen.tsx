@@ -1,9 +1,10 @@
-import { useGameStore, selectNextMove } from '../../state/store';
+import { useGameStore, selectNextMove, selectDailyAdvice } from '../../state/store';
 
 export function TodayScreen() {
   const state = useGameStore((s) => s.state);
   const setTab = useGameStore((s) => s.setActiveTab);
   const nextMove = selectNextMove(state);
+  const dailyAdvice = selectDailyAdvice(state);
   const classId = state.classId;
   const CLASS_DEFS = [
     { id: 'barbarian', emoji: '🪓', name: 'Barbarian' },
@@ -16,13 +17,17 @@ export function TodayScreen() {
   return (
     <div className="screen-stack">
       {nextMove ? (
-        <section className="card hero-card" style={{ borderTop: nextMove.type === 'firstProof' ? '3px solid #f59e0b' : '3px solid #3b82f6' }}>
-          <p className="eyebrow">{nextMove.type === 'firstProof' ? '🔑 First Proof' : nextMove.type === 'boss-available' ? '🐉 Boss' : '⚔️ Next Move'}</p>
+        <section className="card hero-card" style={{ borderTop: nextMove.type === 'firstProof' ? '3px solid #f59e0b' : nextMove.type === 'availableBoss' ? '3px solid #dc2626' : nextMove.type === 'chapterComplete' ? '3px solid #7c3aed' : '3px solid #3b82f6' }}>
+          <p className="eyebrow">{
+            nextMove.type === 'firstProof' ? '🔑 First Proof' :
+            nextMove.type === 'availableBoss' ? '🐉 Boss' :
+            nextMove.type === 'chapterComplete' ? '🏆 Milestone' :
+            '⚔️ Next Move'
+          }</p>
           <h2>{nextMove.heading}</h2>
           <p>{nextMove.copy}</p>
           <button className="primary-button" onClick={() => {
-            if (nextMove.questId) setTab('quests');
-            if (nextMove.type === 'activeQuest') setTab('quests');
+            if (nextMove.questId || nextMove.bossId) setTab('quests');
           }}>
             {nextMove.button}
           </button>
@@ -45,6 +50,13 @@ export function TodayScreen() {
           </div>
         </section>
       )}
+
+      <section className="card compact-list-card">
+        <p className="eyebrow">VGM Advisor</p>
+        <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#e2e8f0' }}>
+          {dailyAdvice.message}
+        </p>
+      </section>
 
       <section className="card compact-list-card">
         <p className="eyebrow">Quick Tips</p>
