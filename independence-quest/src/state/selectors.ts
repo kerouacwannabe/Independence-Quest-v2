@@ -30,22 +30,22 @@ export function selectAvailableBosses(state: GameState, chapterId: string) {
 }
 
 export type NextMove = {
-  type: 'setup' | 'firstProof' | 'activeQuest' | 'blocked' | 'lowestXP' | 'availableBoss';
+  type: 'setup' | 'firstProof' | 'activeQuest' | 'blocked' | 'availableBoss' | 'lowestXP' | 'chapterComplete';
   heading: string; copy: string; button: string;
   questId?: string; bossId?: string;
 };
 
-export function selectNextMove(state: GameState): NextMove | null {
+export function selectNextMove(state: GameState): NextMove {
   const { firstProofDone, step } = state.campaign;
   if (step < 5 && !state.campaign.complete) {
     return { type: 'setup', heading: 'Finish campaign setup', copy: 'Complete the wizard to lock in your class, origin, and motivation.', button: 'Continue Setup' };
   }
   if (!firstProofDone && state.campaign.firstProof) {
-    const q = CHAPTERS.flatMap(c => c.quests).find(x => x.id === state.campaign.firstProof);
+    const q = CHAPTERS.flatMap(c => c.quests).find((x) => x.id === state.campaign.firstProof);
     if (q) return { type: 'firstProof', heading: 'First Proof', copy: `Complete: "${q.title}". This unlocks the campaign engine.`, button: 'View Quest', questId: state.campaign.firstProof };
   }
   const ch = selectCurrentChapter(state);
-  if (!ch) return null;
+  if (!ch) return { type: 'chapterComplete', heading: 'Journey complete!', copy: 'You have conquered every chapter. Well earned, Boss.', button: 'View Quests' };
   const active = ch.quests.find(q => state.quests[q.id]?.status === 'started');
   if (active) {
     const e = state.quests[active.id];
@@ -60,16 +60,35 @@ export function selectNextMove(state: GameState): NextMove | null {
   const bosses = selectAvailableBosses(state, ch.id);
   const availBoss = bosses.find(b => state.bosses[b.id]?.status !== 'completed');
   if (availBoss) return { type: 'availableBoss', heading: `Boss: ${availBoss.title}`, copy: 'Your progress revealed a boss. Prepare your resources.', button: 'Face Boss', bossId: availBoss.id };
-  const withProg = ch.quests.map(q => {
-    const e = state.quests[q.id];
-    const d = e ? Object.values(e.subquests).filter(Boolean).length : 0;
-    return { q, d, t: q.subquests.length };
-  }).filter(x => x.d < x.t).sort((a, b) => a.d - b.d);
+  const withProg = ch.quests
+    .map((q) => {
+      const e = state.quests[q.id];
+      const d = e ? Object.values(e.subquests).filter(Boolean).length : 0;
+      return { q, d, t: q.subquests.length };
+    })
+    .filter((x) => x.d < x.t)
+    .sort((a, b) => a.d - b.d);
   if (withProg.length) {
     const n = withProg[0];
     return { type: 'lowestXP', heading: `Continue: ${n.q.title}`, copy: `${n.d}/${n.t} subquests done.`, button: 'Work Quest', questId: n.q.id };
   }
-  return null;
+  // Chapter is complete but maybe bosses remain
+  const anyBossLeft = ch.bossPool.some(b => state.bosses[b.id]?.status !== 'completed');
+  if (anyBossLeft) {
+    return { type: 'availableBoss', heading: 'Chapter complete! Boss awaits', copy: 'You\'ve cleared this chapter. Time to face the final guardian.', button: 'View Quests' };
+  }
+  // Chapter AND bosses all done — check if there's a next chapter
+  const nextChapter = CHAPTERS.find((c) => {
+    const idx = CHAPTERS.indexOf(c);
+    if (idx <= CHAPTERS.indexOf(ch)) return false;
+    const prev = CHAPTERS[idx - 1];
+    return prev.quests.every(q => state.quests[q.id]?.status === 'completed');
+  });
+  if (nextChapter) {
+    return { type: 'chapterComplete', heading: `Chapter complete! → ${nextChapter.title}`, copy: 'You\'ve cleared this chapter and its guardian. The next challenge awaits.', button: 'View Quests' };
+  }
+  // All chapters and bosses complete
+  return { type: 'chapterComplete', heading: 'Campaign complete!', copy: 'Every challenge conquered. You have forged your own independence.', button: 'View Profile' };
 }
 
 export function selectTotalXP(state: GameState): number {
@@ -106,21 +125,23 @@ export function selectCampaignSetupStatus(state: GameState) {
 }
 
 export function selectAvailableRewards(state: GameState) {
-  const cc = Object.values(state.quests as Record<string, QuestEntry>).filter(e => e.status === 'completed').length;
+  const cc = Object.values(state.quests as Record<string, QuestEntry>).filter((e) => e.status === 'completed').length;
   const claimed = new Set(state.rewardsClaimed ?? []);
-  return REWARDS.filter(r => r.at <= cc && !claimed.has(r.at));
+  return REWARDS.filter((r) => r.at <= cc && !claimed.has(r.at));
 }
 
 export function selectTotalCompletions(state: GameState): number {
-  return Object.values(state.quests as Record<string, QuestEntry>).filter(e => e.status === 'completed').length;
+  return Object.values(state.quests as Record<string, QuestEntry>).filter((e) => e.status === 'completed').length;
 }
 
-export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } | null {
-  const adv = state.vgmAdvisor;
-  if (!adv) return null;
-  const cc = Object.values(state.quests as Record<string, QuestEntry>).filter(e => e.status === 'completed').length;
+export function selectStreaks(state: GameState) {
+  return state.streaks ?? { daily: 0, weekly: 0, lastActiveDate: '' };
+}
+
+export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } {
+  const cc = Object.values(state.quests as Record<string, QuestEntry>).filter((e) => e.status === 'completed').length;
   const ch = selectCurrentChapter(state);
-  const prog = ch ? ch.quests.filter(q => state.quests[q.id]?.status === 'completed').length / ch.quests.length : 0;
+  const prog = ch ? ch.quests.filter((q) => state.quests[q.id]?.status === 'completed').length / ch.quests.length : 0;
   const streak = state.streaks?.daily ?? 0;
   const h = new Date().getHours();
   let dp = 'morning'; if (h >= 12 && h < 17) dp = 'afternoon'; else if (h >= 17) dp = 'evening';
