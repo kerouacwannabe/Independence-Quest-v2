@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useGameStore, selectUnlockedChapters } from '../../state/store';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useGameStore, selectUnlockedChapters, selectTotalCompletions } from '../../state/store';
 import { CelebrationParticles } from '../../components/CelebrationParticles';
+import { CHAPTERS } from '../../content';
 
 const STATUS_ORDER = { started: 0, available: 1, completed: 2, blocked: 3, waiting: 4 };
 function isBossQuest(title: string) { return /boss|dragon|final/i.test(title); }
@@ -18,34 +19,32 @@ export function QuestsScreen() {
   const [celebrating, setCelebrating] = useState<{ id: string; isBoss: boolean } | null>(null);
   const [collapsedChapters, setCollapsedChapters] = useState<Record<string, boolean>>({});
 
+  // Precompute quests by id from unlocked chapters
+  const questsById = useMemo(() => {
+    const map = new Map<string, any>();
+    unlockedChapters.forEach((ch) => {
+      ch.quests.forEach((q) => map.set(q.id, q));
+    });
+    return map;
+  }, [unlockedChapters]);
+
   useEffect(() => {
     if (lastCompleted) {
-      const allQuests = unlockedChapters.flatMap((c) => c.quests);
-      const completedQuest = allQuests.find((q) => q.id === lastCompleted);
+      const completedQuest = questsById.get(lastCompleted);
       if (completedQuest) {
         setCelebrating({ id: lastCompleted, isBoss: isBossQuest(completedQuest.title) });
         const timer = setTimeout(() => setCelebrating(null), 2500);
         return () => clearTimeout(timer);
       }
     }
-  }, [lastCompleted, unlockedChapters]);
-
-  const chapterQuestLists = useMemo(() => {
-    return unlockedChapters.map((chapter) => {
-      const questsWithStatus = chapter.quests.map((quest) => ({
-        quest,
-        status: state.quests[quest.id]?.status || 'available',
-      }));
-      questsWithStatus.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
-      return { chapter, sorted: questsWithStatus };
-    });
-  }, [unlockedChapters, state.quests]);
+  }, [lastCompleted, questsById]);
 
   const expandedData = useMemo(() => {
     if (!expandedQuestId) return null;
-    const quest = unlockedChapters.flatMap((c) => c.quests).find((q) => q.id === expandedQuestId);
-    return quest ? { quest, entry: state.quests[expandedQuestId] } : null;
-  }, [expandedQuestId, unlockedChapters, state.quests]);
+    const quest = questsById.get(expandedQuestId);
+    const entry = state.quests[expandedQuestId];
+    return quest ? { quest, entry } : null;
+  }, [expandedQuestId, questsById, state.quests]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
