@@ -1,10 +1,16 @@
 import { useGameStore, CHAPTERS } from '../../state/store';
-import { selectCurrentChapter } from '../../state/selectors';
 
 export function TodayScreen() {
   const state = useGameStore((s) => s.state);
-  const chapter = useGameStore(selectCurrentChapter);
   const setTab = useGameStore((s) => s.setActiveTab);
+
+  const chapter = (() => {
+    for (const c of CHAPTERS) {
+      const allDone = c.quests.every((q) => state.quests[q.id]?.status === 'completed');
+      if (!allDone) return c;
+    }
+    return CHAPTERS[0];
+  })();
 
   const activeQuest = CHAPTERS.flatMap((c) => c.quests).find((quest) => state.quests[quest.id]?.status === 'started');
 

@@ -1,9 +1,15 @@
 import { CHAPTERS, useGameStore } from '../../state/store';
-import { selectCurrentChapter } from '../../state/selectors';
 
 export function MapScreen() {
-  const currentChapter = useGameStore(selectCurrentChapter);
   const state = useGameStore((s) => s.state);
+
+  const currentChapter = (() => {
+    for (const chapter of CHAPTERS) {
+      const allDone = chapter.quests.every((q) => state.quests[q.id]?.status === 'completed');
+      if (!allDone) return chapter;
+    }
+    return CHAPTERS[0];
+  })();
 
   return (
     <div className="screen-stack">
