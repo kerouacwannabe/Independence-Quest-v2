@@ -7,6 +7,7 @@ import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { CampaignWizard } from '../features/setup/CampaignWizard';
 import { FirstProofScreen } from '../features/setup/FirstProofScreen';
 import { AdvisorScreen } from '../features/advisor/AdvisorScreen';
+import { ToastContainer } from '../components/ToastContainer';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
@@ -73,6 +74,7 @@ export function App() {
           </button>
         ))}
       </nav>
+      <ToastContainer />
     </div>
   );
 }

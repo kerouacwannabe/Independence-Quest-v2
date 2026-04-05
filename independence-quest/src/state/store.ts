@@ -1,6 +1,7 @@
 // State Management — VGM Phase 2
 import { create } from 'zustand';
 import { CHAPTERS, LOW_ENERGY_OPTIONS, RESCUE_ITEMS, REWARDS } from '../content';
+import { getRandomToast } from '../content-toasts';
 import { defaultMeta, defaultState, LEGACY_STORAGE_KEY, META_KEY, STORAGE_PREFIX } from '../defaults';
 import type { AppTab, QuestEntry, BossStatus } from './types';
 
@@ -12,7 +13,13 @@ type VgmAdvisor = { lastMessage: string; lastShownDate: string; history: string[
 type GameStore = {
   meta: ReturnType<typeof defaultMeta>;
   state: ReturnType<typeof defaultState>;
-  ui: { activeTab: AppTab; expandedQuestId: string | null; lastCompletedQuestId: string | null };
+  ui: {
+    activeTab: AppTab;
+    expandedQuestId: string | null;
+    lastCompletedQuestId: string | null;
+    toasts: Array<{ id: number; text: string; stage: string }>;
+    nextToastId: number;
+  };
 
   setActiveTab: (tab: AppTab) => void;
   toggleQuestExpanded: (questId: string, forceState?: 'expanded' | 'collapsed') => void;
@@ -36,6 +43,10 @@ type GameStore = {
   spendDiscipline: (count: number) => void;
   checkStreaks: () => void;
   setDailyAdviceShown: (text: string, date: string) => void;
+
+  // Toast actions
+  addToast: (stage: string) => void;
+  removeToast: (id: number) => void;
 };
 
 const getStorageKey = (slotId: string) => `${STORAGE_PREFIX}:${slotId}`;
@@ -123,7 +134,7 @@ const initialState = loadState(meta);
 export const useGameStore = create<GameStore>((set, get) => ({
   meta,
   state: initialState,
-  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null },
+  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null, toasts: [], nextToastId: 1 },
 
   setActiveTab: (tab) => set((s) => ({ ui: { ...s.ui, activeTab: tab } })),
 
@@ -164,7 +175,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   completeFirstProof: () => set((s) => {
     const ns = { ...s.state, campaign: { ...s.state.campaign, firstProofDone: true } };
-    persist(s.meta, ns); return { state: ns };
+    persist(s.meta, ns);
+    const toast = getRandomToast('first-proof-complete');
+    const id = s.ui.nextToastId;
+    set((s) => ({
+      ui: {
+        ...s.ui,
+        toasts: [...s.ui.toasts, { id, text: toast.text, stage: toast.stage }],
+        nextToastId: id + 1
+      },
+      state: ns
+    }));
+    return { state: ns };
   }),
 
   startQuest: (qid) => set((s) => {
@@ -217,6 +239,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
     persist(s.meta, { ...s.state, quests });
     const done2 = quests[qid].status === 'completed';
+    if (done2) {
+      const toast = getRandomToast('quest-complete');
+      const id = s.ui.nextToastId;
+      set((_) => ({ ui: { ...s.ui, toasts: [...s.ui.toasts, { id, text: toast.text, stage: toast.stage }], nextToastId: id + 1 } }));
+    }
     return { state: { ...s.state, quests }, ui: done2 ? { ...s.ui, expandedQuestId: null, lastCompletedQuestId: qid } : s.ui };
   }),
 
@@ -267,7 +294,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const rem = chap.bossPool.filter(x => x.id !== bid && ns.bosses[x.id]?.status !== 'completed');
       if (rem.length > 0) ns.chapterBosses = { ...ns.chapterBosses, [chap.id]: rem[0].id };
     }
-    persist(s.meta, ns); return { state: ns, ui: { ...s.ui, expandedQuestId: null, lastCompletedQuestId: bid } };
+    persist(s.meta, ns);
+    // toast on boss defeat
+    const toast = getRandomToast('boss-defeated');
+    const id = s.ui.nextToastId;
+    set((s) => ({
+      ui: {
+        ...s.ui,
+        toasts: [...s.ui.toasts, { id, text: toast.text, stage: toast.stage }],
+        nextToastId: id + 1,
+        lastCompletedQuestId: bid,
+        expandedQuestId: null
+      },
+      state: ns
+    }));
+    return { state: ns, ui: { ...s.ui, lastCompletedQuestId: bid, expandedQuestId: null } };
   }),
 
   claimReward: (idx) => set((s) => {
@@ -302,8 +343,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const adv = s.state.vgmAdvisor ?? { lastMessage: '', lastShownDate: '', history: [] };
     const ns = { ...s.state, vgmAdvisor: { lastMessage: text, lastShownDate: date, history: [...adv.history, text].slice(-20) } };
     persist(s.meta, ns); return { state: ns };
-  })
-}));
+  }),
+
+  addToast: (stage) => set((s) => {
+    const toast = getRandomToast(stage);
+    const id = s.ui.nextToastId;
+    return {
+      ui: {
+        ...s.ui,
+        toasts: [...s.ui.toasts, { id, text: toast.text, stage: toast.stage }],
+        nextToastId: id + 1
+      }
+    };
+  }),
+
+  removeToast: (id) => set((s) => ({
+    ui: {
+      ...s.ui,
+      toasts: s.ui.toasts.filter(t => t.id !== id)
+    }
+  }))
+});
 
 export { CHAPTERS, LOW_ENERGY_OPTIONS, RESCUE_ITEMS };
 export * from './selectors';
