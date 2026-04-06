@@ -46,6 +46,18 @@ export function QuestsScreen() {
     return quest ? { quest, entry } : null;
   }, [expandedQuestId, questsById, state.quests]);
 
+  const chapterQuestLists = useMemo(() => {
+    return unlockedChapters.map((chapter) => {
+      const sorted = chapter.quests
+        .map((quest) => ({
+          quest,
+          status: state.quests[quest.id]?.status ?? 'available',
+        }))
+        .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+      return { chapter, sorted };
+    });
+  }, [unlockedChapters, state.quests]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {celebrating && <CelebrationParticles intensity={celebrating.isBoss ? 'large' : 'medium'} />}
