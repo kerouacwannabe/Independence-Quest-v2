@@ -8,10 +8,10 @@ export function AdvisorScreen() {
   const setDailyAdviceShown = useGameStore((s) => s.setDailyAdviceShown);
 
   const message = useMemo(() => getDailyAdvice(storeState), [storeState]);
-  const xp = useGameStore(selectTotalXP);
-  const level = useGameStore(selectLevel);
-  const completions = useGameStore(selectTotalCompletions);
-  const bonuses = useGameStore(selectActiveClassBonuses);
+  const xp = useGameStore(s => selectTotalXP(s.state));
+  const level = useGameStore(s => selectLevel(s.state));
+  const completions = useGameStore(s => selectTotalCompletions(s.state));
+  const bonuses = useGameStore(s => selectActiveClassBonuses(s.state));
 
   const dayPhase = useMemo(() => {
     const h = new Date().getHours();

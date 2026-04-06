@@ -46,6 +46,14 @@ export function QuestsScreen() {
     return quest ? { quest, entry } : null;
   }, [expandedQuestId, questsById, state.quests]);
 
+  // Determine if ALL required subquests are done so button text reflects completion
+  const allSubquestsDone = useMemo(() => {
+    if (!expandedData) return false;
+    return expandedData.quest.subquests
+      .filter(s => s.required)
+      .every(s => expandedData.entry?.subquests?.[s.id]);
+  }, [expandedData?.quest.id, expandedData?.entry?.subquests]);
+
   const chapterQuestLists = useMemo(() => {
     return unlockedChapters.map((chapter) => {
       const sorted = chapter.quests
@@ -90,36 +98,45 @@ export function QuestsScreen() {
             </div>
           )}
 
-          <button onClick={() => startQuest(expandedQuestId)}
-            style={{
-              padding: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer',
-              background: expandedData.entry?.status === 'started' ? '#2563eb'
-                : expandedData.entry?.status === 'completed' ? '#475569' : '#059669',
-              color: '#fff', fontWeight: 600, fontSize: '1rem'
-            }}>
-            {expandedData.entry?.status === 'started' ? '▶ Resume' : expandedData.entry?.status === 'completed' ? '✓ Completed' : '⚔ Start'} Quest
-          </button>
+          {expandedData.entry?.status === 'completed' ? (
+            <div style={{
+              padding: '0.75rem', borderRadius: 10,
+              background: '#05966922', border: '1px solid #05966944',
+              color: '#22c55e', fontWeight: 600, fontSize: '1rem', textAlign: 'center'
+            }}>✓ Quest Completed</div>
+          ) : (
+            <button onClick={() => startQuest(expandedQuestId)}
+              style={{
+                padding: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: expandedData.entry?.status === 'started' ? '#2563eb' : '#059669',
+                color: '#fff', fontWeight: 600, fontSize: '1rem'
+              }}>
+              {expandedData.entry?.status === 'started' ? '▶ Resume Quest' : '⚔ Start Quest'}
+            </button>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {expandedData.quest.subquests.map((sub, i) => {
               const done = !!expandedData.entry?.subquests?.[sub.id];
               return (
-                <label key={sub.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem',
-                  background: done ? '#05966922' : '#0f172a',
-                  borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem',
-                  opacity: done ? 0.7 : 1, textDecoration: done ? 'line-through' : 'none'
-                }}>
+                <div key={sub.id} onClick={(e) => { e.stopPropagation(); toggleSubquest(expandedQuestId, sub.id); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem',
+                    background: done ? '#05966922' : '#0f172a',
+                    borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem',
+                    opacity: done ? 0.7 : 1, textDecoration: done ? 'line-through' : 'none'
+                  }}>
                   <input
                     type="checkbox"
                     checked={done}
-                    onChange={() => toggleSubquest(expandedQuestId, sub.id)}
-                    style={{ width: 16, height: 16, accentColor: '#059669', flexShrink: 0 }}
+                    onChange={() => {}}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: 16, height: 16, accentColor: '#059669', flexShrink: 0, pointerEvents: 'none' }}
                   />
-                  <span style={{ color: done ? '#94a3b8' : '#e2e8f0' }}>
+                  <span style={{ color: done ? '#94a3b8' : '#e2e8f0', flex: 1 }}>
                     <span style={{ color: '#64748b', marginRight: 4 }}>{i + 1}.</span>{sub.title}
                   </span>
-                </label>
+                </div>
               );
             })}
           </div>
