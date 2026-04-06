@@ -363,7 +363,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       toasts: s.ui.toasts.filter(t => t.id !== id)
     }
   }))
-});
+}));
 
 export { CHAPTERS, LOW_ENERGY_OPTIONS, RESCUE_ITEMS };
 export * from './selectors';
