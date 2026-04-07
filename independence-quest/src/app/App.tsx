@@ -6,13 +6,11 @@ import { ToolkitScreen } from '../features/toolkit/ToolkitScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { CampaignWizard } from '../features/setup/CampaignWizard';
 import { FirstProofScreen } from '../features/setup/FirstProofScreen';
-import { AdvisorScreen } from '../features/advisor/AdvisorScreen';
 import { ToastContainer } from '../components/ToastContainer';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
   { id: 'quests', icon: '🗂️', label: 'Quests' },
-  { id: 'advisor', icon: '💡', label: 'Advisor' },
   { id: 'map', icon: '🗺️', label: 'Map' },
   { id: 'toolkit', icon: '🧰', label: 'Toolkit' },
   { id: 'profile', icon: '🧙', label: 'Profile' },
@@ -40,7 +38,6 @@ export function App() {
       case 'map': return <MapScreen />;
       case 'toolkit': return <ToolkitScreen />;
       case 'profile': return <ProfileScreen />;
-      case 'advisor': return <AdvisorScreen />;
       case 'today':
       default: return <TodayScreen />;
     }

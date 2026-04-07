@@ -119,19 +119,18 @@ export function QuestsScreen() {
             {expandedData.quest.subquests.map((sub, i) => {
               const done = !!expandedData.entry?.subquests?.[sub.id];
               return (
-                <div key={sub.id} onClick={(e) => { e.stopPropagation(); toggleSubquest(expandedQuestId, sub.id); }}
+                <div key={sub.id}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem',
                     background: done ? '#05966922' : '#0f172a',
-                    borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem',
+                    borderRadius: 8, fontSize: '0.85rem',
                     opacity: done ? 0.7 : 1, textDecoration: done ? 'line-through' : 'none'
                   }}>
                   <input
                     type="checkbox"
                     checked={done}
-                    onChange={() => {}}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ width: 16, height: 16, accentColor: '#059669', flexShrink: 0, pointerEvents: 'none' }}
+                    onChange={(e) => { e.stopPropagation(); toggleSubquest(expandedQuestId, sub.id); }}
+                    style={{ width: 16, height: 16, accentColor: '#059669', flexShrink: 0 }}
                   />
                   <span style={{ color: done ? '#94a3b8' : '#e2e8f0', flex: 1 }}>
                     <span style={{ color: '#64748b', marginRight: 4 }}>{i + 1}.</span>{sub.title}
