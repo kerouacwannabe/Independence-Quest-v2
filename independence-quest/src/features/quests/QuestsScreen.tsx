@@ -19,7 +19,6 @@ export function QuestsScreen() {
   const [celebrating, setCelebrating] = useState<{ id: string; isBoss: boolean } | null>(null);
   const [collapsedChapters, setCollapsedChapters] = useState<Record<string, boolean>>({});
 
-  // Precompute quests by id from unlocked chapters
   const questsById = useMemo(() => {
     const map = new Map<string, any>();
     unlockedChapters.forEach((ch) => {
@@ -46,7 +45,6 @@ export function QuestsScreen() {
     return quest ? { quest, entry } : null;
   }, [expandedQuestId, questsById, state.quests]);
 
-  // Determine if ALL required subquests are done so button text reflects completion
   const allSubquestsDone = useMemo(() => {
     if (!expandedData) return false;
     return expandedData.quest.subquests
@@ -70,78 +68,7 @@ export function QuestsScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {celebrating && <CelebrationParticles intensity={celebrating.isBoss ? 'large' : 'medium'} />}
 
-      {expandedData && (
-        <div style={{
-          background: celebrating ? '#0a2e14' : '#1e293b',
-          borderRadius: 12,
-          border: `1px solid ${celebrating ? '#22c55e' : '#3b82f6'}`,
-          padding: '1.1rem',
-          display: 'flex', flexDirection: 'column', gap: '0.75rem',
-          boxShadow: '0 0 24px rgba(59,130,246,0.15)',
-          animation: 'slideIn 0.3s ease-out'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.05 }}>Quest Details</span>
-            <button onClick={() => toggleQuestExpanded(expandedQuestId, 'collapsed')}
-              style={{ background: '#334155', border: 'none', borderRadius: 99, width: 24, height: 24, color: '#e2e8f0', fontSize: '0.9rem', cursor: 'pointer', lineHeight: 1 }}>✕</button>
-          </div>
-          <div>
-            <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem' }}>{expandedData.quest.title}</h3>
-            <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: 0 }}>{expandedData.quest.summary}</p>
-          </div>
-
-          {expandedData.quest.tags && expandedData.quest.tags.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {expandedData.quest.tags.map((tag) =>
-                <span key={tag} style={{ background: '#334155', borderRadius: 99, padding: '2px 8px', fontSize: '0.7rem', color: '#94a3b8' }}>{tag}</span>
-              )}
-            </div>
-          )}
-
-          {expandedData.entry?.status === 'completed' ? (
-            <div style={{
-              padding: '0.75rem', borderRadius: 10,
-              background: '#05966922', border: '1px solid #05966944',
-              color: '#22c55e', fontWeight: 600, fontSize: '1rem', textAlign: 'center'
-            }}>✓ Quest Completed</div>
-          ) : (
-            <button onClick={() => startQuest(expandedQuestId)}
-              style={{
-                padding: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer',
-                background: expandedData.entry?.status === 'started' ? '#2563eb' : '#059669',
-                color: '#fff', fontWeight: 600, fontSize: '1rem'
-              }}>
-              {expandedData.entry?.status === 'started' ? '▶ Resume Quest' : '⚔ Start Quest'}
-            </button>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {expandedData.quest.subquests.map((sub, i) => {
-              const done = !!expandedData.entry?.subquests?.[sub.id];
-              return (
-                <div key={sub.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem',
-                    background: done ? '#05966922' : '#0f172a',
-                    borderRadius: 8, fontSize: '0.85rem',
-                    opacity: done ? 0.7 : 1, textDecoration: done ? 'line-through' : 'none'
-                  }}>
-                  <input
-                    type="checkbox"
-                    checked={done}
-                    onChange={(e) => { e.stopPropagation(); toggleSubquest(expandedQuestId, sub.id); }}
-                    style={{ width: 16, height: 16, accentColor: '#059669', flexShrink: 0 }}
-                  />
-                  <span style={{ color: done ? '#94a3b8' : '#e2e8f0', flex: 1 }}>
-                    <span style={{ color: '#64748b', marginRight: 4 }}>{i + 1}.</span>{sub.title}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
+      {/* Chapter Quest Lists */}
       {chapterQuestLists.map(({ chapter, sorted }) => {
         const collapsed = collapsedChapters[chapter.id];
         const completedCount = sorted.filter((q) => q.status === 'completed').length;
@@ -182,7 +109,8 @@ export function QuestsScreen() {
                   const statusColor = status === 'completed' ? '#22c55e' : status === 'started' ? '#f59e0b' : '#94a3b8';
                   const isBoss = isBossQuest(quest.title);
                   return (
-                    <button key={quest.id} onClick={() => toggleQuestExpanded(quest.id)}
+                    <button key={quest.id}
+                      onClick={() => toggleQuestExpanded(quest.id)}
                       style={{
                         width: '100%', padding: '0.65rem 1rem',
                         background: isExpanded ? '#0f172a' : 'transparent',
@@ -209,6 +137,90 @@ export function QuestsScreen() {
           </div>
         );
       })}
+
+      {/* Fixed-position subquest modal — completely outside quest list DOM */}
+      {expandedData && (
+        <div
+          onClick={() => toggleQuestExpanded(expandedQuestId, 'collapsed')}
+          style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'flex-end',
+            background: 'rgba(0,0,0,0.6)',
+            padding: '1rem',
+            maxHeight: '70vh',
+            overflow: 'auto',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#1e293b',
+              borderRadius: 16,
+              border: '1px solid #3b82f6',
+              width: '100%',
+              maxWidth: 480,
+              padding: '1.1rem',
+              boxShadow: '0 0 32px rgba(59,130,246,0.25)',
+              animation: 'slideUp 0.3s ease-out'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.05 }}>Quest Details</span>
+              <button onClick={() => toggleQuestExpanded(expandedQuestId, 'collapsed')}
+                style={{ background: '#334155', border: 'none', borderRadius: 99, width: 24, height: 24, color: '#e2e8f0', fontSize: '0.9rem', cursor: 'pointer', lineHeight: 1 }}>✕</button>
+            </div>
+            <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem' }}>{expandedData.quest.title}</h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: '0 0 0.75rem' }}>{expandedData.quest.summary}</p>
+
+            {expandedData.entry?.status === 'completed' ? (
+              <div style={{
+                padding: '0.75rem', borderRadius: 10,
+                background: '#05966922', border: '1px solid #05966944',
+                color: '#22c55e', fontWeight: 600, fontSize: '1rem', textAlign: 'center',
+                marginBottom: '0.75rem'
+              }}>✓ Quest Completed</div>
+            ) : (
+              <button onClick={() => startQuest(expandedQuestId)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  background: allSubquestsDone ? '#059669' : '#2563eb',
+                  color: '#fff', fontWeight: 600, fontSize: '1rem',
+                  marginBottom: '0.75rem'
+                }}>
+                {expandedData.entry?.status === 'started' ? '▶ Resume Quest' : '⚔ Start Quest'}
+              </button>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <p style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.05, marginBottom: 4 }}>Subquests</p>
+              {expandedData.quest.subquests.map((sub, i) => {
+                const done = !!expandedData.entry?.subquests?.[sub.id];
+                return (
+                  <label key={sub.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem',
+                      background: done ? '#05966922' : '#0f172a',
+                      borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem',
+                      opacity: done ? 0.7 : 1, textDecoration: done ? 'line-through' : 'none'
+                    }}>
+                    <input
+                      type="checkbox"
+                      checked={done}
+                      onChange={() => toggleSubquest(expandedQuestId, sub.id)}
+                      style={{ width: 18, height: 18, accentColor: '#059669', flexShrink: 0 }}
+                    />
+                    <span style={{ color: done ? '#94a3b8' : '#e2e8f0', flex: 1 }}>
+                      <span style={{ color: '#64748b', marginRight: 4 }}>{i + 1}.</span>{sub.title}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {celebrating && (
         <div style={{
