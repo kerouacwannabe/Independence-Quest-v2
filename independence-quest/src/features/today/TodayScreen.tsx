@@ -1,4 +1,5 @@
 import { useGameStore, selectNextMove, selectDailyAdvice } from '../../state/store';
+import { InstallPromptCard } from '../../components/InstallPromptCard';
 
 export function TodayScreen() {
   const state = useGameStore((s) => s.state);
@@ -66,6 +67,8 @@ export function TodayScreen() {
           <li><strong>Watch</strong> for bosses after enough progress</li>
         </ul>
       </section>
+
+      <InstallPromptCard />
     </div>
   );
 }

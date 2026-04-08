@@ -7,6 +7,7 @@ import type { AppTab, QuestEntry, BossStatus } from './types';
 
 type MonkState = { discipline: number };
 type RogueRun = { active: boolean; completedQuestIds: string[]; bonusAwarded: boolean };
+type BarbarianState = { activeQuestId: string | null; expiresAt: number | null; choice: string; completedAt: number | null };
 type Streaks = { daily: number; weekly: number; lastActiveDate: string };
 type VgmAdvisor = { lastMessage: string; lastShownDate: string; history: string[] };
 
@@ -34,6 +35,11 @@ type GameStore = {
   startQuest: (questId: string) => void;
   toggleSubquest: (questId: string, subquestId: string) => void;
   toggleQuestLowEnergy: (questId: string) => void;
+  setQuestBlocked: (questId: string, payload: { blockedReason: string; blockerType: string; smallestStep: string; support: string; retryWhen: string }) => void;
+  setQuestWaiting: (questId: string, payload: { reason: string; followup: string; retryWhen: string }) => void;
+  resumeQuestFlow: (questId: string) => void;
+  confirmBarbarianFirstStrike: (questId: string, choice: string) => void;
+  dismissBarbarianFirstStrike: () => void;
 
   startBoss: (bossId: string) => void;
   toggleBossSubquest: (bossId: string, subquestId: string) => void;
@@ -71,6 +77,7 @@ function hydrateState(incoming = defaultState()) {
   state.vgmAdvisor ??= { lastMessage: '', lastShownDate: '', history: [] };
   state.monk ??= { discipline: 0 };
   state.rogueRun ??= { active: false, completedQuestIds: [], bonusAwarded: false };
+  state.barbarian ??= { activeQuestId: null, expiresAt: null, choice: '', completedAt: null };
 
   CHAPTERS.forEach((chapter) => {
     if (!state.chapterBosses[chapter.id]) state.chapterBosses[chapter.id] = chapter.bossPool[0].id;
@@ -192,9 +199,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   startQuest: (qid) => set((s) => {
     const entry = s.state.quests[qid];
     const bonuses = { ...entry.bonuses };
-    if (s.state.classId === 'barbarian') bonuses.momentum = true;
     const nextEntry = { ...entry, status: 'started', startedAt: entry.startedAt ?? Date.now(), bonuses };
-    const ns = { ...s.state, quests: { ...s.state.quests, [qid]: nextEntry } };
+    const ns = {
+      ...s.state,
+      quests: { ...s.state.quests, [qid]: nextEntry },
+      barbarian: s.state.classId === 'barbarian'
+        ? { activeQuestId: qid, expiresAt: Date.now() + 60000, choice: '', completedAt: null }
+        : s.state.barbarian,
+    };
     persist(s.meta, ns);
     return { state: ns, ui: { ...s.ui, activeTab: 'quests', expandedQuestId: qid } };
   }),
@@ -251,6 +263,70 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const e = s.state.quests[qid];
     const ne = { ...e, bonuses: { ...e.bonuses, lowEnergy: !e.bonuses.lowEnergy } };
     const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  setQuestBlocked: (qid, payload) => set((s) => {
+    const e = s.state.quests[qid];
+    const ne = {
+      ...e,
+      status: 'blocked',
+      blockedReason: payload.blockedReason,
+      blockerType: payload.blockerType,
+      blockPlan: {
+        smallestStep: payload.smallestStep,
+        support: payload.support,
+        retryWhen: payload.retryWhen,
+      },
+    };
+    const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  setQuestWaiting: (qid, payload) => set((s) => {
+    const e = s.state.quests[qid];
+    const ne = {
+      ...e,
+      status: 'waiting',
+      waitingPlan: {
+        reason: payload.reason,
+        followup: payload.followup,
+        retryWhen: payload.retryWhen,
+      },
+    };
+    const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  resumeQuestFlow: (qid) => set((s) => {
+    const e = s.state.quests[qid];
+    const ne = {
+      ...e,
+      status: e.startedAt ? 'started' : 'available',
+      blockedReason: '',
+      blockerType: '',
+      blockPlan: { smallestStep: '', support: '', retryWhen: '' },
+      waitingPlan: { reason: '', followup: '', retryWhen: '' },
+    };
+    const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  confirmBarbarianFirstStrike: (qid, choice) => set((s) => {
+    if (s.state.classId !== 'barbarian' || s.state.barbarian?.activeQuestId !== qid) return s;
+    if ((s.state.barbarian?.expiresAt ?? 0) < Date.now()) return s;
+    const e = s.state.quests[qid];
+    const ne = { ...e, bonuses: { ...e.bonuses, momentum: true } };
+    const ns = {
+      ...s.state,
+      quests: { ...s.state.quests, [qid]: ne },
+      barbarian: { activeQuestId: qid, expiresAt: s.state.barbarian.expiresAt, choice, completedAt: Date.now() }
+    };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  dismissBarbarianFirstStrike: () => set((s) => {
+    const ns = { ...s.state, barbarian: { activeQuestId: null, expiresAt: null, choice: '', completedAt: null } };
     persist(s.meta, ns); return { state: ns };
   }),
 

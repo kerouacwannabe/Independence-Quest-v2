@@ -36,6 +36,7 @@ export function defaultState() {
     supportTasks: {},
     rogueRun: { active: false, completedQuestIds: [], bonusAwarded: false },
     monk: { discipline: 0 },
+    barbarian: { activeQuestId: null, expiresAt: null, choice: '', completedAt: null },
     rewardsClaimed: [],
     streaks: { daily: 0, weekly: 0, lastActiveDate: '' },
     vgmAdvisor: { lastMessage: '', lastShownDate: '', history: [] },

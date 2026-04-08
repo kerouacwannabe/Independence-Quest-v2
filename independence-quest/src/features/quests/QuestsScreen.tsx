@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type CSSProperties } from 'react';
 import { useGameStore, selectAvailableBosses, selectUnlockedChapters } from '../../state/store';
 import { CelebrationParticles } from '../../components/CelebrationParticles';
 
@@ -7,7 +7,7 @@ function isBossQuest(title: string) { return /boss|dragon|final/i.test(title); }
 
 function ExpandedQuestScreen({
   questId, onBack,
-  quest, entry, toggleSubquest, startQuest
+  quest, entry, toggleSubquest, startQuest, toggleQuestLowEnergy, setQuestBlocked, setQuestWaiting, resumeQuestFlow
 }: {
   questId: string;
   onBack: () => void;
@@ -15,7 +15,24 @@ function ExpandedQuestScreen({
   entry: any;
   toggleSubquest: (questId: string, subId: string) => void;
   startQuest: (questId: string) => void;
+  toggleQuestLowEnergy: (questId: string) => void;
+  setQuestBlocked: (questId: string, payload: { blockedReason: string; blockerType: string; smallestStep: string; support: string; retryWhen: string }) => void;
+  setQuestWaiting: (questId: string, payload: { reason: string; followup: string; retryWhen: string }) => void;
+  resumeQuestFlow: (questId: string) => void;
 }) {
+  const classId = useGameStore((s) => s.state.classId);
+  const firstStrike = useGameStore((s) => s.state.barbarian);
+  const confirmBarbarianFirstStrike = useGameStore((s) => s.confirmBarbarianFirstStrike);
+  const dismissBarbarianFirstStrike = useGameStore((s) => s.dismissBarbarianFirstStrike);
+  const [sheet, setSheet] = useState<null | 'blocked' | 'waiting'>(null);
+  const [blockedReason, setBlockedReason] = useState(entry?.blockedReason || '');
+  const [blockerType, setBlockerType] = useState(entry?.blockerType || '');
+  const [smallestStep, setSmallestStep] = useState(entry?.blockPlan?.smallestStep || '');
+  const [support, setSupport] = useState(entry?.blockPlan?.support || '');
+  const [blockRetryWhen, setBlockRetryWhen] = useState(entry?.blockPlan?.retryWhen || '');
+  const [waitingReason, setWaitingReason] = useState(entry?.waitingPlan?.reason || '');
+  const [followup, setFollowup] = useState(entry?.waitingPlan?.followup || '');
+  const [waitingRetryWhen, setWaitingRetryWhen] = useState(entry?.waitingPlan?.retryWhen || '');
   const allRequiredDone = quest.subquests
     .filter((s: any) => s.required)
     .every((s: any) => entry?.subquests?.[s.id]);
@@ -23,7 +40,14 @@ function ExpandedQuestScreen({
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: '#0a0e14', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', background: '#1e293b', borderBottom: '1px solid #334155', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', background: '#1e293b', borderBottom: '1px solid #334155', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button onClick={onBack}
+          style={{
+            padding: '0.5rem 0.85rem', borderRadius: 8, border: 'none', cursor: 'pointer',
+            background: '#334155', color: '#fff', fontWeight: 600, fontSize: '0.9rem'
+          }}>
+          ← Back
+        </button>
         <button onClick={() => {
           startQuest(questId);
         }}
@@ -34,12 +58,77 @@ function ExpandedQuestScreen({
           }}>
           {entry?.status === 'started' ? '▶ Resume' : '⚔ Start'}
         </button>
+        <button onClick={() => toggleQuestLowEnergy(questId)}
+          style={{ padding: '0.5rem 0.85rem', borderRadius: 8, border: 'none', cursor: 'pointer', background: entry?.bonuses?.lowEnergy ? '#7c3aed' : '#475569', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+          {entry?.bonuses?.lowEnergy ? 'Low Energy ✓' : 'Low Energy'}
+        </button>
+        <button onClick={() => setSheet('blocked')}
+          style={{ padding: '0.5rem 0.85rem', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#92400e', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+          Blocked
+        </button>
+        <button onClick={() => setSheet('waiting')}
+          style={{ padding: '0.5rem 0.85rem', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#1d4ed8', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+          Waiting
+        </button>
+        {(entry?.status === 'blocked' || entry?.status === 'waiting') && (
+          <button onClick={() => resumeQuestFlow(questId)}
+            style={{ padding: '0.5rem 0.85rem', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#059669', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+            Resume Flow
+          </button>
+        )}
       </div>
 
       {/* Subquests */}
       <div style={{ flex: 1, padding: '1rem' }}>
         <h2 style={{ marginTop: 0 }}>{quest.title}</h2>
         <p style={{ color: '#94a3b8' }}>{quest.summary}</p>
+
+        {classId === 'barbarian' && firstStrike?.activeQuestId === questId && !firstStrike?.completedAt && (firstStrike?.expiresAt ?? 0) > Date.now() && (
+          <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: 10, background: '#3f1d0d', border: '1px solid #b45309' }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>🪓 First Strike</div>
+            <p style={{ color: '#fde68a', marginBottom: 10 }}>Choose one immediate physical action within 60 seconds to trigger Momentum.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                'Move body to the task',
+                'Touch the tool or object',
+                'Open the thing and begin'
+              ].map((choice) => (
+                <button key={choice} onClick={() => confirmBarbarianFirstStrike(questId, choice)} style={{ padding: '0.8rem 0.9rem', borderRadius: 10, border: '1px solid #b45309', background: '#78350f', color: '#fff', textAlign: 'left', cursor: 'pointer' }}>
+                  {choice}
+                </button>
+              ))}
+              <button onClick={dismissBarbarianFirstStrike} style={{ padding: '0.65rem 0.9rem', borderRadius: 10, border: 'none', background: '#475569', color: '#fff', cursor: 'pointer' }}>
+                Skip for now
+              </button>
+            </div>
+          </div>
+        )}
+
+        {entry?.bonuses?.momentum && (
+          <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', borderRadius: 10, background: '#052e16', border: '1px solid #15803d', color: '#86efac' }}>
+            Momentum active. The Barbarian has, against all odds, begun.
+          </div>
+        )}
+
+        {(entry?.status === 'blocked' || entry?.status === 'waiting') && (
+          <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: 10, background: entry?.status === 'blocked' ? '#451a03' : '#172554', border: '1px solid ' + (entry?.status === 'blocked' ? '#92400e' : '#1d4ed8') }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>{entry?.status === 'blocked' ? 'Blocked Plan' : 'Waiting Plan'}</div>
+            {entry?.status === 'blocked' ? (
+              <>
+                <p><strong>Reason:</strong> {entry.blockedReason || 'No reason set'}</p>
+                <p><strong>Smallest step:</strong> {entry.blockPlan?.smallestStep || 'None yet'}</p>
+                <p><strong>Support:</strong> {entry.blockPlan?.support || 'None yet'}</p>
+                <p><strong>Retry when:</strong> {entry.blockPlan?.retryWhen || 'Not set'}</p>
+              </>
+            ) : (
+              <>
+                <p><strong>Reason:</strong> {entry.waitingPlan?.reason || 'No reason set'}</p>
+                <p><strong>Follow-up:</strong> {entry.waitingPlan?.followup || 'None yet'}</p>
+                <p><strong>Retry when:</strong> {entry.waitingPlan?.retryWhen || 'Not set'}</p>
+              </>
+            )}
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: '1.5rem' }}>
           {quest.subquests.map((sub: any, i: number) => {
@@ -84,9 +173,57 @@ function ExpandedQuestScreen({
           </div>
         )}
       </div>
+
+      {sheet && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.65)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }} onClick={() => setSheet(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', background: '#111827', borderTopLeftRadius: 18, borderTopRightRadius: 18, padding: '1rem 1rem 1.25rem', borderTop: '1px solid #334155', maxHeight: '82dvh', overflow: 'auto' }}>
+            <div style={{ width: 48, height: 5, borderRadius: 999, background: '#475569', margin: '0 auto 1rem' }} />
+            <h3 style={{ marginTop: 0 }}>{sheet === 'blocked' ? 'Blocked quest plan' : 'Waiting quest plan'}</h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{sheet === 'blocked' ? 'Capture the blocker and define the smallest next action.' : 'Capture what you are waiting on and what follow-up is needed.'}</p>
+            {sheet === 'blocked' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input value={blockedReason} onChange={(e) => setBlockedReason(e.target.value)} placeholder='What is blocking this quest?' style={sheetInputStyle} />
+                <input value={blockerType} onChange={(e) => setBlockerType(e.target.value)} placeholder='Blocker type: time, energy, admin, fear...' style={sheetInputStyle} />
+                <input value={smallestStep} onChange={(e) => setSmallestStep(e.target.value)} placeholder='Smallest next step' style={sheetInputStyle} />
+                <input value={support} onChange={(e) => setSupport(e.target.value)} placeholder='Support needed' style={sheetInputStyle} />
+                <input value={blockRetryWhen} onChange={(e) => setBlockRetryWhen(e.target.value)} placeholder='Retry when' style={sheetInputStyle} />
+                <button onClick={() => { setQuestBlocked(questId, { blockedReason, blockerType, smallestStep, support, retryWhen: blockRetryWhen }); setSheet(null); }} style={sheetPrimaryButton}>Save blocked plan</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input value={waitingReason} onChange={(e) => setWaitingReason(e.target.value)} placeholder='What are you waiting on?' style={sheetInputStyle} />
+                <input value={followup} onChange={(e) => setFollowup(e.target.value)} placeholder='Follow-up action' style={sheetInputStyle} />
+                <input value={waitingRetryWhen} onChange={(e) => setWaitingRetryWhen(e.target.value)} placeholder='Check again when' style={sheetInputStyle} />
+                <button onClick={() => { setQuestWaiting(questId, { reason: waitingReason, followup, retryWhen: waitingRetryWhen }); setSheet(null); }} style={sheetPrimaryButton}>Save waiting plan</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const sheetInputStyle: CSSProperties = {
+  width: '100%',
+  padding: '0.85rem 0.9rem',
+  background: '#0f172a',
+  border: '1px solid #334155',
+  borderRadius: 10,
+  color: '#e2e8f0',
+  boxSizing: 'border-box'
+};
+
+const sheetPrimaryButton: CSSProperties = {
+  width: '100%',
+  padding: '0.95rem 1rem',
+  background: '#2563eb',
+  border: 'none',
+  borderRadius: 12,
+  color: '#fff',
+  fontWeight: 700,
+  cursor: 'pointer'
+};
 
 export function QuestsScreen() {
   const state = useGameStore((s) => s.state);
@@ -95,6 +232,10 @@ export function QuestsScreen() {
   const toggleQuestExpanded = useGameStore((s) => s.toggleQuestExpanded);
   const startQuest = useGameStore((s) => s.startQuest);
   const toggleSubquest = useGameStore((s) => s.toggleSubquest);
+  const toggleQuestLowEnergy = useGameStore((s) => s.toggleQuestLowEnergy);
+  const setQuestBlocked = useGameStore((s) => s.setQuestBlocked);
+  const setQuestWaiting = useGameStore((s) => s.setQuestWaiting);
+  const resumeQuestFlow = useGameStore((s) => s.resumeQuestFlow);
   const startBoss = useGameStore((s) => s.startBoss);
   const toggleBossSubquest = useGameStore((s) => s.toggleBossSubquest);
   const completeBoss = useGameStore((s) => s.completeBoss);
@@ -136,6 +277,10 @@ export function QuestsScreen() {
         entry={entry}
         toggleSubquest={toggleSubquest}
         startQuest={startQuest}
+        toggleQuestLowEnergy={toggleQuestLowEnergy}
+        setQuestBlocked={setQuestBlocked}
+        setQuestWaiting={setQuestWaiting}
+        resumeQuestFlow={resumeQuestFlow}
       />
     );
   }

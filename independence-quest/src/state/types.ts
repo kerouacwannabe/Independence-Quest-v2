@@ -38,6 +38,7 @@ export interface GameState {
   supportTasks: Record<string, { status: string; completedAt?: number }>;
   rogueRun: { active: boolean; completedQuestIds: string[]; bonusAwarded: boolean };
   monk: { discipline: number };
+  barbarian: { activeQuestId: string | null; expiresAt: number | null; choice: string; completedAt: number | null };
   rewardsClaimed: number[];
   streaks: { daily: number; weekly: number; lastActiveDate: string };
   vgmAdvisor: { lastMessage: string; lastShownDate: string; history: string[] };
