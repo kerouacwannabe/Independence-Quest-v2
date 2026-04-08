@@ -36,9 +36,10 @@ export interface GameState {
   bosses: Record<string, BossEntryStatus>;
   chapterBosses: Record<string, string>;
   supportTasks: Record<string, { status: string; completedAt?: number }>;
-  rogueRun: { active: boolean; completedQuestIds: string[]; bonusAwarded: boolean };
+  rogueRun: { active: boolean; selectedQuestIds: string[]; completedQuestIds: string[]; bonusAwarded: boolean };
   monk: { discipline: number };
   barbarian: { activeQuestId: string | null; expiresAt: number | null; choice: string; completedAt: number | null };
+  wizard: { preparedSpells: string[]; castToday: string[] };
   rewardsClaimed: number[];
   streaks: { daily: number; weekly: number; lastActiveDate: string };
   vgmAdvisor: { lastMessage: string; lastShownDate: string; history: string[] };

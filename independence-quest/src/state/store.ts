@@ -6,8 +6,9 @@ import { defaultMeta, defaultState, LEGACY_STORAGE_KEY, META_KEY, STORAGE_PREFIX
 import type { AppTab, QuestEntry, BossStatus } from './types';
 
 type MonkState = { discipline: number };
-type RogueRun = { active: boolean; completedQuestIds: string[]; bonusAwarded: boolean };
+type RogueRun = { active: boolean; selectedQuestIds: string[]; completedQuestIds: string[]; bonusAwarded: boolean };
 type BarbarianState = { activeQuestId: string | null; expiresAt: number | null; choice: string; completedAt: number | null };
+type WizardState = { preparedSpells: string[]; castToday: string[] };
 type Streaks = { daily: number; weekly: number; lastActiveDate: string };
 type VgmAdvisor = { lastMessage: string; lastShownDate: string; history: string[] };
 
@@ -40,6 +41,11 @@ type GameStore = {
   resumeQuestFlow: (questId: string) => void;
   confirmBarbarianFirstStrike: (questId: string, choice: string) => void;
   dismissBarbarianFirstStrike: () => void;
+  toggleRogueRunQuest: (questId: string) => void;
+  startRogueRun: () => void;
+  clearRogueRun: () => void;
+  prepareWizardSpell: (spellId: string) => void;
+  rescueBlockedQuestWithDiscipline: (questId: string) => void;
 
   startBoss: (bossId: string) => void;
   toggleBossSubquest: (bossId: string, subquestId: string) => void;
@@ -76,8 +82,9 @@ function hydrateState(incoming = defaultState()) {
   state.streaks ??= { daily: 0, weekly: 0, lastActiveDate: '' };
   state.vgmAdvisor ??= { lastMessage: '', lastShownDate: '', history: [] };
   state.monk ??= { discipline: 0 };
-  state.rogueRun ??= { active: false, completedQuestIds: [], bonusAwarded: false };
+  state.rogueRun ??= { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false };
   state.barbarian ??= { activeQuestId: null, expiresAt: null, choice: '', completedAt: null };
+  state.wizard ??= { preparedSpells: [], castToday: [] };
 
   CHAPTERS.forEach((chapter) => {
     if (!state.chapterBosses[chapter.id]) state.chapterBosses[chapter.id] = chapter.bossPool[0].id;
@@ -199,13 +206,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
   startQuest: (qid) => set((s) => {
     const entry = s.state.quests[qid];
     const bonuses = { ...entry.bonuses };
+    if (s.state.classId === 'wizard') {
+      if (s.state.wizard?.preparedSpells.includes('guided-sequence')) bonuses.ritual = true;
+      if (s.state.wizard?.preparedSpells.includes('simplify-quest')) bonuses.lowEnergy = true;
+    }
     const nextEntry = { ...entry, status: 'started', startedAt: entry.startedAt ?? Date.now(), bonuses };
+    const castToday = [...(s.state.wizard?.castToday ?? [])];
+    for (const spell of s.state.wizard?.preparedSpells ?? []) if (!castToday.includes(spell)) castToday.push(spell);
     const ns = {
       ...s.state,
       quests: { ...s.state.quests, [qid]: nextEntry },
       barbarian: s.state.classId === 'barbarian'
         ? { activeQuestId: qid, expiresAt: Date.now() + 60000, choice: '', completedAt: null }
         : s.state.barbarian,
+      wizard: s.state.classId === 'wizard' ? { ...(s.state.wizard ?? { preparedSpells: [], castToday: [] }), castToday } : s.state.wizard,
     };
     persist(s.meta, ns);
     return { state: ns, ui: { ...s.ui, activeTab: 'quests', expandedQuestId: qid } };
@@ -235,7 +249,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (recents.length >= 2) ce.bonuses.rogueCombo = true;
       }
       if (s.state.classId === 'monk' && quest.tags?.includes('routine') && s.state.monk) {
-        s.state.monk.discipline = (s.state.monk.discipline || 0) + 1;
+        s.state.monk.discipline = Math.min(5, (s.state.monk.discipline || 0) + 1);
+      }
+      if (s.state.classId === 'rogue' && s.state.rogueRun?.active && s.state.rogueRun.selectedQuestIds.includes(qid)) {
+        const completedQuestIds = Array.from(new Set([...(s.state.rogueRun.completedQuestIds || []), qid]));
+        s.state.rogueRun.completedQuestIds = completedQuestIds;
+        if (completedQuestIds.length >= Math.min(2, s.state.rogueRun.selectedQuestIds.length)) {
+          ce.bonuses.rogueCombo = true;
+          if (completedQuestIds.length === s.state.rogueRun.selectedQuestIds.length) {
+            s.state.rogueRun.bonusAwarded = true;
+          }
+        }
       }
       // Boss unlock
       const chap = CHAPTERS.find(c => c.quests.some(q => q.id === qid));
@@ -327,6 +351,56 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   dismissBarbarianFirstStrike: () => set((s) => {
     const ns = { ...s.state, barbarian: { activeQuestId: null, expiresAt: null, choice: '', completedAt: null } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  toggleRogueRunQuest: (qid) => set((s) => {
+    const current = s.state.rogueRun ?? { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false };
+    const selected = current.selectedQuestIds.includes(qid)
+      ? current.selectedQuestIds.filter((id) => id !== qid)
+      : current.selectedQuestIds.length >= 3
+        ? current.selectedQuestIds
+        : [...current.selectedQuestIds, qid];
+    const ns = { ...s.state, rogueRun: { ...current, selectedQuestIds: selected, completedQuestIds: current.completedQuestIds.filter((id) => selected.includes(id)) } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  startRogueRun: () => set((s) => {
+    const current = s.state.rogueRun ?? { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false };
+    if (current.selectedQuestIds.length < 2) return s;
+    const ns = { ...s.state, rogueRun: { ...current, active: true, completedQuestIds: [], bonusAwarded: false } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  clearRogueRun: () => set((s) => {
+    const ns = { ...s.state, rogueRun: { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  prepareWizardSpell: (spellId) => set((s) => {
+    const wizard = s.state.wizard ?? { preparedSpells: [], castToday: [] };
+    const prepared = wizard.preparedSpells.includes(spellId)
+      ? wizard.preparedSpells.filter((id) => id !== spellId)
+      : wizard.preparedSpells.length >= 2
+        ? wizard.preparedSpells
+        : [...wizard.preparedSpells, spellId];
+    const ns = { ...s.state, wizard: { ...wizard, preparedSpells: prepared } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  rescueBlockedQuestWithDiscipline: (qid) => set((s) => {
+    const monk = s.state.monk ?? { discipline: 0 };
+    const entry = s.state.quests[qid];
+    if (s.state.classId !== 'monk' || monk.discipline < 3 || entry.status !== 'blocked') return s;
+    const ne = {
+      ...entry,
+      status: 'started',
+      bonuses: { ...entry.bonuses, lowEnergy: true, recovery: true },
+      blockedReason: '',
+      blockerType: '',
+      blockPlan: { smallestStep: '', support: '', retryWhen: '' },
+    };
+    const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne }, monk: { discipline: monk.discipline - 3 } };
     persist(s.meta, ns); return { state: ns };
   }),
 

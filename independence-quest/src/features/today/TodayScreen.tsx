@@ -1,9 +1,13 @@
-import { useGameStore, selectNextMove, selectDailyAdvice } from '../../state/store';
+import { CHAPTERS, useGameStore, selectNextMove, selectDailyAdvice } from '../../state/store';
 import { InstallPromptCard } from '../../components/InstallPromptCard';
 
 export function TodayScreen() {
   const state = useGameStore((s) => s.state);
   const setTab = useGameStore((s) => s.setActiveTab);
+  const toggleRogueRunQuest = useGameStore((s) => s.toggleRogueRunQuest);
+  const startRogueRun = useGameStore((s) => s.startRogueRun);
+  const clearRogueRun = useGameStore((s) => s.clearRogueRun);
+  const prepareWizardSpell = useGameStore((s) => s.prepareWizardSpell);
   const nextMove = selectNextMove(state);
   const dailyAdvice = selectDailyAdvice(state);
   const classId = state.classId;
@@ -14,6 +18,16 @@ export function TodayScreen() {
     { id: 'monk', emoji: '🕯️', name: 'Monk' },
   ];
   const classDef = CLASS_DEFS.find(c => c.id === classId);
+  const allQuests = CHAPTERS.flatMap((chapter) => chapter.quests);
+  const rogueEligible = allQuests.filter((quest) => {
+    const tags = quest.tags || [];
+    return tags.some((tag) => ['errand', 'admin', 'household', 'routine', 'communications'].includes(tag));
+  });
+  const wizardSpells = [
+    { id: 'reveal-next-move', title: 'Reveal Next Move', copy: 'Sharpens the guidance card and highlights the best next action.' },
+    { id: 'guided-sequence', title: 'Guided Sequence', copy: 'Adds ritual guidance when you start a quest.' },
+    { id: 'simplify-quest', title: 'Simplify Quest', copy: 'Automatically starts your next quest in low-energy mode.' },
+  ];
 
   return (
     <div className="screen-stack">
@@ -49,6 +63,70 @@ export function TodayScreen() {
             <span style={{ fontSize: '1.5rem' }}>{classDef.emoji}</span>
             <strong>{classDef.name}</strong>
           </div>
+          {classId === 'monk' && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Breath Beads</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i} style={{ width: 14, height: 14, borderRadius: 999, display: 'inline-block', background: i < (state.monk?.discipline ?? 0) ? '#22c55e' : '#334155' }} />
+                ))}
+              </div>
+              <p style={{ marginTop: 8, fontSize: '0.8rem', color: '#cbd5e1' }}>Spend 3 beads to rescue a blocked quest.</p>
+            </div>
+          )}
+          {classId === 'rogue' && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Route Combo</div>
+              {!state.rogueRun?.active ? (
+                <>
+                  <p style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Pick 2–3 eligible quests to bundle into one run.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+                    {rogueEligible.slice(0, 5).map((quest) => {
+                      const selected = state.rogueRun?.selectedQuestIds?.includes(quest.id);
+                      return (
+                        <button key={quest.id} onClick={() => toggleRogueRunQuest(quest.id)} style={{ textAlign: 'left', padding: '0.65rem 0.75rem', borderRadius: 10, border: selected ? '1px solid #3b82f6' : '1px solid #334155', background: selected ? '#1e3a5f' : '#0f172a', color: '#e2e8f0' }}>
+                          {quest.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button className="primary-button" style={{ marginTop: 10 }} onClick={startRogueRun} disabled={(state.rogueRun?.selectedQuestIds?.length ?? 0) < 2}>Start Errand Run</button>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Errand Run active: {(state.rogueRun?.completedQuestIds?.length ?? 0)}/{(state.rogueRun?.selectedQuestIds?.length ?? 0)} cleared</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+                    {(state.rogueRun?.selectedQuestIds ?? []).map((qid) => {
+                      const quest = allQuests.find((q) => q.id === qid);
+                      const done = state.rogueRun?.completedQuestIds?.includes(qid);
+                      return <div key={qid} style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: done ? '#052e16' : '#0f172a', color: done ? '#86efac' : '#e2e8f0' }}>{done ? '✓ ' : ''}{quest?.title || qid}</div>;
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button className="primary-button" onClick={() => setTab('quests')}>Open Quests</button>
+                    <button className="ghost-button" onClick={clearRogueRun}>Clear</button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          {classId === 'wizard' && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Prepared Spells</div>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Prepare up to 2 daily spells.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+                {wizardSpells.map((spell) => {
+                  const selected = state.wizard?.preparedSpells?.includes(spell.id);
+                  return (
+                    <button key={spell.id} onClick={() => prepareWizardSpell(spell.id)} style={{ textAlign: 'left', padding: '0.75rem 0.85rem', borderRadius: 10, border: selected ? '1px solid #7c3aed' : '1px solid #334155', background: selected ? '#3b0764' : '#0f172a', color: '#e2e8f0' }}>
+                      <strong>{spell.title}</strong>
+                      <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: 4 }}>{spell.copy}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
       )}
 

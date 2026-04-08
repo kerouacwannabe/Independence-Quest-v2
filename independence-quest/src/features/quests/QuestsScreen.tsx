@@ -21,9 +21,11 @@ function ExpandedQuestScreen({
   resumeQuestFlow: (questId: string) => void;
 }) {
   const classId = useGameStore((s) => s.state.classId);
+  const monk = useGameStore((s) => s.state.monk);
   const firstStrike = useGameStore((s) => s.state.barbarian);
   const confirmBarbarianFirstStrike = useGameStore((s) => s.confirmBarbarianFirstStrike);
   const dismissBarbarianFirstStrike = useGameStore((s) => s.dismissBarbarianFirstStrike);
+  const rescueBlockedQuestWithDiscipline = useGameStore((s) => s.rescueBlockedQuestWithDiscipline);
   const [sheet, setSheet] = useState<null | 'blocked' | 'waiting'>(null);
   const [blockedReason, setBlockedReason] = useState(entry?.blockedReason || '');
   const [blockerType, setBlockerType] = useState(entry?.blockerType || '');
@@ -119,6 +121,11 @@ function ExpandedQuestScreen({
                 <p><strong>Smallest step:</strong> {entry.blockPlan?.smallestStep || 'None yet'}</p>
                 <p><strong>Support:</strong> {entry.blockPlan?.support || 'None yet'}</p>
                 <p><strong>Retry when:</strong> {entry.blockPlan?.retryWhen || 'Not set'}</p>
+                {classId === 'monk' && (
+                  <button onClick={() => rescueBlockedQuestWithDiscipline(questId)} disabled={(monk?.discipline ?? 0) < 3} style={{ marginTop: 10, padding: '0.7rem 0.9rem', borderRadius: 10, border: 'none', background: (monk?.discipline ?? 0) >= 3 ? '#15803d' : '#334155', color: '#fff', cursor: (monk?.discipline ?? 0) >= 3 ? 'pointer' : 'default' }}>
+                    Spend 3 Breath Beads to rescue quest
+                  </button>
+                )}
               </>
             ) : (
               <>
