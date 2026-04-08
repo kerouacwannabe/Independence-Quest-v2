@@ -125,6 +125,25 @@ export const CAMPAIGN_FIRST_PROOFS = [
   },
 ];
 
+export const QUEST_MECHANIC_META: Record<string, {
+  routeCombo?: boolean;
+  routine?: boolean;
+  planning?: boolean;
+  lowEnergyFriendly?: boolean;
+}> = {
+  'wake-with-purpose': { routine: true, lowEnergyFriendly: true },
+  'feed-the-adventurer': { routine: true, routeCombo: true, lowEnergyFriendly: true },
+  'reset-the-lair': { routine: true, routeCombo: true },
+  'focus-drill': { planning: true },
+  'digital-fortress': { planning: true },
+  'autopilot-setup': { planning: true },
+  'energy-cadence': { routine: true, planning: true, lowEnergyFriendly: true },
+};
+
+export function getQuestMechanicMeta(questId: string) {
+  return QUEST_MECHANIC_META[questId] ?? {};
+}
+
 export const CHAPTERS = [
   {
     id: 'proving-grounds',

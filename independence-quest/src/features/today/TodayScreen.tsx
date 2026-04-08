@@ -1,4 +1,4 @@
-import { CHAPTERS, useGameStore, selectNextMove, selectDailyAdvice } from '../../state/store';
+import { CHAPTERS, useGameStore, selectNextMove, selectDailyAdvice, selectPlanningEligibleQuestIds, selectRogueEligibleQuestIds } from '../../state/store';
 import { InstallPromptCard } from '../../components/InstallPromptCard';
 
 export function TodayScreen() {
@@ -19,10 +19,9 @@ export function TodayScreen() {
   ];
   const classDef = CLASS_DEFS.find(c => c.id === classId);
   const allQuests = CHAPTERS.flatMap((chapter) => chapter.quests);
-  const rogueEligible = allQuests.filter((quest) => {
-    const tags = quest.tags || [];
-    return tags.some((tag) => ['errand', 'admin', 'household', 'routine', 'communications'].includes(tag));
-  });
+  const rogueEligibleIds = selectRogueEligibleQuestIds();
+  const planningEligibleIds = selectPlanningEligibleQuestIds();
+  const rogueEligible = allQuests.filter((quest) => rogueEligibleIds.includes(quest.id));
   const wizardSpells = [
     { id: 'reveal-next-move', title: 'Reveal Next Move', copy: 'Sharpens the guidance card and highlights the best next action.' },
     { id: 'guided-sequence', title: 'Guided Sequence', copy: 'Adds ritual guidance when you start a quest.' },
@@ -113,7 +112,7 @@ export function TodayScreen() {
           {classId === 'wizard' && (
             <div style={{ marginTop: 10 }}>
               <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Prepared Spells</div>
-              <p style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Prepare up to 2 daily spells.</p>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Prepare up to 2 daily spells. {planningEligibleIds.length} quests currently qualify for planning help.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
                 {wizardSpells.map((spell) => {
                   const selected = state.wizard?.preparedSpells?.includes(spell.id);

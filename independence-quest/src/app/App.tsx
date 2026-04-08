@@ -7,6 +7,7 @@ import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { CampaignWizard } from '../features/setup/CampaignWizard';
 import { FirstProofScreen } from '../features/setup/FirstProofScreen';
 import { ToastContainer } from '../components/ToastContainer';
+import { ClassHudCard } from '../components/ClassHudCard';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
@@ -46,6 +47,7 @@ export function App() {
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#0a0e14', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
       <main style={{ flex: 1, overflow: 'auto', padding: '0.75rem 1rem 5.5rem' }}>
+        <ClassHudCard />
         {screen}
       </main>
       <nav style={{

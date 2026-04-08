@@ -1,4 +1,4 @@
-import { CHAPTERS, REWARDS } from '../content';
+import { CHAPTERS, REWARDS, getQuestMechanicMeta } from '../content';
 import type { GameState, QuestEntry } from './types';
 
 export function selectUnlockedChapters(state: GameState) {
@@ -89,6 +89,64 @@ export function selectNextMove(state: GameState): NextMove {
   }
   // All chapters and bosses complete
   return { type: 'chapterComplete', heading: 'Campaign complete!', copy: 'Every challenge conquered. You have forged your own independence.', button: 'View Profile' };
+}
+
+export function selectRogueEligibleQuestIds() {
+  return CHAPTERS.flatMap((chapter) => chapter.quests)
+    .filter((quest) => {
+      const meta = getQuestMechanicMeta(quest.id);
+      return meta.routeCombo || (quest.tags || []).some((tag) => ['errand', 'admin', 'household', 'communications'].includes(tag));
+    })
+    .map((quest) => quest.id);
+}
+
+export function selectRoutineEligibleQuestIds() {
+  return CHAPTERS.flatMap((chapter) => chapter.quests)
+    .filter((quest) => {
+      const meta = getQuestMechanicMeta(quest.id);
+      return meta.routine || (quest.tags || []).includes('routine');
+    })
+    .map((quest) => quest.id);
+}
+
+export function selectPlanningEligibleQuestIds() {
+  return CHAPTERS.flatMap((chapter) => chapter.quests)
+    .filter((quest) => {
+      const meta = getQuestMechanicMeta(quest.id);
+      return meta.planning || (quest.tags || []).some((tag) => ['systems', 'focus', 'discipline'].includes(tag));
+    })
+    .map((quest) => quest.id);
+}
+
+export function selectClassHud(state: GameState) {
+  switch (state.classId) {
+    case 'barbarian':
+      return {
+        title: 'First Strike',
+        summary: state.barbarian?.completedAt ? 'Momentum active' : state.barbarian?.activeQuestId ? 'Choose your opening action' : 'Ready to strike',
+        tone: state.barbarian?.completedAt ? 'success' : state.barbarian?.activeQuestId ? 'warning' : 'neutral'
+      };
+    case 'rogue':
+      return {
+        title: 'Route Combo',
+        summary: state.rogueRun?.active ? `${state.rogueRun.completedQuestIds.length}/${state.rogueRun.selectedQuestIds.length} cleared` : `${state.rogueRun?.selectedQuestIds?.length ?? 0} queued`,
+        tone: state.rogueRun?.active ? 'info' : 'neutral'
+      };
+    case 'monk':
+      return {
+        title: 'Breath Beads',
+        summary: `${state.monk?.discipline ?? 0} beads banked`,
+        tone: (state.monk?.discipline ?? 0) >= 3 ? 'success' : 'neutral'
+      };
+    case 'wizard':
+      return {
+        title: 'Spellcraft',
+        summary: `${state.wizard?.preparedSpells?.length ?? 0} spells prepared`,
+        tone: (state.wizard?.preparedSpells?.length ?? 0) > 0 ? 'info' : 'neutral'
+      };
+    default:
+      return null;
+  }
 }
 
 export function selectTotalXP(state: GameState): number {
