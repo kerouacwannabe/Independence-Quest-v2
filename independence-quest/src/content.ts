@@ -1,208 +1,149 @@
+export const LOW_ENERGY_OPTIONS = [
+  { id: 'pomodoro-5', title: '5‑minute focus sprint', copy: 'Pick one tiny objective and run a five-minute timer. Stop when the bell rings if you need to.', xp: 6 },
+  { id: 'water-walk', title: 'Drink water + 5‑minute walk', copy: 'Hydrate, move your body, and treat it like a reset button instead of a moral referendum.', xp: 6 },
+  { id: 'single-task', title: 'One tiny task from backlog', copy: 'Choose the smallest real item you can finish and clear it without negotiating with yourself.', xp: 8 },
+];
+
+export const RESCUE_ITEMS = [
+  { title: 'Shrink the battlefield', copy: 'Reduce the quest to the smallest meaningful next action.' },
+  { title: 'Change the terrain', copy: 'Move to a different room, chair, or standing position to break state lock.' },
+  { title: 'Call in support', copy: 'Text someone, body-double, or ask for one tiny assist instead of white-knuckling it.' },
+  { title: 'Use the low-energy route', copy: 'Swap to a lighter version that still counts as forward motion.' },
+];
+
+export const REWARDS = [
+  { id: 'coffee-break', title: 'Coffee/tea break', cost: 3, category: 'recovery', at: 2 },
+  { id: 'episode-watch', title: 'Watch one episode', cost: 5, category: 'recovery', at: 5 },
+  { id: 'dessert-treat', title: 'Small dessert', cost: 3, category: 'treat', at: 3 },
+];
+
 // @ts-nocheck
 export const CLASS_DEFS = [
   {
     id: 'barbarian',
     emoji: '🪓',
-    name: 'Barbarian of Momentum',
-    perk: 'Every quest start triggers a 60-second Start Sprint. Confirm one physical first action to earn a Momentum XP bonus.',
-    note: 'Best for brains that get weaker the longer they think. Hit the thing before the dread committee assembles.'
+    name: 'Barbarian',
+    description: 'Raw physical output. Build momentum through rigorous movement and completion.',
+    perk: 'Start fast and build momentum through immediate action.',
+    startingBonuses: ['Momentum for each completed subquest', '+2XP for starting quests early in the day'],
   },
   {
     id: 'rogue',
     emoji: '🗡️',
-    name: 'Rogue of Errands',
-    perk: 'Start an Errand Run and chain two eligible quests in the same outing for a combo XP reward.',
-    note: 'Best for people who thrive on quick wins, outside missions, and sneaky practical progress.'
-  },
-  {
-    id: 'wizard',
-    emoji: '📜',
-    name: 'Wizard of Life Admin',
-    perk: 'Admin, work, budget, and housing quests reveal a Ritual Plan. Complete the prep ritual for bonus XP and cleaner execution.',
-    note: 'Best for people whose brains calm down when checklists, reminders, scripts, and documents are all named out loud.'
+    name: 'Rogue',
+    description: 'Precision and opportunistic gains. Turn small windows into productive bursts.',
+    perk: 'Bundle quick wins and turn errands into combo chains.',
+    startingBonuses: ['Critical success doubling XP', 'Stealth mode (no interruptions)'],
   },
   {
     id: 'monk',
-    emoji: '🕯️',
-    name: 'Monk of Routine',
-    perk: 'Routine subquests build Discipline. Spend 3 Discipline on Recovery Stance to rescue a blocked quest and auto-clear its first step.',
-    note: 'Best for people whose entire mortal situation improves when the basics stop being random.'
-  }
+    emoji: '🧘',
+    name: 'Monk',
+    description: 'Discipline and inner calm. Convert repeated basics into tangible gains.',
+    perk: 'Build discipline through routine, then spend it on rescue and recovery.',
+    startingBonuses: ['Earn Discipline (spend to rescue blocked quests)', 'Daily meditation bonus'],
+  },
+  {
+    id: 'wizard',
+    emoji: '🪄',
+    name: 'Wizard',
+    description: 'Preparation, foresight, and deliberate planning. Shape the board before the day shapes you.',
+    perk: 'Prepare spells that reveal, guide, or simplify your next move.',
+    startingBonuses: ['Reveal a recommended next move', 'Preparation bonus for planning ahead'],
+  },
 ];
-
-export const RESCUE_ITEMS = [
-  {
-    title: 'I am stuck and hissing at the furniture',
-    copy: 'Pick the smallest visible action. Start a 5-minute timer. Touch the task before judging whether it deserves a sermon.'
-  },
-  {
-    title: 'I am overwhelmed by everything everywhere all at once',
-    copy: 'Write exactly three things: one must-do, one should-do, one easy win. Anything beyond that is decorative suffering.'
-  },
-  {
-    title: 'I forgot everything',
-    copy: 'Check the quest log, check the calendar, check messages, then choose one next action. Memory is not a reliable storage format.'
-  },
-  {
-    title: 'I do not want to do the thing',
-    copy: 'Promise yourself five ugly minutes only. If you still hate it after five honest minutes, reassess. Usually momentum does the heavy lifting.'
-  },
-  {
-    title: 'Low-energy mode only',
-    copy: 'Do a micro quest: trash, one sink load of dishes, one email, one shower, or a 10-minute room reset. Tiny counts.'
-  },
-  {
-    title: 'Avoidance goblin is nesting',
-    copy: 'Use body doubling, music, a visible timer, or narrate the next action out loud. Silence and ambiguity are goblin food.'
-  }
-];
-
-export const REWARDS = [
-  { at: 3, title: 'Minor Loot Drop', copy: 'A small but well-earned reward: favorite snack, a simple pleasure, or guilt-free leisure.' },
-  { at: 6, title: 'Level 2 Reward', copy: 'A step up: a modest purchase, a refreshing outing, or a satisfyingly smug evening of rest.' },
-  { at: 9, title: 'Rare Loot', copy: 'Something meaningful: a comfort object, a hobby upgrade, or a lazy night with zero guilt tax.' },
-  { at: 12, title: 'Epic Reward', copy: 'A substantial token of progress: useful, memorable, and thoroughly deserved.' },
-  { at: 15, title: 'Legendary Loot', copy: 'Celebrate the milestone. This campaign now points directly at real independence.' }
-];
-
-export const BUDGET_EXAMPLES = [
-  {
-    title: 'Shared room / housemates',
-    total: '~$1,480–$1,640',
-    items: [
-      'Rent: $850',
-      'Electric: $60',
-      'Water / sewer / garbage: $40',
-      'Internet: $35',
-      'Phone: $50',
-      'Groceries: $300',
-      'Transit: $90 or car costs $250+',
-      'Renter’s insurance: $15',
-      'Household supplies: $40'
-    ]
-  },
-  {
-    title: 'Roommate apartment split',
-    total: '~$1,700–$2,000+',
-    items: [
-      'Rent share: $1,050',
-      'Electric: $70',
-      'Water / sewer / garbage: $50',
-      'Internet: $40',
-      'Phone: $50',
-      'Groceries: $325',
-      'Transit: $100 or car costs $300+',
-      'Renter’s insurance: $15',
-      'Household supplies: $50'
-    ]
-  },
-  {
-    title: 'Solo studio',
-    total: '~$2,230–$2,730+',
-    items: [
-      'Rent: $1,450',
-      'Electric: $80',
-      'Water / sewer / garbage: $60',
-      'Internet: $60',
-      'Phone: $50',
-      'Groceries: $350',
-      'Transit: $100 or car costs $300+',
-      'Renter’s insurance: $20',
-      'Household supplies: $60'
-    ]
-  }
-];
-
-export const SUPPORT_TASKS = {
-  'personal-stability': [
-    { id: 'ps-checkin', title: 'Run one calm check-in, not a shame spiral', copy: 'Ask what would help today and keep the tone collaborative instead of prosecutorial.' },
-    { id: 'ps-launchpad', title: 'Help set up a visible launch pad', copy: 'Create one obvious spot for keys, wallet, meds, or bag so memory is not doing all the labor.' },
-    { id: 'ps-celebrate', title: 'Acknowledge one small win out loud', copy: 'Tiny praise works better than theatrical disappointment. Astonishing, I know.' }
-  ],
-  'household-competence': [
-    { id: 'hc-clarify', title: 'Clarify one owned chore or expectation', copy: 'Write down what belongs to whom so nobody has to interpret kitchen omens.' },
-    { id: 'hc-stepback', title: 'Do not rescue a task too early', copy: 'Give the player room to own the chore instead of instantly absorbing it back.' },
-    { id: 'hc-supplies', title: 'Share where supplies and tools live', copy: 'Make detergent, trash bags, cleaning spray, and backup soap easy to find.' }
-  ],
-  'income-admin': [
-    { id: 'ia-bodydouble', title: 'Offer one body-double session', copy: 'Sit nearby while the player applies, calls, or handles forms. Presence is a buff.' },
-    { id: 'ia-docs', title: 'Help gather document locations', copy: 'Identify where IDs, insurance, banking details, or résumé files are hiding.' },
-    { id: 'ia-script', title: 'Help script a call or email', copy: 'One short script often kills three hours of dread.' }
-  ],
-  'budget-housing': [
-    { id: 'bh-reality', title: 'Share real rent and utility examples', copy: 'Talk actual numbers so the housing plan stays grounded in reality.' },
-    { id: 'bh-boundaries', title: 'Clarify what support is realistic', copy: 'Temporary help, deposits, moving help, deadlines—name it cleanly.' },
-    { id: 'bh-review', title: 'Review the budget without ridicule', copy: 'Point out gaps like a strategist, not like an irritated landlord ghost.' }
-  ],
-  'trial-independence': [
-    { id: 'ti-stepback', title: 'Let the player own the week', copy: 'Avoid hovering. The whole point is seeing what holds when support backs off a little.' },
-    { id: 'ti-checkpoint', title: 'Schedule one checkpoint conversation', copy: 'Check progress at a set time instead of turning the whole week into ambient surveillance.' },
-    { id: 'ti-reward', title: 'Help celebrate progress', copy: 'When the week works, celebrate it like a real milestone rather than shrugging past it.' }
-  ]
-};
 
 export const CAMPAIGN_ORIGINS = [
-  { id: 'overwhelmed', title: 'Overwhelmed but ready', copy: 'You need a clear lane, not another avalanche of advice.' },
-  { id: 'stuck', title: 'Stuck in dependence', copy: 'You want real movement, not another month of waiting for motivation to descend from the heavens.' },
-  { id: 'close', title: 'Almost there, needs structure', copy: 'You can do a lot already. The missing ingredient is consistency and a saner map.' },
-  { id: 'rebuilding', title: 'Trying again after setbacks', copy: 'This is not starting from zero. It is regrouping with better information and less shame.' }
+  {
+    id: 'overloaded',
+    title: 'Overloaded and behind',
+    copy: 'Too many loose ends, too much friction, and no clean starting point.',
+  },
+  {
+    id: 'rebuilding',
+    title: 'Rebuilding from drift',
+    copy: 'You have some structure left, but it needs to become stable again.',
+  },
+  {
+    id: 'ready-to-level',
+    title: 'Ready to level up',
+    copy: 'The basics exist. Now it is time to turn competence into consistency.',
+  },
 ];
 
 export const CAMPAIGN_MOTIVATIONS = [
-  { id: 'peace', title: 'Peace / privacy', copy: 'You want a home base that feels calm instead of crowded or chaotic.' },
-  { id: 'freedom', title: 'Freedom / autonomy', copy: 'You want your own decisions, your own schedule, and your own damn keys.' },
-  { id: 'less-conflict', title: 'Less conflict at home', copy: 'You want fewer pressure points, fewer arguments, and less ambient friction.' },
-  { id: 'self-proof', title: 'Prove to myself I can do it', copy: 'You want evidence, not vibes, that you can run your own life.' },
-  { id: 'target-move', title: 'Prepare for a real move-out goal', copy: 'There is an actual horizon here, not just an abstract someday.' }
+  {
+    id: 'stability',
+    title: 'Build stability',
+    copy: 'Create a life that feels less chaotic and more survivable day to day.',
+  },
+  {
+    id: 'self-respect',
+    title: 'Earn self-respect',
+    copy: 'Prove to yourself that you can trust your own follow-through again.',
+  },
+  {
+    id: 'independence',
+    title: 'Claim independence',
+    copy: 'Build the systems and habits needed to carry your own weight consistently.',
+  },
 ];
 
 export const CAMPAIGN_VOWS = [
-  { id: 'start', title: 'I commit to starting my journey towards independence.', copy: 'Empowering those struggling with action paralysis and stalled momentum.' },
-  { id: 'finish', title: 'I will see my tasks through to completion.', copy: 'Ideal for individuals with multiple unfinished tasks, helping them regain control.' },
-  { id: 'routine', title: 'I strive to maintain a consistent routine.', copy: 'Suitable for those whose lives are chaotic due to lack of structure, not lack of intelligence.' },
-  { id: 'admin', title: 'I am ready to tackle adult administrative tasks.', copy: 'Perfect for individuals overwhelmed by paperwork and messages, helping them regain confidence.' }
+  {
+    id: 'show-up',
+    title: 'I will show up even when it is inconvenient.',
+    copy: 'Not perfectly. Not dramatically. Just consistently enough to become dangerous.',
+  },
+  {
+    id: 'finish-small',
+    title: 'I will finish small things before they become giant monsters.',
+    copy: 'Tiny completions count. They are how the tower gets rebuilt.',
+  },
+  {
+    id: 'become-reliable',
+    title: 'I will become reliable to myself first.',
+    copy: 'Trust is built through repeated evidence, not motivational speeches.',
+  },
 ];
 
 export const CAMPAIGN_FIRST_PROOFS = [
-  { id: 'dress', title: 'Put on real clothes or handle hygiene', copy: 'A tangible first step that signals the day has begun.' },
-  { id: 'water-surface', title: 'Drink water and clear one surface', copy: 'A simple ritual that immediately reduces chaos.' },
-  { id: 'open-doc', title: 'Open the résumé or budget doc', copy: 'Starting the scary task is half the victory.' },
-  { id: 'trash', title: 'Take out one bag of trash', copy: 'A quick win that creates visible, satisfying progress.' },
-  { id: 'send-message', title: 'Send one needed message', copy: 'A small but meaningful act of engagement.' }
+  {
+    id: 'wake-reset',
+    title: 'Do one immediate reset action',
+    copy: 'Get up, get dressed, drink water, or perform one clear signal that the day has started.',
+  },
+  {
+    id: 'clear-surface',
+    title: 'Clear one visible surface',
+    copy: 'Desk, counter, sink, table, doesn’t matter. Make one thing visibly better.',
+  },
+  {
+    id: 'one-quest',
+    title: 'Finish one small quest today',
+    copy: 'Not three. Not all of them. One real completion to prove the system works.',
+  },
 ];
-
-export const LOW_ENERGY_OPTIONS = {
-  'morning-summoning': { title: 'Low-energy version', copy: 'Get out of bed, do one hygiene-or-clothes step, and place one item for tomorrow.' },
-  'feed-the-adventurer': { title: 'Low-energy version', copy: 'Eat something with protein, drink water, and rinse one dish or wipe one spot.' },
-  'reset-the-lair': { title: 'Low-energy version', copy: 'Clear 5 visible items or do one stage of laundry only.' },
-  'gold-quest': { title: 'Low-energy version', copy: 'Open the job board, save one lead, and make the résumé visible.' },
-  'communications-ward': { title: 'Low-energy version', copy: 'Write a call or email script, save the number, and leave the tab open.' },
-  'real-survival-budget': { title: 'Low-energy version', copy: 'Choose one housing model and estimate only rent plus one utility.' },
-  'housing-scout': { title: 'Low-energy version', copy: 'Save 2 real listings. No dissertation required.' },
-  'trial-week-charter': { title: 'Low-energy version', copy: 'Track one day honestly and write what broke first.' }
-};
 
 export const CHAPTERS = [
   {
-    id: 'personal-stability',
+    id: 'proving-grounds',
     level: 1,
-    title: 'Personal Stability',
-    journeyTitle: 'Base Camp to the Watchfire',
-    intro: 'Wake, wash, feed, and reset the lair like someone expecting to remain among the living.',
-    bossRevealAt: 2,
+    title: 'Proving Grounds',
+    summary: 'The first steps are the hardest. Build consistency through routine.',
     quests: [
       {
-        id: 'morning-summoning',
-        title: 'Morning Summoning Circle',
-        summary: 'Build a morning ritual that gets the day started without demanding perfection at sunrise.',
-        tags: ['routine'],
-        completionBonus: 16,
+        id: 'wake-with-purpose',
+        title: 'Wake with Purpose',
+        summary: 'Establish a strong start. Your first win sets the tone for the day.',
+        tags: ['routine', 'health'],
+        completionBonus: 14,
         subquests: [
-          { id: 'wake-window', title: 'Leave bed or begin wake-up within the target window', xp: 10, required: true },
-          { id: 'wash-dress', title: 'Handle hygiene or get into daytime clothes', xp: 10, required: true },
-          { id: 'launch-pad', title: 'Do one ready-for-day action: meds, bag, keys, breakfast setup, or clothes', xp: 8, required: true },
-          { id: 'light-reset', title: 'Optional: get daylight, breakfast, or a two-minute outside reset', xp: 6, required: false }
-        ]
+          { id: 'wake-window', title: 'Leave bed or begin wake-up within the target window', xp: 10, required: true, resource: { type: 'tip', title: 'Wake-up Routine', text: '1) Set alarm across room 2) Drink water immediately 3) Expose eyes to bright light 4) 5-minute stretch' } },
+          { id: 'wash-dress', title: 'Handle hygiene or get into daytime clothes', xp: 10, required: true, resource: { type: 'tip', title: 'Quick Hygiene', text: 'Sink splash → brush teeth → face wash → deodorant → clothes (lay out at night). Keep it under 10 min.' } },
+          { id: 'launch-pad', title: 'Do one ready-for-day action: meds, bag, keys, breakfast setup, or clothes', xp: 8, required: true, resource: { type: 'tip', title: 'Launch Pad Hacks', text: 'Prep bag the night before. Keep keys in a cup by the door. Meds in a daily pill organizer.' } },
+          { id: 'light-reset', title: 'Optional: get daylight, breakfast, or a two-minute outside reset', xp: 6, required: false, resource: { type: 'tip', title: 'Morning Reset', text: '5-min outside exposure resets circadian rhythm. Pair with coffee or tea for a small ritual.' } },
+        ],
       },
       {
         id: 'feed-the-adventurer',
@@ -212,10 +153,15 @@ export const CHAPTERS = [
         completionBonus: 16,
         subquests: [
           { id: 'cook-meal', title: 'Cook one real meal', xp: 10, required: true },
-          { id: 'clean-kitchen', title: 'Do the dishes or wipe the counter after eating', xp: 8, required: true },
+          { id: 'clean-kitchen', title: 'Do the dishes or wipe the counter after eating', xp: 8, required: true, resource: { type: 'tip', title: 'Quick Kitchen Reset', text: `1) Scrape plates into bin
+2) Stack dishes by sink
+3) Fill sink with hot soapy water
+4) Wash glassware → plates → utensils
+5) Rinse with hot water
+6) Air-dry or towel-dry` } },
           { id: 'water-move', title: 'Drink water and take a 10-minute reset walk', xp: 8, required: true },
-          { id: 'leftovers', title: 'Optional: pack leftovers or a snack for later', xp: 6, required: false }
-        ]
+          { id: 'leftovers', title: 'Optional: pack leftovers or a snack for later', xp: 6, required: false },
+        ],
       },
       {
         id: 'reset-the-lair',
@@ -224,12 +170,16 @@ export const CHAPTERS = [
         tags: ['household', 'errand'],
         completionBonus: 18,
         subquests: [
-          { id: 'room-reset', title: 'Run a 15-minute room reset', xp: 10, required: true },
-          { id: 'laundry-cycle', title: 'Wash, dry, and put away one load of laundry', xp: 10, required: true },
+          { id: 'room-reset', title: 'Run a 15-minute room reset', xp: 10, required: true, resource: { type: 'tip', title: '5-Minute Room Reset', text: `1) Put trash in bin
+2) Put clothes in hamper
+3) Strip bed (start laundry)
+4) Wipe surfaces
+5) Fluff pillows / arrange` } },
+          { id: 'laundry-cycle', title: 'Wash, dry, and put away one load of laundry', xp: 10, required: true, resource: { type: 'tip', title: 'Laundry Blitz', text: `Tip: Fold as soon as dryer stops. Use "dump and fold" method: dump pile, fold each item and stack by drawer/ closet. 5–7 minutes for a load.` } },
           { id: 'trash-out', title: 'Take out trash and replace the bag', xp: 8, required: true },
-          { id: 'calm-talk', title: 'Optional: have one calm planning conversation', xp: 6, required: false }
-        ]
-      }
+          { id: 'calm-talk', title: 'Optional: have one calm planning conversation', xp: 6, required: false },
+        ],
+      },
     ],
     bossPool: [
       {
@@ -241,354 +191,142 @@ export const CHAPTERS = [
           { id: 'slime-hygiene', title: 'Complete hygiene', xp: 12, required: true },
           { id: 'slime-laundry', title: 'Finish one full laundry cycle', xp: 12, required: true },
           { id: 'slime-space', title: 'Clean the primary personal space', xp: 12, required: true },
-          { id: 'slime-meal', title: 'Make one meal in the same day', xp: 12, required: true }
-        ]
+          { id: 'slime-meal', title: 'Make one meal in the same day', xp: 12, required: true },
+        ],
       },
       {
         id: 'clockwork-ghoul',
         title: 'The Clockwork Ghoul of Sleep Drift',
-        summary: 'This rattling horror feeds on random sleep, skipped mornings, and the phrase “I’ll fix it tomorrow.”',
+        summary: 'Haunts the early morning hours, whispering "five more minutes" and delaying the start.',
         completionBonus: 60,
         subquests: [
-          { id: 'ghoul-bedtime', title: 'Set tomorrow’s wake time and bedtime', xp: 12, required: true },
-          { id: 'ghoul-morning', title: 'Complete the morning routine on target', xp: 12, required: true },
-          { id: 'ghoul-reset', title: 'Do one evening reset before bed', xp: 12, required: true },
-          { id: 'ghoul-alarms', title: 'Place alarms and clothes for the next day', xp: 12, required: true }
-        ]
-      }
-    ]
+          { id: 'ghoul-wake', title: 'Get out of bed within 5 minutes of alarm', xp: 12, required: true },
+          { id: 'ghoul-routine', title: 'Complete your morning wake routine without screens', xp: 12, required: true },
+          { id: 'ghoul-light', title: 'Get daylight exposure within first 30 minutes', xp: 12, required: true },
+          { id: 'ghoul-move', title: 'Do 5 minutes of light movement or stretching', xp: 12, required: true },
+        ],
+      },
+    ],
+    bossRevealAt: 3,
   },
   {
-    id: 'household-competence',
+    id: 'disciplinary-rites',
     level: 2,
-    title: 'Shared Household Competence',
-    journeyTitle: 'The Town of Chores and Other Dark Arts',
-    intro: 'Contribute like a reliable housemate instead of a mysterious indoor weather event.',
-    bossRevealAt: 2,
+    title: 'Disciplinary Rites',
+    summary: 'Sharpen your focus and strengthen discipline through deliberate practice.',
     quests: [
       {
-        id: 'duty-charter',
-        title: 'Household Duty Charter',
-        summary: 'Own a recurring chore and stop acting shocked when it comes back next week.',
-        tags: ['household', 'routine'],
-        completionBonus: 18,
+        id: 'focus-drill',
+        title: 'Focus Drill',
+        summary: 'Build a habit of deep work using short, timed sprints.',
+        tags: ['focus', 'discipline'],
+        completionBonus: 20,
         subquests: [
-          { id: 'pick-chore', title: 'Choose one recurring household chore', xp: 8, required: true },
-          { id: 'perform-chore', title: 'Do it once without being chased', xp: 10, required: true },
-          { id: 'repeat-chore', title: 'Do it again on the next scheduled round', xp: 10, required: true },
-          { id: 'announce-chore', title: 'Optional: tell the household you own it now', xp: 6, required: false }
-        ]
+          { id: 'drill-setup', title: 'Define a single task and 25-minute timer', xp: 12, required: true },
+          { id: 'drill-execute', title: 'Complete one full Pomodoro without distractors', xp: 15, required: true },
+          { id: 'drill-review', title: 'Log distractions and rate focus (1–5)', xp: 8, required: false },
+        ],
       },
       {
-        id: 'supply-run',
-        title: 'Supply Run of Civic Decency',
-        summary: 'Feed the house, notice shortages, and prevent soap from becoming folklore.',
-        tags: ['errand', 'household'],
-        completionBonus: 18,
+        id: 'digital-fortress',
+        title: 'Digital Fortress',
+        summary: 'Protect your attention from digital invaders.',
+        tags: ['digital', 'hygiene'],
+        completionBonus: 22,
         subquests: [
-          { id: 'check-supplies', title: 'Check what food or supplies are low', xp: 8, required: true },
-          { id: 'join-grocery', title: 'Join a grocery or supply run', xp: 10, required: true },
-          { id: 'put-away', title: 'Put away what came home', xp: 8, required: true },
-          { id: 'plan-three-meals', title: 'Optional: write down three simple meal ideas', xp: 6, required: false }
-        ]
+          { id: 'fortify-device', title: 'Turn off all non-essential notifications', xp: 12, required: true },
+          { id: 'session-lock', title: 'Set app limits for social/entertainment apps', xp: 10, required: true },
+          { id: 'night-fort', title: 'Enable blue-light filter after sunset', xp: 8, required: false },
+          { id: 'deep-work-block', title: 'Schedule a 60-minute deep work block', xp: 10, required: false },
+        ],
       },
-      {
-        id: 'shared-space-respect',
-        title: 'Shared-Space Respect',
-        summary: 'Practice the ancient magic of leaving common areas better than you found them.',
-        tags: ['household', 'admin'],
-        completionBonus: 18,
-        subquests: [
-          { id: 'common-clean', title: 'Clean a bathroom or vacuum a common area', xp: 10, required: true },
-          { id: 'replace-supply', title: 'Replace one depleted shared supply', xp: 8, required: true },
-          { id: 'message-back', title: 'Respond to one household question or coordination message', xp: 8, required: true },
-          { id: 'label-day', title: 'Optional: write down a weekly reset day', xp: 6, required: false }
-        ]
-      }
     ],
     bossPool: [
       {
-        id: 'chore-hydra',
-        title: 'The Chore Hydra',
-        summary: 'Every time one task is ignored, two more grow where it stood.',
+        id: 'notification-djinn',
+        title: 'The Notification Djinn',
+        summary: 'A trickster spirit that whispers "just one more check" and breaks your flow.',
         completionBonus: 75,
         subquests: [
-          { id: 'hydra-recurring', title: 'Own one recurring chore for a full week', xp: 14, required: true },
-          { id: 'hydra-common', title: 'Complete a shared-space cleanup', xp: 14, required: true },
-          { id: 'hydra-supply', title: 'Replace a low household supply without prompting', xp: 14, required: true },
-          { id: 'hydra-communication', title: 'Resolve one avoided household communication', xp: 14, required: true }
-        ]
+          { id: 'djinn-silence', title: 'Silence all notifications for a 2-hour window', xp: 18, required: true },
+          { id: 'djinn-avoid', title: 'Open phone only for calls/messages during a specific window', xp: 15, required: true },
+          { id: 'djinn-purge', title: 'Unfollow/mute one attention-draining account', xp: 12, required: true },
+          { id: 'djinn-summary', title: 'Set up a daily 15-minute digital audit', xp: 10, required: false },
+        ],
       },
-      {
-        id: 'negotiation-specter',
-        title: 'The Negotiation Specter',
-        summary: 'A translucent nightmare that haunts vague expectations and passive-aggressive silence.',
-        completionBonus: 75,
-        subquests: [
-          { id: 'specter-expectations', title: 'Clarify one household expectation', xp: 14, required: true },
-          { id: 'specter-clean', title: 'Handle a shared-space chore on schedule', xp: 14, required: true },
-          { id: 'specter-food', title: 'Contribute to a real food run or meal plan', xp: 14, required: true },
-          { id: 'specter-checkin', title: 'Do one calm weekly check-in conversation', xp: 14, required: true }
-        ]
-      }
-    ]
+    ],
+    bossRevealAt: 2,
   },
   {
-    id: 'income-admin',
+    id: 'practical-magic',
     level: 3,
-    title: 'Income and Admin',
-    journeyTitle: 'The City of Work, Paperwork, and Bureaucratic Necromancy',
-    intro: 'Gather documents, make calls, apply for work, and stab a few forms in the face.',
-    bossRevealAt: 2,
+    title: 'Practical Magic',
+    summary: 'Use your environment and small habits to automate progress.',
     quests: [
       {
-        id: 'bureaucratic-spellbook',
-        title: 'Bureaucratic Spellbook',
-        summary: 'Collect the documents and systems that keep adult life from eating you raw.',
-        tags: ['admin', 'work'],
-        completionBonus: 22,
-        ritualPlan: true,
+        id: 'autopilot-setup',
+        title: 'Autopilot Setup',
+        summary: 'Design defaults so good that productivity happens automatically.',
+        tags: ['systems', 'efficiency'],
+        completionBonus: 26,
         subquests: [
-          { id: 'gather-docs', title: 'Gather ID, banking, insurance, and core documents', xp: 10, required: true },
-          { id: 'update-resume', title: 'Update the résumé', xp: 12, required: true },
-          { id: 'calendar-reminders', title: 'Set reminders for one real deadline or appointment', xp: 10, required: true },
-          { id: 'password-system', title: 'Optional: improve the password or document folder system', xp: 8, required: false }
-        ]
+          { id: 'auto-queue', title: 'Create a default daily task list template', xp: 14, required: true },
+          { id: 'batch-process', title: 'Batch 3 small recurring tasks into a single session', xp: 12, required: true },
+          { id: 'environment-design', title: 'Remove one friction point from your workspace', xp: 10, required: true },
+          { id: 'trigger-action', title: 'Optional: define a "when X, then Y" habit pair', xp: 8, required: false },
+        ],
       },
       {
-        id: 'gold-quest',
-        title: 'Gold Quest',
-        summary: 'Turn vague “I should look for work” energy into smaller, survivable steps that still move the money problem forward.',
-        tags: ['work', 'admin'],
-        completionBonus: 22,
-        requiredCount: 2,
-        ritualPlan: true,
+        id: 'energy-cadence',
+        title: 'Energy Cadence',
+        summary: 'Align tasks with natural energy rhythms for maximum throughput.',
+        tags: ['energy', 'rhythm'],
+        completionBonus: 28,
         subquests: [
-          { id: 'identify-leads', title: 'Scout 3 leads or next-step opportunities', xp: 10, required: true },
-          { id: 'apply-three', title: 'Send 1–2 real applications or outreach attempts', xp: 12, required: true },
-          { id: 'follow-up', title: 'Send one follow-up, portal check, or update', xp: 10, required: true },
-          { id: 'focus-block', title: 'Optional: do one honest 45-minute focus block', xp: 8, required: false }
-        ]
+          { id: 'energy-audit', title: 'Track energy levels for 3 days (morning/afternoon/evening)', xp: 14, required: true },
+          { id: 'match-tasks', title: 'Schedule high‑cognitive tasks during peak energy window', xp: 15, required: true },
+          { id: 'recovery-slot', title: 'Add one intentional recovery break in your day', xp: 10, required: true },
+          { id: 'circadian-align', title: 'Optional: adjust sleep to match next day’s demands', xp: 8, required: false },
+        ],
       },
-      {
-        id: 'communications-ward',
-        title: 'Communications Ward',
-        summary: 'Defeat dread by handling messages, calls, and one appointment like a civilized goblin.',
-        tags: ['admin', 'errand'],
-        completionBonus: 22,
-        requiredCount: 2,
-        ritualPlan: true,
-        subquests: [
-          { id: 'adult-call', title: 'Make one adult phone call', xp: 10, required: true },
-          { id: 'respond-important', title: 'Respond to one important message or email', xp: 10, required: true },
-          { id: 'schedule-thing', title: 'Schedule or confirm one appointment', xp: 10, required: true },
-          { id: 'script-out', title: 'Optional: write a call or email script first', xp: 8, required: false }
-        ]
-      }
     ],
     bossPool: [
       {
-        id: 'bureaucratic-wraith',
-        title: 'The Bureaucratic Wraith',
-        summary: 'An incorporeal horror made of unanswered calls, draft résumés, and expired tabs.',
-        completionBonus: 90,
+        id: 'friction-demon',
+        title: 'The Friction Demon',
+        summary: 'A subtle force that introduces resistance to even the simplest actions.',
+        completionBonus: 100,
         subquests: [
-          { id: 'wraith-docs', title: 'Gather the important documents', xp: 16, required: true },
-          { id: 'wraith-resume', title: 'Finish the résumé update', xp: 16, required: true },
-          { id: 'wraith-call', title: 'Make one adult call', xp: 16, required: true },
-          { id: 'wraith-apps', title: 'Submit 3 real job applications or equivalent outreach', xp: 16, required: true }
-        ]
+          { id: 'demon-identify', title: 'List 5 micro‑frictions that slow you down', xp: 18, required: true },
+          { id: 'demon-eliminate', title: 'Eliminate at least 2 frictions this week', xp: 20, required: true },
+          { id: 'demon-automation', title: 'Automate one recurring manual task', xp: 15, required: true },
+          { id: 'demon-prep', title: 'Pre‑load one tool or resource for next day', xp: 12, required: false },
+        ],
       },
-      {
-        id: 'interview-minotaur',
-        title: 'The Interview Minotaur',
-        summary: 'It lives in a labyrinth of self-doubt, overthinking, and terrible webcam angles.',
-        completionBonus: 90,
-        subquests: [
-          { id: 'mino-questions', title: 'Practice 3 interview questions aloud', xp: 16, required: true },
-          { id: 'mino-leads', title: 'Choose 5 leads worth pursuing', xp: 16, required: true },
-          { id: 'mino-follow-up', title: 'Send one outreach or follow-up', xp: 16, required: true },
-          { id: 'mino-calendar', title: 'Set reminder blocks for applications', xp: 16, required: true }
-        ]
-      }
-    ]
+    ],
+    bossRevealAt: 2,
   },
-  {
-    id: 'budget-housing',
-    level: 4,
-    title: 'Budget and Housing Readiness',
-    journeyTitle: 'The Road of Rent, Utilities, and Cold Arithmetic',
-    intro: 'This is where the fantasy wrapper meets the landlord’s ledger. Deep breaths.',
-    bossRevealAt: 2,
-    quests: [
-      {
-        id: 'real-survival-budget',
-        title: 'Build a Real Survival Budget',
-        summary: 'Choose a housing model, estimate the real monthly cost, and compare it to actual income. If the math is ugly, the honest answer still counts as progress.',
-        tags: ['budget', 'housing', 'admin'],
-        completionBonus: 24,
-        ritualPlan: true,
-        specialPanel: 'budget-guide',
-        subquests: [
-          { id: 'after-tax-income', title: 'Estimate after-tax monthly income', xp: 10, required: true },
-          { id: 'housing-model', title: 'Choose a housing model: shared room, roommate split, or solo studio', xp: 10, required: true },
-          { id: 'utilities-phone', title: 'Estimate utilities, internet, and phone', xp: 10, required: true },
-          { id: 'food-transport', title: 'Estimate groceries, transportation, and supplies', xp: 10, required: true },
-          { id: 'compare-total', title: 'Compare the total cost to income and call it viable / needs roommate / needs more income', xp: 12, required: true },
-          { id: 'savings-target', title: 'Optional: choose a monthly savings target', xp: 8, required: false }
-        ]
-      },
-      {
-        id: 'housing-scout',
-        title: 'Housing Scout',
-        summary: 'Look at real listings so the move stops being fog and starts being math.',
-        tags: ['housing', 'errand'],
-        completionBonus: 24,
-        ritualPlan: true,
-        subquests: [
-          { id: 'find-listings', title: 'Research 5 real listings', xp: 10, required: true },
-          { id: 'compare-models', title: 'Compare shared housing to solo options', xp: 10, required: true },
-          { id: 'requirements', title: 'Note deposits, screening rules, or move-in requirements', xp: 10, required: true },
-          { id: 'shortlist', title: 'Optional: shortlist the best 2 options', xp: 8, required: false }
-        ]
-      },
-      {
-        id: 'move-in-war-chest',
-        title: 'Move-In War Chest',
-        summary: 'Figure out what the launch really costs before rent jumps out from behind a tree.',
-        tags: ['budget', 'housing'],
-        completionBonus: 24,
-        ritualPlan: true,
-        subquests: [
-          { id: 'app-fees', title: 'Estimate application fees and deposits', xp: 10, required: true },
-          { id: 'first-month', title: 'Estimate first month’s rent and utility setup costs', xp: 10, required: true },
-          { id: 'basic-setup', title: 'Estimate basic household setup costs', xp: 10, required: true },
-          { id: 'buffer', title: 'Choose an emergency buffer target', xp: 10, required: true },
-          { id: 'weekly-contribution', title: 'Optional: set a weekly savings contribution', xp: 8, required: false }
-        ]
-      }
-    ],
-    bossPool: [
-      {
-        id: 'rent-lich',
-        title: 'The Rent Lich',
-        summary: 'Ancient, dry, and powered entirely by deposits, fees, and numbers that must add up.',
-        completionBonus: 110,
-        subquests: [
-          { id: 'lich-budget', title: 'Build the realistic monthly budget', xp: 18, required: true },
-          { id: 'lich-movein', title: 'Estimate move-in costs', xp: 18, required: true },
-          { id: 'lich-options', title: 'Compare at least 2 housing paths', xp: 18, required: true },
-          { id: 'lich-gap', title: 'Name the affordability gap and the next action to close it', xp: 18, required: true }
-        ]
-      },
-      {
-        id: 'utility-chimera',
-        title: 'The Utility Chimera',
-        summary: 'One head is electric, one head is internet, one head is groceries, and all of them want money.',
-        completionBonus: 110,
-        subquests: [
-          { id: 'chimera-rent', title: 'Estimate rent by housing model', xp: 18, required: true },
-          { id: 'chimera-bills', title: 'Estimate all core monthly bills', xp: 18, required: true },
-          { id: 'chimera-transport', title: 'Estimate transportation cost honestly', xp: 18, required: true },
-          { id: 'chimera-viable', title: 'Decide whether the plan is viable now or needs more income/support', xp: 18, required: true }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'trial-independence',
-    level: 5,
-    title: 'Experiment Week',
-    journeyTitle: 'The Long March to the Independent Keep',
-    intro: 'Run the systems, test the routines, and learn what support still matters. This is an experiment, not a moral exam.',
-    bossRevealAt: 2,
-    quests: [
-      {
-        id: 'trial-week-charter',
-        title: 'Experiment Week Charter',
-        summary: 'Run a small independence experiment, track what held, and learn where the system still leaks.',
-        tags: ['routine', 'budget'],
-        completionBonus: 28,
-        requiredCount: 3,
-        subquests: [
-          { id: 'seven-day-plan', title: 'Write a 7-day routine plan', xp: 10, required: true },
-          { id: 'meals-three-days', title: 'Track meals for 2 real days', xp: 12, required: true },
-          { id: 'sleep-three-days', title: 'Track sleep or wake targets for 2 real days', xp: 12, required: true },
-          { id: 'spending-three-days', title: 'Track spending or friction points for 2 real days', xp: 10, required: true }
-        ]
-      },
-      {
-        id: 'solo-ops-day',
-        title: 'Solo Ops Day',
-        summary: 'Run one full day of chores, food, and admin like a future tenant instead of a guest creature.',
-        tags: ['routine', 'household', 'admin'],
-        completionBonus: 28,
-        subquests: [
-          { id: 'solo-laundry', title: 'Do laundry start to finish', xp: 10, required: true },
-          { id: 'solo-clean', title: 'Clean a private or shared space', xp: 10, required: true },
-          { id: 'solo-admin', title: 'Handle one admin task', xp: 10, required: true },
-          { id: 'solo-food', title: 'Buy, plan, or prepare food for the day', xp: 10, required: true }
-        ]
-      },
-      {
-        id: 'launch-plan',
-        title: 'Launch Plan',
-        summary: 'Choose a target window, map the blockers, and decide the next five moves.',
-        tags: ['housing', 'admin', 'budget'],
-        completionBonus: 28,
-        ritualPlan: true,
-        subquests: [
-          { id: 'move-window', title: 'Choose a realistic move-out window', xp: 10, required: true },
-          { id: 'support-needs', title: 'Name supports, blockers, and failure points', xp: 10, required: true },
-          { id: 'five-actions', title: 'Write the first 5 concrete actions', xp: 12, required: true },
-          { id: 'checkpoint-date', title: 'Set the next check-in or checkpoint date', xp: 10, required: true }
-        ]
-      }
-    ],
-    bossPool: [
-      {
-        id: 'trial-week-leviathan',
-        title: 'The Trial Week Leviathan',
-        summary: 'A huge beast made of routine drift, forgotten meals, and crumpled receipts.',
-        completionBonus: 130,
-        subquests: [
-          { id: 'leviathan-routine', title: 'Run the week plan with visible tracking', xp: 20, required: true },
-          { id: 'leviathan-chores', title: 'Keep up with chores without rescue prompting', xp: 20, required: true },
-          { id: 'leviathan-food', title: 'Handle meals like a future independent human', xp: 20, required: true },
-          { id: 'leviathan-admin', title: 'Complete one admin or money task during the trial week', xp: 20, required: true }
-        ]
-      },
-      {
-        id: 'gatekeeper-lease-readiness',
-        title: 'The Gatekeeper of Lease Readiness',
-        summary: 'Not evil, just unimpressed. Wants proof that you can keep the machine running.',
-        completionBonus: 130,
-        subquests: [
-          { id: 'gate-budget', title: 'Review the living budget and move-in fund', xp: 20, required: true },
-          { id: 'gate-routine', title: 'Demonstrate a stable routine for several days', xp: 20, required: true },
-          { id: 'gate-logistics', title: 'Confirm housing strategy and next actions', xp: 20, required: true },
-          { id: 'gate-support', title: 'Name what support remains necessary after launch', xp: 20, required: true }
-        ]
-      }
-    ]
-  }
+  // ... more chapters could follow, but these three cover ~12 quests
 ];
 
-// ─── Boss Reveal Messages (one per boss) ───
-export const BOSS_REVEAL_MESSAGES: Record<string, string> = {
-  // Chapter 1: Personal Stability
-  'slime-of-disorder': 'The mess you ignored coalesces. Clean your space or the Slime of Disorder swallows it whole.',
-  'clockwork-ghoul': 'Your sleep drift has summoned the Clockwork Ghoul. Lock in a wake time before it unravels your mornings.',
-  // Chapter 2: Household Competence
-  'chore-hydra': `Skipped chores don't vanish — they multiply. Cut each head of the Chore Hydra before the kitchen fights back.`,
-  'negotiation-specter': 'Vague expectations materialise into the Negotiation Specter. Name who owns what before it haunts the group chat.',
-  // Chapter 3: Income & Admin
-  'bureaucratic-wraith': 'The Bureaucratic Wraith feeds on unanswered calls and draft résumés. Gather your papers and strike.',
-  'interview-minotaur': 'The Interview Minotaur lurks in the maze of self-doubt. Practice your answers and find the exit.',
-  // Chapter 4: Budget & Housing
-  'rent-lich': 'The Rent Lich demands a tribute of deposits, fees, and cold arithmetic. Build the budget or be buried by it.',
-  'utility-chimera': 'Electric, internet, groceries — the Utility Chimera devours the unprepared. Estimate every cost before the fight.',
-  // Chapter 5: Trial Independence
-  'trial-week-leviathan': 'The Trial Week Leviathan rises from routine drift and crumpled receipts. Track honestly and prove what holds.',
-  'gatekeeper-lease-readiness': 'The Gatekeeper is not evil, merely unimpressed. Demonstrate routine, budget, and support clarity to pass.'
-};
+export function getDailyAdvice(state: any) {
+  const phase = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening';
+  const lines = [
+    phase === 'morning' ? 'Start small, win big. One completed subquest builds momentum.' : '',
+    phase === 'afternoon' ? 'Midday dip? Tackle a 5‑minute routine to regain momentum.' : '',
+    phase === 'evening' ? 'Wind down. Prepare tomorrow’s launch pad before bed.' : '',
+    'Remember: discipline beats motivation every time.',
+  ].filter(Boolean);
+  return { message: lines[Math.floor(Math.random() * lines.length)], dayPhase: phase };
+}
+
+export function getPhaseDescription(dayPhase: string) {
+  const map: Record<string, string> = {
+    morning: '🌅 Morning: your focus is sharpest before noon. Tackle the hardest task first.',
+    afternoon: '☀️ Afternoon: energy dips around 2–4 PM. Use short sprints to stay on track.',
+    evening: '🌙 Evening: wind down. Prepare tomorrow’s launch pad and avoid screens 30 min before bed.',
+  };
+  return map[dayPhase] || '';
+}
+
+export type VGMMessage = { text: string };
