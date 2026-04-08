@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useGameStore, selectUnlockedChapters } from '../../state/store';
+import { useGameStore, selectAvailableBosses, selectUnlockedChapters } from '../../state/store';
 import { CelebrationParticles } from '../../components/CelebrationParticles';
 
 const STATUS_ORDER = { started: 0, available: 1, completed: 2, blocked: 3, waiting: 4 };
@@ -45,23 +45,35 @@ function ExpandedQuestScreen({
           {quest.subquests.map((sub: any, i: number) => {
             const done = !!entry?.subquests?.[sub.id];
             return (
-              <label key={sub.id}
+              <div
+                key={sub.id}
                 style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 12, padding: '0.75rem 1rem',
+                  display: 'flex', alignItems: 'flex-start', gap: 8,
+                  padding: '0.5rem 0.75rem',
                   background: done ? '#05966922' : '#1e293b',
-                  borderRadius: 10, cursor: 'pointer', fontSize: '1rem',
-                  opacity: done ? 0.6 : 1, textDecoration: done ? 'line-through' : 'none'
-                }}>
+                  borderRadius: 6,
+                  fontSize: '0.85rem',
+                  opacity: done ? 0.7 : 1,
+                  textDecoration: done ? 'line-through' : 'none',
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={done}
                   onChange={() => toggleSubquest(questId, sub.id)}
-                  style={{ width: 22, height: 22, accentColor: '#059669', flexShrink: 0, marginTop: 2 }}
+                  style={{ width: 18, height: 18, accentColor: '#059669', flexShrink: 0, marginTop: 2 }}
                 />
-                <span style={{ color: done ? '#94a3b8' : '#e2e8f0', flex: 1 }}>
-                  <span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}
+                <span style={{ flex: 1 }}>
+                  <span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>
+                  <span style={{ color: done ? '#94a3b8' : '#e2e8f0' }}>{sub.title}</span>
+                  {sub.resource && (
+                    <details style={{ marginTop: 4, marginLeft: 20 }}>
+                      <summary style={{ fontSize: '0.75rem', color: '#60a5fa', cursor: 'pointer' }}>💡 Tip</summary>
+                      <pre style={{ fontSize: '0.75rem', color: '#cbd5e1', background: '#0f172a', padding: '0.5rem', borderRadius: 6, marginTop: 4, margin: 0, whiteSpace: 'pre-wrap' }}>{sub.resource.text}</pre>
+                    </details>
+                  )}
                 </span>
-              </label>
+              </div>
             );
           })}
         </div>
@@ -83,6 +95,9 @@ export function QuestsScreen() {
   const toggleQuestExpanded = useGameStore((s) => s.toggleQuestExpanded);
   const startQuest = useGameStore((s) => s.startQuest);
   const toggleSubquest = useGameStore((s) => s.toggleSubquest);
+  const startBoss = useGameStore((s) => s.startBoss);
+  const toggleBossSubquest = useGameStore((s) => s.toggleBossSubquest);
+  const completeBoss = useGameStore((s) => s.completeBoss);
 
   const unlockedChapters = useMemo(() => selectUnlockedChapters(state), [state]);
 
@@ -197,6 +212,50 @@ export function QuestsScreen() {
                       </div>
                       <span style={{ color: '#64748b', fontSize: '1.1rem', flexShrink: 0 }}>→</span>
                     </button>
+                  );
+                })}
+
+                {selectAvailableBosses(state, chapter.id).map((boss) => {
+                  const bossEntry = state.bosses[boss.id];
+                  const started = bossEntry?.status === 'started';
+                  const completed = bossEntry?.status === 'completed';
+                  const canFight = bossEntry?.status === 'available' || started;
+                  const allDone = boss.subquests.every((sub) => bossEntry?.subquests?.[sub.id]);
+                  return (
+                    <div key={boss.id} style={{ margin: '0.5rem 0.75rem 0', border: '1px solid #7f1d1d', borderRadius: 10, overflow: 'hidden', background: '#1f1115' }}>
+                      <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #7f1d1d', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                        <div>
+                          <div style={{ color: '#fca5a5', fontWeight: 700 }}>🐉 {boss.title}</div>
+                          <div style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{boss.summary}</div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (!started) startBoss(boss.id);
+                            else if (allDone && !completed) completeBoss(boss.id);
+                          }}
+                          disabled={!canFight || completed}
+                          style={{
+                            padding: '0.55rem 0.85rem', borderRadius: 8, border: 'none', cursor: completed ? 'default' : 'pointer',
+                            background: completed ? '#14532d' : '#b91c1c', color: '#fff', fontWeight: 700, flexShrink: 0
+                          }}
+                        >
+                          {completed ? '✓ Defeated' : started ? (allDone ? 'Finish Boss' : 'Boss Active') : 'Face Boss'}
+                        </button>
+                      </div>
+                      {started && !completed && (
+                        <div style={{ padding: '0.75rem 1rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {boss.subquests.map((sub, i) => {
+                            const done = !!bossEntry?.subquests?.[sub.id];
+                            return (
+                              <label key={sub.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', color: done ? '#94a3b8' : '#e2e8f0', textDecoration: done ? 'line-through' : 'none' }}>
+                                <input type="checkbox" checked={done} onChange={() => toggleBossSubquest(boss.id, sub.id)} style={{ marginTop: 2 }} />
+                                <span><span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
