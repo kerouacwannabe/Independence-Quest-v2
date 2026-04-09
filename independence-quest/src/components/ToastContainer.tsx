@@ -1,34 +1,46 @@
 import { useEffect } from 'react';
 import { useGameStore } from '../state/store';
 
+const STAGE_STYLE: Record<string, { bg: string; border: string; label: string }> = {
+  subquest: { bg: '#172554', border: '#2563eb', label: 'Subquest Complete' },
+  quest: { bg: '#052e16', border: '#16a34a', label: 'Quest Cleared' },
+  boss: { bg: '#3f1d0d', border: '#ea580c', label: 'Boss Shift' },
+  chapter: { bg: '#3b0764', border: '#a855f7', label: 'Chapter Progress' },
+  default: { bg: '#111827', border: '#475569', label: 'Progress' },
+};
+
 export function ToastContainer() {
   const toasts = useGameStore((s) => s.ui.toasts);
-  const removeToast = useGameStore((s) => s.removeToast);
+  const dismissToast = useGameStore((s) => s.dismissToast);
 
   useEffect(() => {
-    if (toasts.length === 0) return;
-    // Auto-dismiss after 3.5s
-    const timers = toasts.map((t) => setTimeout(() => removeToast(t.id), 3500));
-    return () => timers.forEach(clearTimeout);
-  }, [toasts, removeToast]);
-
-  if (toasts.length === 0) return null;
+    if (!toasts.length) return;
+    const timers = toasts.map((toast) => window.setTimeout(() => dismissToast(toast.id), 2200));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [toasts, dismissToast]);
 
   return (
-    <div style={{
-      position: 'fixed', top: '12%', left: '50%', transform: 'translateX(-50%)',
-      zIndex: 1001, display: 'flex', flexDirection: 'column', gap: 8, width: '90%', maxWidth: 360
-    }}>
-      {toasts.map((t) => (
-        <div key={t.id} style={{
-          padding: '0.75rem 1rem', borderRadius: 12, background: '#1e293b',
-          border: t.stage === 'boss-defeated' ? '1px solid #dc2626' : t.stage === 'chapter-complete' ? '1px solid #7c3aed' : '1px solid #3b82f6',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.25)', color: '#e2e8f0',
-          fontSize: '0.9rem', textAlign: 'center', animation: 'slideIn 0.25s ease-out'
-        }}>
-          {t.text}
-        </div>
-      ))}
+    <div style={{ position: 'fixed', inset: 'auto 12px 88px 12px', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 1200, pointerEvents: 'none' }}>
+      {toasts.slice(0, 2).map((toast) => {
+        const style = STAGE_STYLE[toast.stage] || STAGE_STYLE.default;
+        return (
+          <div
+            key={toast.id}
+            style={{
+              pointerEvents: 'auto',
+              background: style.bg,
+              border: `1px solid ${style.border}`,
+              color: '#f8fafc',
+              borderRadius: 14,
+              padding: '0.8rem 0.95rem',
+              boxShadow: '0 12px 32px rgba(2,6,23,0.35)',
+            }}
+          >
+            <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#cbd5e1', marginBottom: 4 }}>{style.label}</div>
+            <div style={{ fontWeight: 700 }}>{toast.text}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
