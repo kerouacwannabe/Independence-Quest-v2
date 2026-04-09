@@ -130,6 +130,16 @@ export function TodayScreen() {
     { id: 'simplify-quest', title: 'Simplify Quest', copy: 'Force the next started quest into low-energy mode.' },
   ];
 
+  const classDailyLine = classId === 'barbarian'
+    ? (state.barbarian?.completedAt ? 'Today you win by chaining momentum after a hard fast start.' : 'Today you win by starting immediately and refusing negotiation.')
+    : classId === 'rogue'
+      ? (state.rogueRun?.active ? 'Today you win by clearing your route before the context goes cold.' : 'Today you win by bundling clever small wins into one run.')
+      : classId === 'monk'
+        ? ((state.monk?.discipline ?? 0) >= 3 ? 'Today you can cash in discipline to rescue a blocked quest.' : 'Today you win by stacking calm basics until they turn into power.')
+        : classId === 'wizard'
+          ? ((state.wizard?.preparedSpells?.length ?? 0) > 0 ? 'Today you win by using preparation to shape what happens next.' : 'Today you win by preparing the board before you act.')
+          : '';
+
   return (
     <div className="screen-stack">
       <section className="card compact-list-card" style={{ padding: '1rem', background: 'linear-gradient(180deg, #111827, #172554)' }}>
@@ -193,6 +203,7 @@ export function TodayScreen() {
             <span style={{ fontSize: '1.5rem' }}>{classDef.emoji}</span>
             <strong>{classDef.name}</strong>
           </div>
+          <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{classDailyLine}</p>
           {classId === 'monk' && (
             <div style={{ marginTop: 10 }}>
               <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Breath Beads</div>

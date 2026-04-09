@@ -35,6 +35,19 @@ function ExpandedQuestScreen({
   const [waitingReason, setWaitingReason] = useState(entry?.waitingPlan?.reason || '');
   const [followup, setFollowup] = useState(entry?.waitingPlan?.followup || '');
   const [waitingRetryWhen, setWaitingRetryWhen] = useState(entry?.waitingPlan?.retryWhen || '');
+  const blockerSuggestions: Record<string, { smallestStep: string; support: string }> = {
+    'No energy': { smallestStep: 'Do the tiniest possible version for 5 minutes.', support: 'Switch to low energy mode.' },
+    'Missing item': { smallestStep: 'Get or stage the missing item.', support: 'Create a quick errand or reminder.' },
+    'Need help': { smallestStep: 'Write the exact ask in one sentence.', support: 'Text or ping the person now.' },
+    'Too big/confusing': { smallestStep: 'Rewrite this as one concrete first action.', support: 'Split it into smaller subquests.' },
+    'Waiting on reply': { smallestStep: 'Set a follow-up date and move on.', support: 'Draft the follow-up message now.' },
+  };
+  const waitingSuggestions: Record<string, { followup: string; retryWhen: string }> = {
+    'Waiting on reply': { followup: 'Send a concise follow-up.', retryWhen: 'Tomorrow morning' },
+    'Need approval': { followup: 'Ask for approval with a deadline.', retryWhen: 'In 2 days' },
+    'Need delivery/item': { followup: 'Check status or shipping.', retryWhen: 'When tracking updates' },
+    'Need meeting/time': { followup: 'Propose two concrete times.', retryWhen: 'Tomorrow afternoon' },
+  };
   const allRequiredDone = quest.subquests
     .filter((s: any) => s.required)
     .every((s: any) => entry?.subquests?.[s.id]);
@@ -189,6 +202,11 @@ function ExpandedQuestScreen({
             <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{sheet === 'blocked' ? 'Capture the blocker and define the smallest next action.' : 'Capture what you are waiting on and what follow-up is needed.'}</p>
             {sheet === 'blocked' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {Object.keys(blockerSuggestions).map((reason) => (
+                    <button key={reason} onClick={() => { setBlockedReason(reason); setBlockerType(reason); setSmallestStep(blockerSuggestions[reason].smallestStep); setSupport(blockerSuggestions[reason].support); if (!blockRetryWhen) setBlockRetryWhen('Later today'); }} style={sheetChipStyle(blockedReason === reason)}>{reason}</button>
+                  ))}
+                </div>
                 <input value={blockedReason} onChange={(e) => setBlockedReason(e.target.value)} placeholder='What is blocking this quest?' style={sheetInputStyle} />
                 <input value={blockerType} onChange={(e) => setBlockerType(e.target.value)} placeholder='Blocker type: time, energy, admin, fear...' style={sheetInputStyle} />
                 <input value={smallestStep} onChange={(e) => setSmallestStep(e.target.value)} placeholder='Smallest next step' style={sheetInputStyle} />
@@ -198,6 +216,11 @@ function ExpandedQuestScreen({
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {Object.keys(waitingSuggestions).map((reason) => (
+                    <button key={reason} onClick={() => { setWaitingReason(reason); setFollowup(waitingSuggestions[reason].followup); setWaitingRetryWhen(waitingSuggestions[reason].retryWhen); }} style={sheetChipStyle(waitingReason === reason)}>{reason}</button>
+                  ))}
+                </div>
                 <input value={waitingReason} onChange={(e) => setWaitingReason(e.target.value)} placeholder='What are you waiting on?' style={sheetInputStyle} />
                 <input value={followup} onChange={(e) => setFollowup(e.target.value)} placeholder='Follow-up action' style={sheetInputStyle} />
                 <input value={waitingRetryWhen} onChange={(e) => setWaitingRetryWhen(e.target.value)} placeholder='Check again when' style={sheetInputStyle} />
@@ -231,6 +254,16 @@ const sheetPrimaryButton: CSSProperties = {
   fontWeight: 700,
   cursor: 'pointer'
 };
+
+const sheetChipStyle = (selected: boolean): CSSProperties => ({
+  padding: '0.5rem 0.75rem',
+  borderRadius: 999,
+  border: selected ? '1px solid #60a5fa' : '1px solid #334155',
+  background: selected ? '#1e3a5f' : '#0f172a',
+  color: '#e2e8f0',
+  cursor: 'pointer',
+  fontSize: '0.82rem'
+});
 
 export function QuestsScreen() {
   const state = useGameStore((s) => s.state);
