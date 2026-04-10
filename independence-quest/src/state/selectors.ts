@@ -313,6 +313,11 @@ export function selectProgressPath(state: GameState): ProgressPathNode[] {
   return path;
 }
 
+export function selectNextProgressStep(state: GameState) {
+  const path = selectProgressPath(state);
+  return path.find((node) => node.kind === 'next' || node.kind === 'current') ?? path[0] ?? null;
+}
+
 export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } {
   const cc = Object.values(state.quests as Record<string, QuestEntry>).filter((e) => e.status === 'completed').length;
   const ch = selectCurrentChapter(state);

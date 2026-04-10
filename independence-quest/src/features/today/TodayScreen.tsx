@@ -13,6 +13,7 @@ import {
   selectLevel,
   selectTotalXP,
   selectStreaks,
+  selectNextProgressStep,
 } from '../../state/store';
 import { InstallPromptCard } from '../../components/InstallPromptCard';
 
@@ -49,6 +50,7 @@ export function TodayScreen() {
   const comebackMessage = selectComebackMessage(state);
   const dailyObjective = selectDailyObjective(state);
   const progressUnlocks = selectProgressUnlocks(state);
+  const nextProgressStep = selectNextProgressStep(state);
   const level = selectLevel(state);
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
@@ -237,11 +239,24 @@ export function TodayScreen() {
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
-        <p className="eyebrow">Progress Unlocks</p>
-        <strong>What this run has changed</strong>
-        <ul style={{ marginTop: 8, paddingLeft: 18, color: '#ddd6fe', fontSize: '0.84rem' }}>
-          {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
-        </ul>
+        <p className="eyebrow">Next Lesson</p>
+        {nextProgressStep ? (
+          <>
+            <strong>{nextProgressStep.title}</strong>
+            <p style={{ marginTop: 6, color: '#ddd6fe', fontSize: '0.84rem' }}>{nextProgressStep.subtitle}</p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              <span className="pill">{nextProgressStep.kind}</span>
+              {nextProgressStep.isBossGate && <span className="pill">Boss gate</span>}
+            </div>
+          </>
+        ) : (
+          <>
+            <strong>What this run has changed</strong>
+            <ul style={{ marginTop: 8, paddingLeft: 18, color: '#ddd6fe', fontSize: '0.84rem' }}>
+              {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
+            </ul>
+          </>
+        )}
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem' }}>
