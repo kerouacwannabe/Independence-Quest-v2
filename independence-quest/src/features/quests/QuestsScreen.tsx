@@ -469,9 +469,9 @@ export function QuestsScreen() {
                     <div key={boss.id} style={{ margin: '0.5rem 0.75rem 0', border: '1px solid #7f1d1d', borderRadius: 10, overflow: 'hidden', background: '#1f1115' }}>
                       <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #7f1d1d', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                         <div>
-                          <div style={{ color: '#fca5a5', fontWeight: 700 }}>🐉 {boss.title}</div>
+                          <div style={{ color: '#fca5a5', fontWeight: 700 }}>🐉 Special Event: {boss.title}</div>
                           <div style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{boss.summary}</div>
-                          <div style={{ color: '#fda4af', fontSize: '0.72rem', marginTop: 4 }}>Required gate. The next chapter stays sealed until this thing is dead.</div>
+                          <div style={{ color: '#fda4af', fontSize: '0.72rem', marginTop: 4 }}>This should feel like a chapter spike, not a bigger checklist.</div>
                         </div>
                         <button
                           onClick={() => {

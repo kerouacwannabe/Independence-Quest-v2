@@ -52,7 +52,7 @@ export function CampaignWizard() {
       <div style={{ maxWidth: 420, textAlign: 'center', width: '100%' }}>
         <p style={{ fontSize: '0.7rem', color: '#94a3b8', letterSpacing: 0.1 }}>INDEPENDENCE QUEST</p>
         <h1 style={{ fontSize: '1.8rem', margin: '0.25rem 0 0.75rem' }}>Claim Your Own Keep</h1>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Start with one useful experiment, not a moral referendum.</p>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Pick a class, pick a first move, and start. That’s the whole trick.</p>
         <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Step {step + 1} of 2</p>
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: '1.25rem' }}>
           {STEPS.map((_, i) => (
@@ -73,13 +73,16 @@ export function CampaignWizard() {
                 <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0' }}>{cls.perk}</p>
               </SelectCard>
             ))}
+            <button disabled={!draft.classId} onClick={() => setStep(1)} style={{ width: '100%', padding: '0.95rem', marginTop: 8, background: draft.classId ? '#2563eb' : '#1e293b', border: 'none', borderRadius: 12, color: draft.classId ? '#fff' : '#64748b', fontSize: '1rem', cursor: draft.classId ? 'pointer' : 'default' }}>
+              Pick first move →
+            </button>
           </>
         )}
 
         {step === 1 && (
           <>
-            <h2 style={{ textAlign: 'center', marginBottom: 4 }}>Pick your first proof</h2>
-            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Choose one tiny win so the campaign starts with evidence, not paperwork.</p>
+            <h2 style={{ textAlign: 'center', marginBottom: 4 }}>Pick your first move</h2>
+            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Choose one tiny win, then start the campaign immediately.</p>
             {CAMPAIGN_FIRST_PROOFS.map((fp) => (
               <SelectCard key={fp.id} selected={draft.firstProof === fp.id} onClick={() => setDraft((d) => ({ ...d, firstProof: fp.id }))}>
                 <strong>{fp.title}</strong>
@@ -128,6 +131,10 @@ export function CampaignWizard() {
                 </div>
               )}
             </div>
+
+            <button disabled={!canNext} onClick={handleStart} style={{ width: '100%', marginTop: 12, padding: '1rem', background: canNext ? '#059669' : '#1e293b', border: 'none', borderRadius: 12, color: canNext ? '#fff' : '#64748b', fontSize: '1rem', cursor: canNext ? 'pointer' : 'default' }}>
+              Start campaign now
+            </button>
           </>
         )}
 

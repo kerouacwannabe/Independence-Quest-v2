@@ -183,7 +183,7 @@ export function TodayScreen() {
       )}
 
       <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
-        <p className="eyebrow">Do This Now</p>
+        <p className="eyebrow">10-Second Re-entry</p>
         <strong>{nextMove.heading}</strong>
         <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{nextMove.copy}</p>
         <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
@@ -191,6 +191,7 @@ export function TodayScreen() {
           <button className="ghost-button" onClick={doNowStrip.lowEnergy.action}>{doNowStrip.lowEnergy.label}</button>
           <button className="ghost-button" onClick={doNowStrip.help.action}>{doNowStrip.help.label}</button>
         </div>
+        <p style={{ marginTop: 8, color: '#93c5fd', fontSize: '0.8rem' }}>Open the app, hit one button, and start. No museum tour required.</p>
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem', background: 'linear-gradient(180deg, #111827, #172554)' }}>
