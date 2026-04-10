@@ -391,6 +391,21 @@ export function QuestsScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {celebrating && <CelebrationParticles intensity={celebrating.isBoss ? 'large' : 'medium'} />}
 
+      {state.chapterBosses && Object.entries(state.chapterBosses).map(([chapterId, bossId]) => {
+        const boss = state.bosses[bossId];
+        if (!boss || boss.status === 'completed') return null;
+        const chapter = unlockedChapters.find((c) => c.id === chapterId);
+        if (!chapter) return null;
+        return (
+          <section key={chapterId} style={{ padding: '1rem', borderRadius: 12, background: 'linear-gradient(180deg, #1f1115, #111827)', border: '1px solid #7f1d1d' }}>
+            <p className="eyebrow">Special Event</p>
+            <strong style={{ color: '#fca5a5' }}>{boss.title}</strong>
+            <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.85rem' }}>{boss.summary}</p>
+            <p style={{ marginTop: 8, color: '#fda4af', fontSize: '0.78rem' }}>This is the chapter guardian for {chapter.title}. Finish it to move on.</p>
+          </section>
+        );
+      })}
+
       {chapterQuestLists.map(({ chapter, sorted }) => {
         const collapsed = collapsedChapters[chapter.id];
         const completedCount = sorted.filter((q) => q.status === 'completed').length;
