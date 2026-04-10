@@ -46,14 +46,12 @@ export function TodayScreen() {
 
   const nextMove = selectNextMove(state);
   const advice = selectDailyAdvice(state);
-  const classObjective = selectClassObjective(state);
   const comebackMessage = selectComebackMessage(state);
-  const dailyObjective = selectDailyObjective(state);
   const progressUnlocks = selectProgressUnlocks(state);
   const nextProgressStep = selectNextProgressStep(state);
-  const level = selectLevel(state);
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
+  const level = selectLevel(state);
 
   const classId = state.classId;
   const classDef = CLASS_DEFS.find((c) => c.id === classId);
@@ -145,12 +143,6 @@ export function TodayScreen() {
       onClick: () => setTab('quests'),
     };
   })();
-
-  const wizardSpells = [
-    { id: 'reveal-next-move', title: 'Reveal Next Move', copy: 'Sharpen the guidance card for your next session.' },
-    { id: 'guided-sequence', title: 'Guided Sequence', copy: 'Add a ritualized structure when starting the next quest.' },
-    { id: 'simplify-quest', title: 'Simplify Quest', copy: 'Force the next started quest into low-energy mode.' },
-  ];
 
   const classDailyLine = classId === 'barbarian'
     ? (state.barbarian?.completedAt ? 'Today you win by chaining momentum after a hard fast start.' : 'Today you win by starting immediately and refusing negotiation.')
@@ -320,6 +312,7 @@ export function TodayScreen() {
                 { id: 'speed', title: 'Speed', copy: 'Fast burst.' },
                 { id: 'social', title: 'Social', copy: 'Body-double.' },
                 { id: 'low-energy', title: 'Low-energy', copy: 'Tiny legit progress.' },
+                { id: 'micro-win', title: 'Micro-win', copy: 'Two minutes.' },
               ].map((mode) => (
                 <button key={mode.id} className="quest-card-head" onClick={() => setSetting('dailyMode', mode.id)} style={{ minHeight: 74, padding: '0.75rem' }}>
                   <span><strong>{mode.title}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{mode.copy}</span></span>

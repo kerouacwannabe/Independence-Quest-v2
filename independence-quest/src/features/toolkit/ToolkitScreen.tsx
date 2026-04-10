@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react';
 import { LOW_ENERGY_OPTIONS, RESCUE_ITEMS } from '../../state/store';
 
+
+const PROACTIVE_SUGGESTIONS = [
+  { id: 'blocked', title: 'Blocked quest', why: 'Shows rescue plan and smallest-step guidance.' },
+  { id: 'focus', title: 'Focus slipping', why: 'Highlights the body-double and micro-win tools.' },
+  { id: 'discover', title: 'Find a tool', why: 'Opens the discovery surface when the user is exploring.' },
+];
+
 const DISCOVERY_ITEMS = [
   { id: 'rescue', title: 'Rescue plan', copy: 'Quick way to recover a stuck quest.', rationale: 'Use when the next step is blocked or the task feels too big.' },
   { id: 'micro-win', title: 'Micro-win route', copy: 'Two-minute progress for bad days.', rationale: 'Best when the user needs momentum without committing to a full session.' },
@@ -46,6 +53,31 @@ export function ToolkitScreen() {
             </article>
           ))}
           {!discovery.length && <p style={{ color: '#94a3b8' }}>No matching tools. Try a different intent, Boss.</p>}
+        </div>
+      </section>
+
+      <section className="card">
+        <p className="eyebrow">Proactive suggestions</p>
+        <div className="stack-list">
+          {PROACTIVE_SUGGESTIONS.map((item) => (
+            <article key={item.id} className="inline-card">
+              <h3>{item.title}</h3>
+              <p>{item.why}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <p className="eyebrow">Contextual tool cards</p>
+        <div className="stack-list">
+          {discovery.slice(0, 3).map((item) => (
+            <article key={item.id} className="inline-card">
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+              <p style={{ color: '#93c5fd', fontSize: '0.82rem', marginTop: 6 }}>{item.rationale}</p>
+            </article>
+          ))}
         </div>
       </section>
 
