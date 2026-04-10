@@ -1,15 +1,9 @@
-import { CHAPTERS, selectAvailableBosses, useGameStore } from '../../state/store';
+import { CHAPTERS, selectAvailableBosses, selectCurrentChapter, useGameStore } from '../../state/store';
 
 export function MapScreen() {
   const state = useGameStore((s) => s.state);
 
-  const currentChapter = (() => {
-    for (const chapter of CHAPTERS) {
-      const allDone = chapter.quests.every((q) => state.quests[q.id]?.status === 'completed');
-      if (!allDone) return chapter;
-    }
-    return CHAPTERS[0];
-  })();
+  const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[0];
 
   const visibleBosses = selectAvailableBosses(state, currentChapter.id);
 

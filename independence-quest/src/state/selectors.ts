@@ -7,14 +7,19 @@ export function selectUnlockedChapters(state: GameState) {
   return CHAPTERS.filter((ch, i) => {
     if (i === 0) return true;
     const prev = CHAPTERS[i - 1];
-    return prev.quests.every((q) => state.quests[q.id]?.status === 'completed');
+    const prevBossId = state.chapterBosses[prev.id] ?? prev.bossPool[0]?.id;
+    const bossCleared = prevBossId ? state.bosses[prevBossId]?.status === 'completed' : true;
+    return prev.quests.every((q) => state.quests[q.id]?.status === 'completed') && bossCleared;
   });
 }
 
 export function selectCurrentChapter(state: GameState) {
   if (state.campaign.step < 5 && !state.campaign.complete) return null;
   for (const ch of CHAPTERS) {
-    if (!ch.quests.every((q) => state.quests[q.id]?.status === 'completed')) return ch;
+    const questsDone = ch.quests.every((q) => state.quests[q.id]?.status === 'completed');
+    const chapterBossId = state.chapterBosses[ch.id] ?? ch.bossPool[0]?.id;
+    const bossDone = chapterBossId ? state.bosses[chapterBossId]?.status === 'completed' : true;
+    if (!questsDone || !bossDone) return ch;
   }
   return CHAPTERS[CHAPTERS.length - 1] ?? null;
 }
@@ -194,6 +199,50 @@ export function selectTotalCompletions(state: GameState): number {
 
 export function selectStreaks(state: GameState) {
   return state.streaks ?? { daily: 0, weekly: 0, lastActiveDate: '' };
+}
+
+export function selectComebackMessage(state: GameState) {
+  const last = state.streaks?.lastActiveDate;
+  if (!last) return 'Fresh day, clean board. Take one real swing.';
+  const diff = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+  if (diff <= 1) return 'Momentum is alive. Protect it with one meaningful move.';
+  if (diff === 2) return 'You missed a day, not your whole campaign. Clear one comeback win.';
+  return 'No guilt spiral. Restart with one small proof and rebuild from there.';
+}
+
+export function selectDailyObjective(state: GameState) {
+  const current = selectCurrentChapter(state);
+  const availableQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'available');
+  const startedQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'started');
+  if (startedQuest) return `Finish one subquest in ${startedQuest.title}.`;
+  if (availableQuest) return `Start ${availableQuest.title} and land the first required step.`;
+  const chapterBossId = current ? state.chapterBosses[current.id] ?? current.bossPool[0]?.id : null;
+  const boss = current?.bossPool.find((b) => b.id === chapterBossId);
+  if (boss && state.bosses[boss.id]?.status !== 'completed') return `Prepare for ${boss.title} and clear at least one boss task.`;
+  return 'Take one visible action that makes tomorrow easier.';
+}
+
+export function selectClassObjective(state: GameState) {
+  switch (state.classId) {
+    case 'barbarian':
+      return state.barbarian?.completedAt
+        ? 'Momentum lit. Chain another immediate action before it cools.'
+        : 'Claim one opening hit fast, move body first and think later.';
+    case 'rogue':
+      return state.rogueRun?.active
+        ? `Clear the route combo, ${state.rogueRun.completedQuestIds.length}/${state.rogueRun.selectedQuestIds.length} down.`
+        : 'Lock a 2 to 3 quest route, then cash it out in one run.';
+    case 'monk':
+      return (state.monk?.discipline ?? 0) >= 3
+        ? 'Spend discipline to rescue a stalled quest or preserve momentum.'
+        : 'Stack routine completions to bank discipline for future saves.';
+    case 'wizard':
+      return (state.wizard?.preparedSpells?.length ?? 0) > 0
+        ? 'Use your prepared spells on the quests they were meant to shape.'
+        : 'Prepare two spells now so tomorrow starts with intent instead of drift.';
+    default:
+      return 'Take the next real action, not the prettiest hypothetical one.';
+  }
 }
 
 export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } {

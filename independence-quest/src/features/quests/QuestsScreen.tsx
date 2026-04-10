@@ -343,7 +343,9 @@ export function QuestsScreen() {
         const collapsed = collapsedChapters[chapter.id];
         const completedCount = sorted.filter((q) => q.status === 'completed').length;
         const totalCount = chapter.quests.length;
-        const isComplete = completedCount >= totalCount;
+        const assignedBossId = state.chapterBosses[chapter.id] ?? chapter.bossPool[0]?.id;
+        const bossCleared = assignedBossId ? state.bosses[assignedBossId]?.status === 'completed' : true;
+        const isComplete = completedCount >= totalCount && bossCleared;
 
         return (
           <div key={chapter.id} style={{ background: '#111827', borderRadius: 12, border: '1px solid #1e293b', overflow: 'hidden', position: 'relative' }}>
@@ -360,6 +362,7 @@ export function QuestsScreen() {
                 <span style={{ color: '#94a3b8', fontSize: '0.65rem', letterSpacing: 0.05, textTransform: 'uppercase' }}>Chapter {chapter.level}</span>
                 <div style={{ fontSize: '1rem', fontWeight: 600 }}>{chapter.title}</div>
                 <span style={{ fontSize: '0.7rem', color: isComplete ? '#22c55e' : '#3b82f6' }}>{completedCount}/{totalCount} cleared {isComplete ? '✅' : ''}</span>
+                {!bossCleared && completedCount >= totalCount && <div style={{ fontSize: '0.72rem', color: '#fca5a5', marginTop: 4 }}>Boss gate active. Defeat the chapter guardian to advance.</div>}
               </div>
               {isComplete && (
                 <div style={{
@@ -412,6 +415,7 @@ export function QuestsScreen() {
                         <div>
                           <div style={{ color: '#fca5a5', fontWeight: 700 }}>🐉 {boss.title}</div>
                           <div style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{boss.summary}</div>
+                          <div style={{ color: '#fda4af', fontSize: '0.72rem', marginTop: 4 }}>Required gate. The next chapter stays sealed until this thing is dead.</div>
                         </div>
                         <button
                           onClick={() => {

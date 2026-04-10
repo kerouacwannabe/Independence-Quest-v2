@@ -127,7 +127,8 @@ function updateStreaks(streaks: Streaks): Streaks {
   if (streaks.lastActiveDate) {
     const diff = Math.floor((Date.now() - new Date(streaks.lastActiveDate).getTime()) / 86400000);
     if (diff === 1) { daily++; weekly++; }
-    else if (diff > 1) { daily = 0; weekly = 0; }
+    else if (diff === 2) { daily = Math.max(1, daily - 1); weekly = 0; }
+    else if (diff > 2) { daily = 1; weekly = 0; }
   } else { daily = 1; weekly = 1; }
   return { daily, weekly, lastActiveDate: today };
 }
@@ -206,6 +207,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   startQuest: (qid) => set((s) => {
     const entry = s.state.quests[qid];
+    const questDef = CHAPTERS.flatMap((c) => c.quests).find((q) => q.id === qid);
+    const requiredSteps = questDef?.subquests?.filter((sub) => sub.required).length ?? 1;
+    const strikeWindowMs = Math.min(180000, Math.max(45000, requiredSteps * 45000));
     const bonuses = { ...entry.bonuses };
     if (s.state.classId === 'wizard') {
       if (s.state.wizard?.preparedSpells.includes('guided-sequence')) bonuses.ritual = true;
@@ -218,7 +222,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...s.state,
       quests: { ...s.state.quests, [qid]: nextEntry },
       barbarian: s.state.classId === 'barbarian'
-        ? { activeQuestId: qid, expiresAt: Date.now() + 60000, choice: '', completedAt: null }
+        ? { activeQuestId: qid, expiresAt: Date.now() + strikeWindowMs, choice: '', completedAt: null }
         : s.state.barbarian,
       wizard: s.state.classId === 'wizard' ? { ...(s.state.wizard ?? { preparedSpells: [], castToday: [] }), castToday } : s.state.wizard,
     };
@@ -251,6 +255,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
       if (s.state.classId === 'monk' && quest.tags?.includes('routine') && s.state.monk) {
         s.state.monk.discipline = Math.min(5, (s.state.monk.discipline || 0) + 1);
+        if ((s.state.monk.discipline || 0) >= 3) {
+          ce.bonuses.recovery = true;
+        }
       }
       if (s.state.classId === 'rogue' && s.state.rogueRun?.active && s.state.rogueRun.selectedQuestIds.includes(qid)) {
         const completedQuestIds = Array.from(new Set([...(s.state.rogueRun.completedQuestIds || []), qid]));
@@ -485,7 +492,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const streaks = { ...s.state.streaks };
     const diff = streaks.lastActiveDate
       ? Math.floor((Date.now() - new Date(streaks.lastActiveDate).getTime()) / 86400000) : 999;
-    if (diff > 1) { streaks.daily = 0; streaks.weekly = 0; }
+    if (diff === 2) { streaks.daily = Math.max(1, streaks.daily - 1); streaks.weekly = 0; }
+    else if (diff > 2) { streaks.daily = 1; streaks.weekly = 0; }
     const ns = { ...s.state, streaks };
     persist(s.meta, ns); return { state: ns };
   }),

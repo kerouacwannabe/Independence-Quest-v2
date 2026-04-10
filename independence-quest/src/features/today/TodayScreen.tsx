@@ -1,6 +1,10 @@
 import { CHAPTERS, CLASS_DEFS } from '../../content';
 import {
   useGameStore,
+  selectClassObjective,
+  selectComebackMessage,
+  selectCurrentChapter,
+  selectDailyObjective,
   selectDailyAdvice,
   selectNextMove,
   selectPlanningEligibleQuestIds,
@@ -10,14 +14,6 @@ import {
   selectStreaks,
 } from '../../state/store';
 import { InstallPromptCard } from '../../components/InstallPromptCard';
-
-function findCurrentChapter(state: any) {
-  for (const chapter of CHAPTERS) {
-    const allDone = chapter.quests.every((quest) => state.quests[quest.id]?.status === 'completed');
-    if (!allDone) return chapter;
-  }
-  return CHAPTERS[CHAPTERS.length - 1];
-}
 
 function chapterProgress(state: any, chapter: any) {
   const cleared = chapter.quests.filter((quest: any) => state.quests[quest.id]?.status === 'completed').length;
@@ -46,6 +42,9 @@ export function TodayScreen() {
 
   const nextMove = selectNextMove(state);
   const advice = selectDailyAdvice(state);
+  const classObjective = selectClassObjective(state);
+  const comebackMessage = selectComebackMessage(state);
+  const dailyObjective = selectDailyObjective(state);
   const level = selectLevel(state);
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
@@ -56,7 +55,7 @@ export function TodayScreen() {
   const rogueEligibleIds = selectRogueEligibleQuestIds();
   const planningEligibleIds = selectPlanningEligibleQuestIds();
   const rogueEligible = allQuests.filter((quest) => rogueEligibleIds.includes(quest.id));
-  const currentChapter = findCurrentChapter(state);
+  const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[CHAPTERS.length - 1];
   const progress = chapterProgress(state, currentChapter);
   const boss = nextBossMilestone(currentChapter, progress.cleared);
   const latestToast = ui.toasts?.[0];
@@ -66,7 +65,7 @@ export function TodayScreen() {
   const blockedQuest = allQuests.find((quest) => state.quests[quest.id]?.status === 'blocked');
   const waitingQuest = allQuests.find((quest) => state.quests[quest.id]?.status === 'waiting');
   const activeQuest = allQuests.find((quest) => state.quests[quest.id]?.status === 'started');
-  const availableBoss = currentChapter.bosses?.find((b: any) => {
+  const availableBoss = currentChapter.bossPool?.find((b: any) => {
     const entry = state.bosses?.[b.id];
     return entry?.status === 'available' || entry?.status === 'started';
   });
@@ -119,7 +118,7 @@ export function TodayScreen() {
     }
     return {
       eyebrow: 'Next Move',
-      title: nextMove.title,
+      title: nextMove.heading,
       copy: nextMove.copy,
       cta: 'Open Quest Log',
       onClick: () => setTab('quests'),
@@ -160,6 +159,13 @@ export function TodayScreen() {
           <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Cleared</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{completedCount}</div></div>
         </div>
         <p style={{ marginTop: 10, color: '#cbd5e1', fontSize: '0.84rem' }}>The loop should be immediate: know your strongest move, feel progress pressure, then act before your brain starts a committee meeting.</p>
+        <p style={{ marginTop: 8, color: '#93c5fd', fontSize: '0.83rem' }}>{comebackMessage}</p>
+      </section>
+
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#15803d', background: 'linear-gradient(180deg, #071b12, #0f172a)' }}>
+        <p className="eyebrow">Daily Win</p>
+        <strong>{dailyObjective}</strong>
+        <p style={{ marginTop: 8, color: '#bbf7d0', fontSize: '0.84rem' }}>{classObjective}</p>
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem' }}>
@@ -172,8 +178,8 @@ export function TodayScreen() {
           </div>
           <div>
             <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Streak</div>
-            <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>{streaks.current} days</div>
-            <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>Best: {streaks.best}</div>
+            <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>{streaks.daily} days</div>
+            <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>Weekly chain: {streaks.weekly}</div>
           </div>
         </div>
         <div style={{ marginTop: 14 }}>
@@ -205,8 +211,8 @@ export function TodayScreen() {
 
       <section className="card compact-list-card">
         <p className="eyebrow">Advisor</p>
-        <strong>{advice.headline}</strong>
-        <p style={{ marginTop: 8 }}>{advice.copy}</p>
+        <strong>{advice.message}</strong>
+        <p style={{ marginTop: 8, color: '#cbd5e1' }}>Phase: {advice.dayPhase}</p>
       </section>
 
       {classDef && (
