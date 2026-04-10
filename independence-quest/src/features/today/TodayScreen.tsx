@@ -232,12 +232,6 @@ export function TodayScreen() {
         <p style={{ marginTop: 8, color: '#93c5fd', fontSize: '0.83rem' }}>{comebackMessage}</p>
       </section>
 
-      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#15803d', background: 'linear-gradient(180deg, #071b12, #0f172a)' }}>
-        <p className="eyebrow">Daily Win</p>
-        <strong>{dailyObjective}</strong>
-        <p style={{ marginTop: 8, color: '#bbf7d0', fontSize: '0.84rem' }}>{classObjective}</p>
-      </section>
-
       <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
         <p className="eyebrow">Next Lesson</p>
         {nextProgressStep ? (
@@ -300,22 +294,25 @@ export function TodayScreen() {
         </section>
       )}
 
-      <section className="card compact-list-card">
-        <p className="eyebrow">Advisor</p>
-        <strong>{advice.message}</strong>
-        <p style={{ marginTop: 8, color: '#cbd5e1' }}>Phase: {advice.dayPhase}</p>
-      </section>
+      <details className="card compact-list-card" style={{ padding: '1rem' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>More details</summary>
+        <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
+          <section className="card compact-list-card" style={{ margin: 0 }}>
+            <p className="eyebrow">Advisor</p>
+            <strong>{advice.message}</strong>
+            <p style={{ marginTop: 8, color: '#cbd5e1' }}>Phase: {advice.dayPhase}</p>
+          </section>
 
-      {classCoachmark && (
-        <section className="card compact-list-card" style={{ borderColor: '#7c3aed', background: 'linear-gradient(180deg, #1e1b4b, #111827)' }}>
-          <p className="eyebrow">Class Coachmark</p>
-          <strong>{classCoachmark.title}</strong>
-          <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{classCoachmark.copy}</p>
-        </section>
-      )}
+          {classCoachmark && (
+            <section className="card compact-list-card" style={{ margin: 0, borderColor: '#7c3aed', background: 'linear-gradient(180deg, #1e1b4b, #111827)' }}>
+              <p className="eyebrow">Class Coachmark</p>
+              <strong>{classCoachmark.title}</strong>
+              <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{classCoachmark.copy}</p>
+            </section>
+          )}
 
-      <section className="card compact-list-card">
-        <p className="eyebrow">Daily Mode</p>
+          <section className="card compact-list-card" style={{ margin: 0 }}>
+            <p className="eyebrow">Daily Mode</p>
         <strong>{state.settings?.dailyMode === 'speed' ? 'Speed' : state.settings?.dailyMode === 'social' ? 'Social' : state.settings?.dailyMode === 'low-energy' ? 'Low-energy' : state.settings?.dailyMode === 'micro-win' ? 'Micro-win' : 'Balanced'}</strong>
         <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the shape of today. The route changes, but it still counts.</p>
         <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
@@ -356,7 +353,9 @@ export function TodayScreen() {
             ))}
           </div>
         )}
-      </section>
+          </section>
+        </div>
+      </details>
 
       {classDef && (
         <section className="card compact-list-card">
