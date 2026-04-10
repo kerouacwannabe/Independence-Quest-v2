@@ -23,7 +23,7 @@ export const CLASS_DEFS = [
     id: 'barbarian',
     emoji: '🪓',
     name: 'Barbarian',
-    description: 'Raw physical output. Build momentum through rigorous movement and completion.',
+    description: 'Raw physical output. Build momentum through immediate action and stop arguing with the air.',
     perk: 'Start fast and build momentum through immediate action.',
     startingBonuses: ['Momentum for each completed subquest', '+2XP for starting quests early in the day'],
   },
@@ -31,7 +31,7 @@ export const CLASS_DEFS = [
     id: 'rogue',
     emoji: '🗡️',
     name: 'Rogue',
-    description: 'Precision and opportunistic gains. Turn small windows into productive bursts.',
+    description: 'Precision and opportunistic gains. Turn small windows into productive bursts without making it your personality.',
     perk: 'Bundle quick wins and turn errands into combo chains.',
     startingBonuses: ['Critical success doubling XP', 'Stealth mode (no interruptions)'],
   },
@@ -39,7 +39,7 @@ export const CLASS_DEFS = [
     id: 'monk',
     emoji: '🧘',
     name: 'Monk',
-    description: 'Discipline and inner calm. Convert repeated basics into tangible gains.',
+    description: 'Discipline and inner calm. Convert repeated basics into tangible gains, then spend them wisely.',
     perk: 'Build discipline through routine, then spend it on rescue and recovery.',
     startingBonuses: ['Earn Discipline (spend to rescue blocked quests)', 'Daily meditation bonus'],
   },
@@ -47,7 +47,7 @@ export const CLASS_DEFS = [
     id: 'wizard',
     emoji: '🪄',
     name: 'Wizard',
-    description: 'Preparation, foresight, and deliberate planning. Shape the board before the day shapes you.',
+    description: 'Preparation, foresight, and deliberate planning. Shape the board before the day shapes you into a puddle.',
     perk: 'Prepare spells that reveal, guide, or simplify your next move.',
     startingBonuses: ['Reveal a recommended next move', 'Preparation bonus for planning ahead'],
   },
@@ -155,10 +155,10 @@ export const CHAPTERS = [
       minCompleted: 2,
     },
     quests: [
-      {
-        id: 'wake-with-purpose',
-        title: 'Wake with Purpose',
-        summary: 'Establish a strong start. Your first win sets the tone for the day.',
+  {
+    id: 'wake-with-purpose',
+    title: 'Wake with Purpose',
+    summary: 'Establish a strong start. Your first win sets the tone for the day and gives the rest of it a spine.',
         tags: ['routine', 'health'],
         completionBonus: 14,
         subquests: [
@@ -241,7 +241,7 @@ export const CHAPTERS = [
       {
         id: 'focus-drill',
         title: 'Focus Drill',
-        summary: 'Build a habit of deep work using short, timed sprints.',
+        summary: 'Build a habit of deep work using short, timed sprints instead of waiting for mythical perfect focus.',
         tags: ['focus', 'discipline'],
         completionBonus: 20,
         subquests: [
@@ -253,7 +253,7 @@ export const CHAPTERS = [
       {
         id: 'digital-fortress',
         title: 'Digital Fortress',
-        summary: 'Protect your attention from digital invaders.',
+        summary: 'Protect your attention from digital invaders and the little goblins in your notifications.',
         tags: ['digital', 'hygiene'],
         completionBonus: 22,
         subquests: [

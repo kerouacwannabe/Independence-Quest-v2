@@ -1,4 +1,4 @@
-import { CHAPTERS, CLASS_DEFS } from '../../content';
+import { CHAPTERS, CLASS_DEFS, LOW_ENERGY_OPTIONS } from '../../content';
 import {
   useGameStore,
   selectClassObjective,
@@ -39,6 +39,7 @@ export function TodayScreen() {
   const startRogueRun = useGameStore((s) => s.startRogueRun);
   const clearRogueRun = useGameStore((s) => s.clearRogueRun);
   const prepareWizardSpell = useGameStore((s) => s.prepareWizardSpell);
+  const setSetting = useGameStore((s) => s.setSetting);
 
   const nextMove = selectNextMove(state);
   const advice = selectDailyAdvice(state);
@@ -213,6 +214,35 @@ export function TodayScreen() {
         <p className="eyebrow">Advisor</p>
         <strong>{advice.message}</strong>
         <p style={{ marginTop: 8, color: '#cbd5e1' }}>Phase: {advice.dayPhase}</p>
+      </section>
+
+      <section className="card compact-list-card">
+        <p className="eyebrow">Daily Mode</p>
+        <strong>{state.settings?.dailyMode === 'speed' ? 'Speed' : state.settings?.dailyMode === 'social' ? 'Social' : state.settings?.dailyMode === 'low-energy' ? 'Low-energy' : 'Balanced'}</strong>
+        <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the shape of today. The route changes, but it still counts.</p>
+        <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+          {[
+            { id: 'balanced', title: 'Balanced', copy: 'One useful win, no drama.' },
+            { id: 'speed', title: 'Speed', copy: 'Fast burst, quick closure.' },
+            { id: 'social', title: 'Social', copy: 'Use support and body-doubling.' },
+            { id: 'low-energy', title: 'Low-energy', copy: 'Tiny legitimate progress only.' },
+          ].map((mode) => (
+            <button key={mode.id} className="quest-card-head" onClick={() => setSetting('dailyMode', mode.id)}>
+              <span><strong>{mode.title}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{mode.copy}</span></span>
+              <span className="pill">{state.settings?.dailyMode === mode.id ? 'On' : 'Set'}</span>
+            </button>
+          ))}
+        </div>
+        {state.settings?.dailyMode === 'low-energy' && (
+          <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+            {LOW_ENERGY_OPTIONS.map((opt) => (
+              <div key={opt.id} style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #1e293b' }}>
+                <strong style={{ display: 'block' }}>{opt.title}</strong>
+                <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{opt.copy}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {classDef && (

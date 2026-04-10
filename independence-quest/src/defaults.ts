@@ -48,6 +48,7 @@ export function defaultState() {
       focusMode: false,
       showFullMap: false,
       nameLocked: false,
+      dailyMode: 'balanced',
       collapsedSections: {
         bosses: true,
         rewards: true,

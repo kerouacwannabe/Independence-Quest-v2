@@ -220,6 +220,10 @@ export function selectDailyObjective(state: GameState) {
   const current = selectCurrentChapter(state);
   const availableQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'available');
   const startedQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'started');
+  const mode = state.settings?.dailyMode ?? 'balanced';
+  if (mode === 'speed') return startedQuest ? `Push ${startedQuest.title} in one fast burst.` : 'Find the smallest quest and clear it quickly.';
+  if (mode === 'social') return 'Use a body-double, text a human, or do one quest with support.';
+  if (mode === 'low-energy') return 'Choose the smallest legitimate move. Slow counts.';
   if (startedQuest) return `Finish one subquest in ${startedQuest.title}.`;
   if (availableQuest) return `Start ${availableQuest.title} and land the first required step.`;
   const chapterBossId = current ? state.chapterBosses[current.id] ?? current.bossPool[0]?.id : null;

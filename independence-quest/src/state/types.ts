@@ -50,6 +50,7 @@ export interface GameState {
     focusMode: boolean;
     showFullMap: boolean;
     nameLocked: boolean;
+    dailyMode: string;
     collapsedSections: Record<string, boolean>;
   };
   version: number;

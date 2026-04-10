@@ -5,6 +5,7 @@ import { ensureNotificationPermission, scheduleReengagementReminder, triggerHapt
 export function ProfileScreen() {
   const state = useGameStore((s) => s.state);
   const setSetting = useGameStore((s) => s.setSetting);
+  const respecClass = useGameStore((s) => s.respecClass);
   const currentClass = CLASS_DEFS.find((item) => item.id === state.classId);
   const firstProof = CAMPAIGN_FIRST_PROOFS.find((item) => item.id === state.campaign.firstProof);
 
@@ -19,6 +20,17 @@ export function ProfileScreen() {
           <div className="inline-card"><strong>Motivation</strong><p>{state.campaign.motivation || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
+        </div>
+        <div className="stack-list" style={{ marginTop: '0.85rem' }}>
+          <strong style={{ fontSize: '0.9rem' }}>Respec strategy</strong>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {CLASS_DEFS.map((cls) => (
+              <button key={cls.id} className="quest-card-head" onClick={() => respecClass(cls.id)} disabled={state.classId === cls.id}>
+                <span><strong>{cls.name}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{cls.description}</span></span>
+                <span className="pill">{state.classId === cls.id ? 'Current' : 'Swap'}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 

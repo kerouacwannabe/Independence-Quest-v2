@@ -32,6 +32,7 @@ type GameStore = {
   setCampaignMode: (mode: 'guided' | 'free') => void;
   completeCampaignSetup: () => void;
   completeFirstProof: () => void;
+  respecClass: (classId: string) => void;
 
   startQuest: (questId: string) => void;
   toggleSubquest: (questId: string, subquestId: string) => void;
@@ -214,6 +215,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
       state: ns
     }));
+    return { state: ns };
+  }),
+
+  respecClass: (classId) => set((s) => {
+    if (!classId || classId === s.state.classId) return s;
+    const ns = {
+      ...s.state,
+      classId,
+      barbarian: { activeQuestId: null, expiresAt: null, choice: '', completedAt: null },
+      rogueRun: { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false },
+      monk: { discipline: 0 },
+      wizard: { preparedSpells: [], castToday: [] },
+    };
+    persist(s.meta, ns);
     return { state: ns };
   }),
 
