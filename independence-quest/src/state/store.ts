@@ -11,6 +11,7 @@ type BarbarianState = { activeQuestId: string | null; expiresAt: number | null; 
 type WizardState = { preparedSpells: string[]; castToday: string[] };
 type Streaks = { daily: number; weekly: number; lastActiveDate: string };
 type VgmAdvisor = { lastMessage: string; lastShownDate: string; history: string[] };
+type ResetHealth = { status: 'ok' | 'stale' | 'needs-check'; lastCheckedDay: string; note: string };
 
 type GameStore = {
   meta: ReturnType<typeof defaultMeta>;
@@ -86,10 +87,12 @@ function hydrateState(incoming = defaultState()) {
   state.rewardsClaimed ??= [];
   state.streaks ??= { daily: 0, weekly: 0, lastActiveDate: '' };
   state.vgmAdvisor ??= { lastMessage: '', lastShownDate: '', history: [] };
+  state.resetHealth ??= { status: 'ok', lastCheckedDay: '', note: '' };
   state.monk ??= { discipline: 0 };
   state.rogueRun ??= { active: false, selectedQuestIds: [], completedQuestIds: [], bonusAwarded: false };
   state.barbarian ??= { activeQuestId: null, expiresAt: null, choice: '', completedAt: null };
   state.wizard ??= { preparedSpells: [], castToday: [] };
+  state.resetHealth ??= { status: 'ok', lastCheckedDay: '', note: '' };
 
   CHAPTERS.forEach((chapter) => {
     if (!state.chapterBosses[chapter.id]) state.chapterBosses[chapter.id] = chapter.bossPool[0].id;
@@ -124,17 +127,34 @@ function persist(meta: any, state: any) {
   localStorage.setItem(getStorageKey(meta.currentSlot), JSON.stringify({ ...state, updatedAt: Date.now(), createdAt: state.createdAt ?? Date.now() }));
 }
 
+function utcDayKey(value = Date.now()) {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
 function updateStreaks(streaks: Streaks): Streaks {
-  const today = new Date().toISOString().split('T')[0];
+  const today = utcDayKey();
   if (streaks.lastActiveDate === today) return streaks;
   let { daily = 0, weekly = 0 } = streaks;
   if (streaks.lastActiveDate) {
-    const diff = Math.floor((Date.now() - new Date(streaks.lastActiveDate).getTime()) / 86400000);
+    const lastDay = utcDayKey(new Date(streaks.lastActiveDate).getTime());
+    const diff = Math.round((Date.parse(today) - Date.parse(lastDay)) / 86400000);
     if (diff === 1) { daily++; weekly++; }
     else if (diff === 2) { daily = Math.max(1, daily - 1); weekly = 0; }
     else if (diff > 2) { daily = 1; weekly = 0; }
   } else { daily = 1; weekly = 1; }
   return { daily, weekly, lastActiveDate: today };
+}
+
+function detectResetHealth(state: any): ResetHealth {
+  const today = utcDayKey();
+  const last = state.streaks?.lastActiveDate ?? '';
+  const updatedDay = state.updatedAt ? utcDayKey(state.updatedAt) : '';
+  if (!last) return { status: 'needs-check', lastCheckedDay: today, note: 'No last active day recorded yet.' };
+  if (last === today) return { status: 'ok', lastCheckedDay: today, note: 'Daily reset is current.' };
+  if (updatedDay && updatedDay !== today && last < today) {
+    return { status: 'stale', lastCheckedDay: today, note: 'State was updated yesterday or earlier, but the active day did not advance.' };
+  }
+  return { status: 'needs-check', lastCheckedDay: today, note: 'Daily reset should be checked on the next state write.' };
 }
 
 function makeQuestEntry(): QuestEntry {
@@ -538,12 +558,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (diff === 2) { streaks.daily = Math.max(1, streaks.daily - 1); streaks.weekly = 0; }
     else if (diff > 2) { streaks.daily = 1; streaks.weekly = 0; }
     const ns = { ...s.state, streaks };
+    ns.resetHealth = detectResetHealth(ns);
     persist(s.meta, ns); return { state: ns };
   }),
 
   setDailyAdviceShown: (text, date) => set((s) => {
     const adv = s.state.vgmAdvisor ?? { lastMessage: '', lastShownDate: '', history: [] };
     const ns = { ...s.state, vgmAdvisor: { lastMessage: text, lastShownDate: date, history: [...adv.history, text].slice(-20) } };
+    ns.resetHealth = detectResetHealth(ns);
     persist(s.meta, ns); return { state: ns };
   }),
 
@@ -574,6 +596,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         [key]: value,
       },
     };
+    ns.resetHealth = detectResetHealth(ns);
     persist(s.meta, ns);
     return { state: ns };
   })

@@ -52,6 +52,7 @@ export function TodayScreen() {
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
   const level = selectLevel(state);
+  const resetHealth = state.resetHealth;
 
   const classId = state.classId;
   const classDef = CLASS_DEFS.find((c) => c.id === classId);
@@ -94,7 +95,7 @@ export function TodayScreen() {
       return {
         eyebrow: 'Resume Adventure',
         title: activeQuest.title,
-        copy: 'You already started this run. Pick up the thread before your brain invents twelve reasons not to.',
+        copy: 'You already started this run. Pick it up and keep going.',
         cta: 'Resume Quest',
         onClick: () => {
           setTab('quests');
@@ -106,7 +107,7 @@ export function TodayScreen() {
       return {
         eyebrow: 'Recover the Run',
         title: blockedQuest.title,
-        copy: 'This one is blocked. Good. That means we know where the dragon is. Go fix the smallest next thing.',
+        copy: 'This one is blocked. Fix the smallest next thing.',
         cta: 'Unblock Now',
         onClick: () => {
           setTab('quests');
@@ -118,7 +119,7 @@ export function TodayScreen() {
       return {
         eyebrow: 'Follow-up Time',
         title: waitingQuest.title,
-        copy: 'You parked this in waiting. Check whether the universe has finally coughed up what you need.',
+        copy: 'You parked this in waiting. Check if what you need is here.',
         cta: 'Check Back In',
         onClick: () => {
           setTab('quests');
@@ -130,7 +131,7 @@ export function TodayScreen() {
       return {
         eyebrow: 'Boss Ready',
         title: availableBoss.title,
-        copy: 'A chapter threat is active. If you want drama, there it is, gift-wrapped and breathing fire.',
+        copy: 'A chapter threat is active. If you want drama, there it is.',
         cta: 'Face Boss',
         onClick: () => setTab('quests'),
       };
@@ -156,16 +157,16 @@ export function TodayScreen() {
 
   const classCoachmark = (() => {
     if (classId === 'rogue' && !state.rogueRun?.active && rogueEligible.length >= 2) {
-      return { title: 'Rogue combo ready', copy: 'Bundle 2 or 3 quick wins into one route and cash it in.' };
+      return { title: 'Rogue combo ready', copy: 'Bundle 2 or 3 wins into one route.' };
     }
     if (classId === 'monk' && (state.monk?.discipline ?? 0) >= 3) {
-      return { title: 'Monk rescue ready', copy: 'Spend 3 beads to rescue a blocked quest without drama.' };
+      return { title: 'Monk rescue ready', copy: 'Spend 3 beads to rescue a blocked quest.' };
     }
     if (classId === 'wizard' && planningEligibleIds.length > 0 && (state.wizard?.preparedSpells?.length ?? 0) < 2) {
-      return { title: 'Wizard prep window', copy: 'Prepare a spell now so the board is easier later.' };
+      return { title: 'Wizard prep window', copy: 'Prepare a spell now so tomorrow is easier.' };
     }
     if (classId === 'barbarian' && !state.barbarian?.completedAt) {
-      return { title: 'Barbarian strike window', copy: 'Open a quest and move first. Momentum likes motion.' };
+      return { title: 'Barbarian strike window', copy: 'Open a quest and move first.' };
     }
     return null;
   })();
@@ -288,6 +289,10 @@ export function TodayScreen() {
           </div>
           <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#cbd5e1' }}>
             {boss.remaining > 0 ? `${boss.remaining} more quest${boss.remaining === 1 ? '' : 's'} to reveal the boss.` : 'Boss ready or already active.'}
+          </div>
+          <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, border: '1px solid #334155', background: resetHealth?.status === 'stale' ? '#3f1d1d' : '#0f172a' }}>
+            <strong style={{ display: 'block' }}>Reset guardrail: {resetHealth?.status === 'ok' ? 'OK' : resetHealth?.status === 'stale' ? 'Stale' : 'Needs check'}</strong>
+            <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{resetHealth?.note || 'Watching daily reset behavior.'}</span>
           </div>
         </div>
       </section>

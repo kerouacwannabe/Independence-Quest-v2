@@ -8,6 +8,12 @@ const PROACTIVE_SUGGESTIONS = [
   { id: 'discover', title: 'Find a tool', why: 'Opens the discovery surface when the user is exploring.' },
 ];
 
+const PROACTIVE_STATUS = {
+  active: true,
+  line: 'Proactive monitoring is on, watching for blocked work and useful tool hints.',
+  control: 'Pause in settings if you want a quieter board.',
+};
+
 const EXPLANATION_CARD = {
   title: 'Why this tool',
   copy: 'Every tool now carries a short reason so the app tells you why it exists, not just where to click.',
@@ -71,6 +77,15 @@ export function ToolkitScreen() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="card">
+        <p className="eyebrow">Proactive monitoring</p>
+        <article className="inline-card">
+          <h3>{PROACTIVE_STATUS.active ? 'Active' : 'Paused'}</h3>
+          <p>{PROACTIVE_STATUS.line}</p>
+          <p style={{ color: '#93c5fd', fontSize: '0.82rem', marginTop: 6 }}>{PROACTIVE_STATUS.control}</p>
+        </article>
       </section>
 
       <section className="card">
