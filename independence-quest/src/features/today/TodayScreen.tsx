@@ -60,6 +60,8 @@ export function TodayScreen() {
   const progress = chapterProgress(state, currentChapter);
   const boss = nextBossMilestone(currentChapter, progress.cleared);
   const latestToast = ui.toasts?.[0];
+  const availableCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'available').length;
+  const completedCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'completed').length;
 
   const blockedQuest = allQuests.find((quest) => state.quests[quest.id]?.status === 'blocked');
   const waitingQuest = allQuests.find((quest) => state.quests[quest.id]?.status === 'waiting');
@@ -147,6 +149,17 @@ export function TodayScreen() {
         <h2 style={{ marginTop: 0, marginBottom: 8 }}>{hero.title}</h2>
         <p style={{ color: '#cbd5e1', marginTop: 0 }}>{hero.copy}</p>
         <button className="primary-button" style={{ marginTop: 10, width: '100%' }} onClick={hero.onClick}>{hero.cta}</button>
+      </section>
+
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#1d4ed8', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
+        <p className="eyebrow">Re-entry Ritual</p>
+        <strong>Open fast, understand the board, hit one thing.</strong>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
+          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Available</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{availableCount}</div></div>
+          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Started</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{activeQuest ? 1 : 0}</div></div>
+          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Cleared</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{completedCount}</div></div>
+        </div>
+        <p style={{ marginTop: 10, color: '#cbd5e1', fontSize: '0.84rem' }}>The loop should be immediate: know your strongest move, feel progress pressure, then act before your brain starts a committee meeting.</p>
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem' }}>

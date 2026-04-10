@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useGameStore } from '../state/store';
+import { triggerHaptic } from '../lib/native';
 
 const STAGE_STYLE: Record<string, { bg: string; border: string; label: string }> = {
   subquest: { bg: '#172554', border: '#2563eb', label: 'Subquest Complete' },
@@ -15,6 +16,8 @@ export function ToastContainer() {
 
   useEffect(() => {
     if (!toasts.length) return;
+    const first = toasts[0];
+    triggerHaptic(first?.stage === 'boss' ? 'heavy' : first?.stage === 'quest' ? 'medium' : 'light');
     const timers = toasts.map((toast) => window.setTimeout(() => dismissToast(toast.id), 2200));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [toasts, dismissToast]);

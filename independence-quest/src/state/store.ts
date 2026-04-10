@@ -59,6 +59,7 @@ type GameStore = {
   // Toast actions
   addToast: (stage: string) => void;
   removeToast: (id: number) => void;
+  setSetting: (key: string, value: any) => void;
 };
 
 const getStorageKey = (slotId: string) => `${STORAGE_PREFIX}:${slotId}`;
@@ -512,7 +513,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...s.ui,
       toasts: s.ui.toasts.filter(t => t.id !== id)
     }
-  }))
+  })),
+
+  setSetting: (key, value) => set((s) => {
+    const ns = {
+      ...s.state,
+      settings: {
+        ...s.state.settings,
+        [key]: value,
+      },
+    };
+    persist(s.meta, ns);
+    return { state: ns };
+  })
 }));
 
 export { CHAPTERS, LOW_ENERGY_OPTIONS, RESCUE_ITEMS };

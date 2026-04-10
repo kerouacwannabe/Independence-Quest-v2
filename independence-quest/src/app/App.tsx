@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useGameStore } from '../state/store';
 import { TodayScreen } from '../features/today/TodayScreen';
 import { QuestsScreen } from '../features/quests/QuestsScreen';
@@ -8,6 +9,7 @@ import { CampaignWizard } from '../features/setup/CampaignWizard';
 import { FirstProofScreen } from '../features/setup/FirstProofScreen';
 import { ToastContainer } from '../components/ToastContainer';
 import { ClassHudCard } from '../components/ClassHudCard';
+import { ensureNotificationPermission } from '../lib/native';
 
 const TABS = [
   { id: 'today', icon: '☀️', label: 'Today' },
@@ -22,6 +24,16 @@ export function App() {
   const setActiveTab = useGameStore((s) => s.setActiveTab);
   const classId = useGameStore((s) => s.state.classId);
   const campaign = useGameStore((s) => s.state.campaign);
+  const checkStreaks = useGameStore((s) => s.checkStreaks);
+  const settings = useGameStore((s) => s.state.settings);
+  const [showLaunchVeil, setShowLaunchVeil] = useState(true);
+
+  useEffect(() => {
+    checkStreaks();
+    const timer = window.setTimeout(() => setShowLaunchVeil(false), 900);
+    if (settings.effectsEnabled) ensureNotificationPermission();
+    return () => window.clearTimeout(timer);
+  }, [checkStreaks, settings.effectsEnabled]);
 
   // Setup wizard gate
   if (!classId || campaign.step < 5 || !campaign.complete) {
@@ -46,6 +58,16 @@ export function App() {
 
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#0a0e14', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
+      {showLaunchVeil && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'grid', placeItems: 'center', background: 'radial-gradient(circle at top, #172554, #07111f 62%)', color: '#e0f2fe' }}>
+          <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <div style={{ fontSize: '2.2rem', marginBottom: 10 }}>💀✨</div>
+            <div style={{ fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7cc6fe' }}>Independence Quest</div>
+            <div style={{ marginTop: 8, fontWeight: 700, fontSize: '1.25rem' }}>Claim your own keep</div>
+            <div style={{ marginTop: 8, color: '#bfdbfe' }}>Sharpening the quest board and waking the goblins.</div>
+          </div>
+        </div>
+      )}
       <main style={{ flex: 1, overflow: 'auto', padding: '0.75rem 1rem 5.5rem' }}>
         <ClassHudCard />
         {screen}

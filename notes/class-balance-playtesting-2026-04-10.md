@@ -40,14 +40,6 @@ Current rough order for immediate player-perceived power:
 3. Wizard
 4. Monk
 
-That is not a disaster, but it suggests the game currently rewards visible action chains a bit more than calm accumulation or setup play.
-
 ## Recommendation recorded for next tuning slice
-If we want tighter parity without rewriting the system, the best next adjustment is:
 - Give Monk a slightly louder early payoff, either through a more celebratory bead gain moment or a tiny first-threshold bonus before 3 beads.
-
-Secondary option:
-- Give Wizard a more explicit “planning win” callout after spell prep so the benefit feels immediate.
-
-## Ship decision
-No mechanical rebalance was forced in this pass. The class structures are coherent enough to ship, and the biggest need is better payoff signaling rather than a heavy stat rewrite.
+- Secondary option: give Wizard a more explicit planning-win callout after spell prep so the benefit feels immediate.
