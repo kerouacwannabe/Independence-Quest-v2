@@ -4,6 +4,7 @@ import { ensureNotificationPermission, scheduleReengagementReminder, triggerHapt
 
 export function ProfileScreen() {
   const state = useGameStore((s) => s.state);
+  const toasts = useGameStore((s) => s.ui.toasts);
   const setSetting = useGameStore((s) => s.setSetting);
   const respecClass = useGameStore((s) => s.respecClass);
   const currentClass = CLASS_DEFS.find((item) => item.id === state.classId);
@@ -23,6 +24,13 @@ export function ProfileScreen() {
           <div className="inline-card"><strong>Motivation</strong><p>{state.campaign.motivation || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
+        </div>
+        <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
+          <strong style={{ display: 'block', marginBottom: 6 }}>Recent wins</strong>
+          <ul style={{ margin: 0, paddingLeft: 18, color: '#cbd5e1', fontSize: '0.84rem' }}>
+            {(toasts ?? []).slice(-3).reverse().map((toast) => <li key={toast.id}>{toast.text}</li>)}
+            {!(toasts ?? []).length && <li>No recent wins yet. Go make one, obviously.</li>}
+          </ul>
         </div>
         <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: '#111827', border: '1px solid #334155' }}>
           <strong style={{ display: 'block', marginBottom: 6 }}>What your run unlocks</strong>

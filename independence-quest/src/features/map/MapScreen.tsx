@@ -2,6 +2,7 @@ import { CHAPTERS, selectAvailableBosses, selectCurrentChapter, selectProgressUn
 
 export function MapScreen() {
   const state = useGameStore((s) => s.state);
+  const totalCompleted = CHAPTERS.reduce((sum, chapter) => sum + chapter.quests.filter((quest) => state.quests[quest.id]?.status === 'completed').length, 0);
 
   const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[0];
   const campaignComplete = state.campaign.complete && !selectCurrentChapter(state);
@@ -15,6 +16,11 @@ export function MapScreen() {
         <p className="eyebrow">Minimap</p>
         <h2>{currentChapter.title}</h2>
         <p>Current position marked, previous chapters trail behind, next regions stay visible enough to feel real without turning the app into a wall of lore.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
+          <div style={{ padding: '0.75rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Chapter</div><div style={{ fontWeight: 700 }}>{currentChapter.title}</div></div>
+          <div style={{ padding: '0.75rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Next gate</div><div style={{ fontWeight: 700 }}>{currentChapter.bossRevealAt ?? 0} quests</div></div>
+          <div style={{ padding: '0.75rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Cleared</div><div style={{ fontWeight: 700 }}>{totalCompleted}</div></div>
+        </div>
         <div style={{ marginTop: 10, padding: '0.85rem 1rem', borderRadius: 12, background: '#111827', border: '1px solid #334155' }}>
           <strong style={{ display: 'block', marginBottom: 6 }}>Progress powers unlocked</strong>
           <ul style={{ margin: 0, paddingLeft: 18, color: '#cbd5e1', fontSize: '0.84rem' }}>
