@@ -172,6 +172,18 @@ export function TodayScreen() {
 
   return (
     <div className="screen-stack">
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#0f766e', background: 'linear-gradient(180deg, #042f2e, #111827)' }}>
+        <p className="eyebrow">Campaign at a glance</p>
+        <strong>{currentChapter.title}</strong>
+        <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>
+          {progress.cleared}/{progress.total} quests cleared, boss gate in {boss.remaining} more quest{boss.remaining === 1 ? '' : 's'}.
+        </p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          <button className="primary-button" onClick={() => setTab('quests')}>Continue run</button>
+          <button className="ghost-button" onClick={() => setTab('map')}>Check boss map</button>
+        </div>
+      </section>
+
       {campaignComplete && (
         <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #1e1b4b, #111827)' }}>
           <p className="eyebrow">Final Win</p>

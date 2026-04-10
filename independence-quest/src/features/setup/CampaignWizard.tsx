@@ -54,8 +54,8 @@ export function CampaignWizard() {
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.25rem', background: 'linear-gradient(180deg, #0a0e14 0%, #1a1025 100%)', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 420, textAlign: 'center', width: '100%' }}>
         <p style={{ fontSize: '0.7rem', color: '#94a3b8', letterSpacing: 0.1 }}>INDEPENDENCE QUEST</p>
-        <h1 style={{ fontSize: '1.8rem', margin: '0.25rem 0 0.75rem' }}>Claim Your Own Keep</h1>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Pick a class, pick a first move, and start. That’s the whole trick.</p>
+        <h1 style={{ fontSize: '1.8rem', margin: '0.25rem 0 0.75rem' }}>Pick class, pick first move, go</h1>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Three taps, then you’re in the fight.</p>
         <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Step {step + 1} of 2</p>
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: '1.25rem' }}>
           {STEPS.map((_, i) => (
