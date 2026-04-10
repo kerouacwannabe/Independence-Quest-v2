@@ -32,6 +32,7 @@ type GameStore = {
   setCampaignVow: (vow: string) => void;
   setCampaignFirstProof: (firstProof: string) => void;
   setCampaignMode: (mode: 'guided' | 'free') => void;
+  setCampaignBranch: (branch: string) => void;
   completeCampaignSetup: () => void;
   completeFirstProof: () => void;
   respecClass: (classId: string) => void;
@@ -198,6 +199,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setCampaignMode: (mode) => set((s) => {
     const ns = { ...s.state, campaign: { ...s.state.campaign, pathMode: mode } };
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  setCampaignBranch: (branch) => set((s) => {
+    const ns = { ...s.state, campaign: { ...s.state.campaign, branch } };
     persist(s.meta, ns); return { state: ns };
   }),
 

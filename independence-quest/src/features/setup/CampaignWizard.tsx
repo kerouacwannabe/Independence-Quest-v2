@@ -9,6 +9,7 @@ const DEFAULTS = {
   motivation: CAMPAIGN_MOTIVATIONS[2]?.id ?? 'independence',
   vow: CAMPAIGN_VOWS[0]?.id ?? 'show-up',
   firstProof: CAMPAIGN_FIRST_PROOFS[0]?.id ?? 'wake-reset',
+  branch: 'stability',
 };
 
 export function CampaignWizard() {
@@ -21,6 +22,7 @@ export function CampaignWizard() {
   const setCampaignVow = useGameStore((s) => s.setCampaignVow);
   const setCampaignFirstProof = useGameStore((s) => s.setCampaignFirstProof);
   const setCampaignMode = useGameStore((s) => s.setCampaignMode);
+  const setCampaignBranch = useGameStore((s) => s.setCampaignBranch);
 
   const canNext = step === 0 ? !!draft.classId : !!draft.firstProof;
 
@@ -28,6 +30,7 @@ export function CampaignWizard() {
     setCampaignVow(draft.vow);
     setCampaignFirstProof(draft.firstProof);
     setCampaignMode(mode);
+    setCampaignBranch(draft.branch);
     const name = characterName.trim() || undefined;
     startCampaign({ name, classId: draft.classId, origin: draft.origin, motivation: draft.motivation });
   };
@@ -124,6 +127,20 @@ export function CampaignWizard() {
                       {(['guided', 'free'] as const).map((m) => (
                         <button key={m} onClick={() => setMode(m)} style={{ flex: 1, padding: '0.6rem', background: mode === m ? '#1e3a5f' : '#1e293b', border: mode === m ? '1px solid #3b82f6' : '1px solid #334155', borderRadius: 8, color: '#e2e8f0', cursor: 'pointer', textTransform: 'capitalize' }}>
                           {m === 'guided' ? 'Guided' : 'Free Roam'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Progression branch</label>
+                    <div style={{ display: 'grid', gap: 8 }}>
+                      {[
+                        { id: 'stability', title: 'Stability', copy: 'Build a safer, steadier routine first.' },
+                        { id: 'momentum', title: 'Momentum', copy: 'Keep movement and quick wins front and center.' },
+                      ].map((branch) => (
+                        <button key={branch.id} onClick={() => setDraft((d) => ({ ...d, branch: branch.id }))} style={{ padding: '0.75rem', textAlign: 'left', background: draft.branch === branch.id ? '#1e3a5f' : '#1e293b', border: draft.branch === branch.id ? '1px solid #3b82f6' : '1px solid #334155', borderRadius: 10, color: '#e2e8f0', cursor: 'pointer' }}>
+                          <strong>{branch.title}</strong>
+                          <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 4 }}>{branch.copy}</div>
                         </button>
                       ))}
                     </div>

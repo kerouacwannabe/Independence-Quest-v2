@@ -31,6 +31,7 @@ export interface GameState {
     firstProof: string;
     firstProofDone: boolean;
     pathMode: 'guided' | 'free';
+    branch: string;
   };
   quests: Record<string, QuestEntry>;
   bosses: Record<string, BossEntryStatus>;
