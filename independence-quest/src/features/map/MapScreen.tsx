@@ -4,6 +4,7 @@ export function MapScreen() {
   const state = useGameStore((s) => s.state);
 
   const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[0];
+  const campaignComplete = state.campaign.complete && !selectCurrentChapter(state);
 
   const visibleBosses = selectAvailableBosses(state, currentChapter.id);
 
@@ -13,6 +14,12 @@ export function MapScreen() {
         <p className="eyebrow">Minimap</p>
         <h2>{currentChapter.title}</h2>
         <p>Current position marked, previous chapters trail behind, next regions stay visible enough to feel real without turning the app into a wall of lore.</p>
+        {campaignComplete && (
+          <div style={{ marginTop: 12, padding: '0.9rem 1rem', borderRadius: 12, background: '#111827', border: '1px solid #7c3aed' }}>
+            <strong>Journey complete</strong>
+            <p style={{ marginTop: 6, color: '#cbd5e1', fontSize: '0.86rem' }}>You cleared every chapter and boss. The map has nothing left to hide.</p>
+          </div>
+        )}
         <div className="map-path">
           {CHAPTERS.map((chapter) => {
             const completed = chapter.quests.every((quest) => state.quests[quest.id]?.status === 'completed');

@@ -1,5 +1,5 @@
 import { CLASS_DEFS, CAMPAIGN_FIRST_PROOFS } from '../../content';
-import { useGameStore } from '../../state/store';
+import { useGameStore, selectCurrentChapter } from '../../state/store';
 import { ensureNotificationPermission, scheduleReengagementReminder, triggerHaptic } from '../../lib/native';
 
 export function ProfileScreen() {
@@ -8,6 +8,8 @@ export function ProfileScreen() {
   const respecClass = useGameStore((s) => s.respecClass);
   const currentClass = CLASS_DEFS.find((item) => item.id === state.classId);
   const firstProof = CAMPAIGN_FIRST_PROOFS.find((item) => item.id === state.campaign.firstProof);
+  const currentChapter = selectCurrentChapter(state);
+  const campaignComplete = !currentChapter && state.campaign.complete;
 
   return (
     <div className="screen-stack">
@@ -32,6 +34,12 @@ export function ProfileScreen() {
             ))}
           </div>
         </div>
+        {campaignComplete && (
+          <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: 'linear-gradient(180deg, #1e1b4b, #111827)', border: '1px solid #7c3aed' }}>
+            <strong>Final win unlocked</strong>
+            <p style={{ marginTop: 6, color: '#cbd5e1', fontSize: '0.86rem' }}>You finished the campaign. This is the endpoint, not a dangling chapter card.</p>
+          </div>
+        )}
       </section>
 
       <section className="card">

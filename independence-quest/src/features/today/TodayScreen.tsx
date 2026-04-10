@@ -59,6 +59,7 @@ export function TodayScreen() {
   const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[CHAPTERS.length - 1];
   const progress = chapterProgress(state, currentChapter);
   const boss = nextBossMilestone(currentChapter, progress.cleared);
+  const campaignComplete = state.campaign.complete && !selectCurrentChapter(state);
   const latestToast = ui.toasts?.[0];
   const availableCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'available').length;
   const completedCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'completed').length;
@@ -173,6 +174,14 @@ export function TodayScreen() {
 
   return (
     <div className="screen-stack">
+      {campaignComplete && (
+        <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #1e1b4b, #111827)' }}>
+          <p className="eyebrow">Final Win</p>
+          <strong>Campaign complete.</strong>
+          <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>Every chapter is cleared. Use the profile and map as a victory lap, not a to-do list.</p>
+        </section>
+      )}
+
       <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
         <p className="eyebrow">Do This Now</p>
         <strong>{nextMove.heading}</strong>

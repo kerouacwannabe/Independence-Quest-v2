@@ -41,7 +41,7 @@ export function selectAvailableBosses(state: GameState, chapterId: string) {
 }
 
 export type NextMove = {
-  type: 'setup' | 'firstProof' | 'activeQuest' | 'blocked' | 'availableBoss' | 'lowestXP' | 'chapterComplete';
+  type: 'setup' | 'firstProof' | 'activeQuest' | 'blocked' | 'availableBoss' | 'lowestXP' | 'chapterComplete' | 'finalWin';
   heading: string; copy: string; button: string;
   questId?: string; bossId?: string;
 };
@@ -56,7 +56,7 @@ export function selectNextMove(state: GameState): NextMove {
     if (q) return { type: 'firstProof', heading: 'First Evidence', copy: `Complete: "${q.title}". This gives you immediate evidence the campaign can hold.`, button: 'View Quest', questId: state.campaign.firstProof };
   }
   const ch = selectCurrentChapter(state);
-  if (!ch) return { type: 'chapterComplete', heading: 'Journey complete!', copy: 'You have conquered every chapter. Well earned, Boss.', button: 'View Quests' };
+  if (!ch) return { type: 'finalWin', heading: 'Journey complete!', copy: 'You have conquered every chapter. Well earned, Boss.', button: 'View Profile' };
   const active = ch.quests.find(q => state.quests[q.id]?.status === 'started');
   if (active) {
     const e = state.quests[active.id];
@@ -99,7 +99,7 @@ export function selectNextMove(state: GameState): NextMove {
     return { type: 'chapterComplete', heading: `Chapter complete! → ${nextChapter.title}`, copy: 'You\'ve cleared this chapter and its guardian. The next challenge awaits.', button: 'View Quests' };
   }
   // All chapters and bosses complete
-  return { type: 'chapterComplete', heading: 'Campaign complete!', copy: 'Every challenge conquered. You have forged your own independence.', button: 'View Profile' };
+  return { type: 'finalWin', heading: 'Campaign complete!', copy: 'Every challenge conquered. You have forged your own independence.', button: 'View Profile' };
 }
 
 export function selectRogueEligibleQuestIds() {
@@ -264,6 +264,7 @@ export function selectDailyAdvice(state: GameState): { message: string; dayPhase
   let dp = 'morning'; if (h >= 12 && h < 17) dp = 'afternoon'; else if (h >= 17) dp = 'evening';
   let msg = '';
   if (state.campaign.step < 5 && !state.campaign.complete) msg = 'Set up your campaign to begin the journey.';
+  else if (!selectCurrentChapter(state)) msg = 'Campaign complete. The endpoint is yours, and the map is done.';
   else if (!state.campaign.firstProofDone) msg = 'Complete your first evidence action to unlock the campaign engine.';
   else if (streak > 3) msg = "You're on fire! Each day builds independence.";
   else if (prog >= 0.7) msg = "Boss approaches. Review your resources and prepare.";
