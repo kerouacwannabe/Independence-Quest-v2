@@ -245,6 +245,11 @@ export function TodayScreen() {
             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <span className="pill">{nextProgressStep.kind}</span>
               {nextProgressStep.isBossGate && <span className="pill">Boss gate</span>}
+              {nextProgressStep.reward && <span className="pill">Reward: {nextProgressStep.reward}</span>}
+            </div>
+            <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, background: '#0f172a', border: '1px solid #4c1d95' }}>
+              <strong style={{ display: 'block', marginBottom: 4 }}>What you get next</strong>
+              <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>{nextProgressStep.rewardText || nextProgressStep.subtitle}</p>
             </div>
           </>
         ) : (
