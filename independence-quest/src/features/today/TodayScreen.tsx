@@ -313,46 +313,48 @@ export function TodayScreen() {
 
           <section className="card compact-list-card" style={{ margin: 0 }}>
             <p className="eyebrow">Daily Mode</p>
-        <strong>{state.settings?.dailyMode === 'speed' ? 'Speed' : state.settings?.dailyMode === 'social' ? 'Social' : state.settings?.dailyMode === 'low-energy' ? 'Low-energy' : state.settings?.dailyMode === 'micro-win' ? 'Micro-win' : 'Balanced'}</strong>
-        <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the shape of today. The route changes, but it still counts.</p>
-        <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
-          {[
-            { id: 'balanced', title: 'Balanced', copy: 'One useful win, no drama.' },
-            { id: 'speed', title: 'Speed', copy: 'Fast burst, quick closure.' },
-            { id: 'social', title: 'Social', copy: 'Use support and body-doubling.' },
-            { id: 'low-energy', title: 'Low-energy', copy: 'Tiny legitimate progress only.' },
-            { id: 'micro-win', title: 'Micro-win', copy: 'Two minutes, one finish, still counts.' },
-          ].map((mode) => (
-            <button key={mode.id} className="quest-card-head" onClick={() => setSetting('dailyMode', mode.id)}>
-              <span><strong>{mode.title}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{mode.copy}</span></span>
-              <span className="pill">{state.settings?.dailyMode === mode.id ? 'On' : 'Set'}</span>
-            </button>
-          ))}
-        </div>
-        {state.settings?.dailyMode === 'micro-win' && (
-          <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
-            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #7c3aed' }}>
-              <strong style={{ display: 'block' }}>Micro-win mode</strong>
-              <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Pick one two-minute action and stop when it’s done. Small counts. That’s the whole point.</span>
+            <p style={{ marginTop: 4, color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the shape of today. The route changes, but it still counts.</p>
+            <div style={{ display: 'grid', gap: 8, marginTop: 10, gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              {[
+                { id: 'balanced', title: 'Balanced', copy: 'One useful win.' },
+                { id: 'speed', title: 'Speed', copy: 'Fast burst.' },
+                { id: 'social', title: 'Social', copy: 'Body-double.' },
+                { id: 'low-energy', title: 'Low-energy', copy: 'Tiny legit progress.' },
+              ].map((mode) => (
+                <button key={mode.id} className="quest-card-head" onClick={() => setSetting('dailyMode', mode.id)} style={{ minHeight: 74, padding: '0.75rem' }}>
+                  <span><strong>{mode.title}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{mode.copy}</span></span>
+                  <span className="pill">{state.settings?.dailyMode === mode.id ? 'On' : 'Set'}</span>
+                </button>
+              ))}
             </div>
-            {LOW_ENERGY_OPTIONS.slice(0, 2).map((opt) => (
-              <div key={opt.id} style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #1e293b' }}>
-                <strong style={{ display: 'block' }}>{opt.title}</strong>
-                <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{opt.copy}</span>
+            <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, background: '#0f172a', border: '1px solid #334155' }}>
+              {state.settings?.dailyMode === 'micro-win' ? (
+                <>
+                  <strong style={{ display: 'block' }}>Micro-win</strong>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Two minutes, one finish, still counts.</span>
+                </>
+              ) : state.settings?.dailyMode === 'low-energy' ? (
+                <>
+                  <strong style={{ display: 'block' }}>Low-energy route</strong>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the smallest legitimate move and let it count.</span>
+                </>
+              ) : (
+                <>
+                  <strong style={{ display: 'block' }}>Micro-mode</strong>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Need more support? Switch to low-energy or micro-win in one tap.</span>
+                </>
+              )}
+            </div>
+            {(state.settings?.dailyMode === 'micro-win' || state.settings?.dailyMode === 'low-energy') && (
+              <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+                {(state.settings?.dailyMode === 'micro-win' ? LOW_ENERGY_OPTIONS.slice(0, 2) : LOW_ENERGY_OPTIONS.slice(0, 3)).map((opt) => (
+                  <div key={opt.id} style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #1e293b' }}>
+                    <strong style={{ display: 'block' }}>{opt.title}</strong>
+                    <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{opt.copy}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        {state.settings?.dailyMode === 'low-energy' && (
-          <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
-            {LOW_ENERGY_OPTIONS.map((opt) => (
-              <div key={opt.id} style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #1e293b' }}>
-                <strong style={{ display: 'block' }}>{opt.title}</strong>
-                <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{opt.copy}</span>
-              </div>
-            ))}
-          </div>
-        )}
+            )}
           </section>
         </div>
       </details>
