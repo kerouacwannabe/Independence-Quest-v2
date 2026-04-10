@@ -240,10 +240,12 @@ export function TodayScreen() {
         <p className="eyebrow">Next Lesson</p>
         {nextProgressStep ? (
           <>
-            <strong>{nextProgressStep.title}</strong>
-            <p style={{ marginTop: 6, color: '#ddd6fe', fontSize: '0.84rem' }}>{nextProgressStep.subtitle}</p>
-            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+              <strong>{nextProgressStep.title}</strong>
               <span className="pill">{nextProgressStep.kind}</span>
+            </div>
+            <p style={{ marginTop: 0, color: '#ddd6fe', fontSize: '0.84rem' }}>{nextProgressStep.subtitle}</p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               {nextProgressStep.isBossGate && <span className="pill">Boss gate</span>}
               {nextProgressStep.reward && <span className="pill">Reward: {nextProgressStep.reward}</span>}
             </div>
@@ -386,6 +388,12 @@ export function TodayScreen() {
                 ))}
               </div>
               <p style={{ marginTop: 8, fontSize: '0.8rem', color: '#cbd5e1' }}>Spend 3 beads to rescue a blocked quest.</p>
+              {(state.monk?.discipline ?? 0) >= 1 && (state.monk?.discipline ?? 0) < 3 && (
+                <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, background: '#052e16', border: '1px solid #166534' }}>
+                  <strong style={{ display: 'block' }}>First bead landed</strong>
+                  <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#bbf7d0' }}>That first routine win now visibly counts. One bead is proof the class is waking up.</p>
+                </div>
+              )}
             </div>
           )}
           {classId === 'rogue' && (
