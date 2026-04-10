@@ -221,15 +221,19 @@ export function selectDailyObjective(state: GameState) {
   const availableQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'available');
   const startedQuest = current?.quests.find((q) => state.quests[q.id]?.status === 'started');
   const mode = state.settings?.dailyMode ?? 'balanced';
-  if (mode === 'speed') return startedQuest ? `Push ${startedQuest.title} in one fast burst.` : 'Find the smallest quest and clear it quickly.';
-  if (mode === 'social') return 'Use a body-double, text a human, or do one quest with support.';
-  if (mode === 'low-energy') return 'Choose the smallest legitimate move. Slow counts.';
-  if (startedQuest) return `Finish one subquest in ${startedQuest.title}.`;
-  if (availableQuest) return `Start ${availableQuest.title} and land the first required step.`;
+  const branch = state.campaign.branch ?? 'stability';
+  const branchLine = branch === 'momentum'
+    ? 'Momentum branch: stack one fast win and keep the motion hot.'
+    : 'Stability branch: make the board safer, steadier, and easier to return to.';
+  if (mode === 'speed') return startedQuest ? `Push ${startedQuest.title} in one fast burst. ${branchLine}` : `Find the smallest quest and clear it quickly. ${branchLine}`;
+  if (mode === 'social') return `Use a body-double, text a human, or do one quest with support. ${branchLine}`;
+  if (mode === 'low-energy') return `Choose the smallest legitimate move. Slow counts. ${branchLine}`;
+  if (startedQuest) return `Finish one subquest in ${startedQuest.title}. ${branchLine}`;
+  if (availableQuest) return `Start ${availableQuest.title} and land the first required step. ${branchLine}`;
   const chapterBossId = current ? state.chapterBosses[current.id] ?? current.bossPool[0]?.id : null;
   const boss = current?.bossPool.find((b) => b.id === chapterBossId);
-  if (boss && state.bosses[boss.id]?.status !== 'completed') return `Prepare for ${boss.title} and clear at least one boss task.`;
-  return 'Take one visible action that makes tomorrow easier.';
+  if (boss && state.bosses[boss.id]?.status !== 'completed') return `Prepare for ${boss.title} and clear at least one boss task. ${branchLine}`;
+  return `Take one visible action that makes tomorrow easier. ${branchLine}`;
 }
 
 export function selectClassObjective(state: GameState) {

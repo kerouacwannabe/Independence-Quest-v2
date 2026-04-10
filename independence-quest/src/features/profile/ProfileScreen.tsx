@@ -22,6 +22,7 @@ export function ProfileScreen() {
         <p style={{ marginBottom: 12 }}>{currentClass?.name || 'No class locked yet'}</p>
         <div className="stack-list" style={{ gap: 8 }}>
           <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
+          <div className="inline-card"><strong>Campaign branch</strong><p>{state.campaign.branch === 'momentum' ? 'Momentum, quick wins first.' : 'Stability, safer setup and steadier returns.'}</p></div>
           <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
         </div>
         {topUnlock && (
