@@ -1,6 +1,12 @@
 import { CHAPTERS, REWARDS, getQuestMechanicMeta } from '../content';
 import type { GameState, QuestEntry } from './types';
 
+function isChapterRequirementMet(state: GameState, chapter: any) {
+  const cleared = chapter.quests.filter((q: any) => state.quests[q.id]?.status === 'completed').length;
+  const minCompleted = chapter.completionRule?.minCompleted ?? chapter.quests.length;
+  return cleared >= minCompleted;
+}
+
 export function selectUnlockedChapters(state: GameState) {
   const { step, firstProofDone } = state.campaign;
   if (step < 1 || !firstProofDone) return CHAPTERS.slice(0, 1);
@@ -9,14 +15,14 @@ export function selectUnlockedChapters(state: GameState) {
     const prev = CHAPTERS[i - 1];
     const prevBossId = state.chapterBosses[prev.id] ?? prev.bossPool[0]?.id;
     const bossCleared = prevBossId ? state.bosses[prevBossId]?.status === 'completed' : true;
-    return prev.quests.every((q) => state.quests[q.id]?.status === 'completed') && bossCleared;
+    return isChapterRequirementMet(state, prev) && bossCleared;
   });
 }
 
 export function selectCurrentChapter(state: GameState) {
   if (state.campaign.step < 5 && !state.campaign.complete) return null;
   for (const ch of CHAPTERS) {
-    const questsDone = ch.quests.every((q) => state.quests[q.id]?.status === 'completed');
+    const questsDone = isChapterRequirementMet(state, ch);
     const chapterBossId = state.chapterBosses[ch.id] ?? ch.bossPool[0]?.id;
     const bossDone = chapterBossId ? state.bosses[chapterBossId]?.status === 'completed' : true;
     if (!questsDone || !bossDone) return ch;
@@ -47,7 +53,7 @@ export function selectNextMove(state: GameState): NextMove {
   }
   if (!firstProofDone && state.campaign.firstProof) {
     const q = CHAPTERS.flatMap(c => c.quests).find((x) => x.id === state.campaign.firstProof);
-    if (q) return { type: 'firstProof', heading: 'First Proof', copy: `Complete: "${q.title}". This unlocks the campaign engine.`, button: 'View Quest', questId: state.campaign.firstProof };
+    if (q) return { type: 'firstProof', heading: 'First Evidence', copy: `Complete: "${q.title}". This gives you immediate evidence the campaign can hold.`, button: 'View Quest', questId: state.campaign.firstProof };
   }
   const ch = selectCurrentChapter(state);
   if (!ch) return { type: 'chapterComplete', heading: 'Journey complete!', copy: 'You have conquered every chapter. Well earned, Boss.', button: 'View Quests' };
@@ -87,7 +93,7 @@ export function selectNextMove(state: GameState): NextMove {
     const idx = CHAPTERS.indexOf(c);
     if (idx <= CHAPTERS.indexOf(ch)) return false;
     const prev = CHAPTERS[idx - 1];
-    return prev.quests.every(q => state.quests[q.id]?.status === 'completed');
+    return isChapterRequirementMet(state, prev);
   });
   if (nextChapter) {
     return { type: 'chapterComplete', heading: `Chapter complete! → ${nextChapter.title}`, copy: 'You\'ve cleared this chapter and its guardian. The next challenge awaits.', button: 'View Quests' };
@@ -203,11 +209,11 @@ export function selectStreaks(state: GameState) {
 
 export function selectComebackMessage(state: GameState) {
   const last = state.streaks?.lastActiveDate;
-  if (!last) return 'Fresh day, clean board. Take one real swing.';
+  if (!last) return 'Fresh day, clean board. Take one useful swing.';
   const diff = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
   if (diff <= 1) return 'Momentum is alive. Protect it with one meaningful move.';
   if (diff === 2) return 'You missed a day, not your whole campaign. Clear one comeback win.';
-  return 'No guilt spiral. Restart with one small proof and rebuild from there.';
+  return 'No guilt spiral. Restart with one small piece of evidence and rebuild from there.';
 }
 
 export function selectDailyObjective(state: GameState) {
@@ -254,7 +260,7 @@ export function selectDailyAdvice(state: GameState): { message: string; dayPhase
   let dp = 'morning'; if (h >= 12 && h < 17) dp = 'afternoon'; else if (h >= 17) dp = 'evening';
   let msg = '';
   if (state.campaign.step < 5 && !state.campaign.complete) msg = 'Set up your campaign to begin the journey.';
-  else if (!state.campaign.firstProofDone) msg = 'Complete your first proof to unlock the campaign engine.';
+  else if (!state.campaign.firstProofDone) msg = 'Complete your first evidence action to unlock the campaign engine.';
   else if (streak > 3) msg = "You're on fire! Each day builds independence.";
   else if (prog >= 0.7) msg = "Boss approaches. Review your resources and prepare.";
   else if (ch && prog >= 0.9) msg = "Chapter nearly done — one more push!";

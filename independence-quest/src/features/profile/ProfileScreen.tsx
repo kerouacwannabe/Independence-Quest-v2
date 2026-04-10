@@ -17,7 +17,8 @@ export function ProfileScreen() {
         <div className="stack-list">
           <div className="inline-card"><strong>Origin</strong><p>{state.campaign.origin || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>Motivation</strong><p>{state.campaign.motivation || 'Not chosen yet'}</p></div>
-          <div className="inline-card"><strong>First proof</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
+          <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
+          <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
         </div>
       </section>
 
@@ -33,7 +34,7 @@ export function ProfileScreen() {
             <span className="pill">Arm</span>
           </button>
           <button className="quest-card-head" onClick={() => triggerHaptic('medium')}>
-            <span><strong>Test haptic pulse</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Quick proof the phone can thump when progress lands.</span></span>
+            <span><strong>Test haptic pulse</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Quick evidence the phone can thump when progress lands.</span></span>
             <span className="pill">Test</span>
           </button>
         </div>

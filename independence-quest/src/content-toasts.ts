@@ -45,9 +45,9 @@ export const REWARD_CLAIMED_TOASTS: ToastMessage[] = [
 ];
 
 export const FIRST_PROOF_COMPLETE_TOASTS: ToastMessage[] = [
-  { id: 1, text: "First proof done! Momentum starts.", stage: "first-proof-complete" },
-  { id: 2, text: "Proof made. The journey begins.", stage: "first-proof-complete" },
-  { id: 3, text: "First proof cleared. You're underway!", stage: "first-proof-complete" }
+  { id: 1, text: "First evidence collected. Momentum starts.", stage: "first-proof-complete" },
+  { id: 2, text: "Evidence gathered. The journey begins.", stage: "first-proof-complete" },
+  { id: 3, text: "First evidence locked in. You're underway!", stage: "first-proof-complete" }
 ];
 
 export const FALLBACK_TOASTS: ToastMessage[] = [

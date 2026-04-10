@@ -144,6 +144,18 @@ function makeQuestEntry(): QuestEntry {
   };
 }
 
+function inferQuestStatus(quest: any, entry: any) {
+  const needed = quest.requiredCount ?? quest.subquests.filter((s: any) => s.required).length;
+  const requiredDone = quest.subquests.filter((s: any) => s.required && entry.subquests[s.id]).length;
+  const totalDone = Object.values(entry.subquests).filter(Boolean).length;
+  if (requiredDone >= needed) return 'completed';
+  if (entry.status === 'waiting') return 'waiting';
+  if (entry.status === 'blocked') return 'blocked';
+  if (requiredDone > 0) return 'advanced';
+  if (totalDone > 0 || entry.startedAt) return 'started';
+  return 'available';
+}
+
 const meta = loadMeta();
 const initialState = loadState(meta);
 
@@ -240,8 +252,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (ne.status !== 'completed' && done >= needed) {
       ne.status = 'completed'; ne.completedAt = ne.completedAt ?? Date.now();
     } else if (ne.status === 'completed' && done < needed) {
-      ne.status = 'started'; ne.completedAt = null;
-    } else if (done > 0) ne.status = 'started';
+      ne.completedAt = null;
+      ne.status = inferQuestStatus(quest, ne) as any;
+    } else {
+      ne.status = inferQuestStatus(quest, ne) as any;
+    }
 
     const quests = { ...s.state.quests, [qid]: ne };
     // Class perks on completion
@@ -300,9 +315,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setQuestBlocked: (qid, payload) => set((s) => {
     const e = s.state.quests[qid];
+    const quest = CHAPTERS.flatMap((c) => c.quests).find((q) => q.id === qid)!;
     const ne = {
       ...e,
-      status: 'blocked',
+      status: inferQuestStatus(quest, { ...e, status: 'blocked' }),
       blockedReason: payload.blockedReason,
       blockerType: payload.blockerType,
       blockPlan: {
@@ -317,9 +333,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setQuestWaiting: (qid, payload) => set((s) => {
     const e = s.state.quests[qid];
+    const quest = CHAPTERS.flatMap((c) => c.quests).find((q) => q.id === qid)!;
     const ne = {
       ...e,
-      status: 'waiting',
+      status: inferQuestStatus(quest, { ...e, status: 'waiting' }),
       waitingPlan: {
         reason: payload.reason,
         followup: payload.followup,
@@ -332,14 +349,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   resumeQuestFlow: (qid) => set((s) => {
     const e = s.state.quests[qid];
+    const quest = CHAPTERS.flatMap((c) => c.quests).find((q) => q.id === qid)!;
     const ne = {
       ...e,
-      status: e.startedAt ? 'started' : 'available',
       blockedReason: '',
       blockerType: '',
       blockPlan: { smallestStep: '', support: '', retryWhen: '' },
       waitingPlan: { reason: '', followup: '', retryWhen: '' },
     };
+    ne.status = inferQuestStatus(quest, ne) as any;
     const ns = { ...s.state, quests: { ...s.state.quests, [qid]: ne } };
     persist(s.meta, ns); return { state: ns };
   }),

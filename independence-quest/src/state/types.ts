@@ -1,4 +1,4 @@
-export type EntryStatus = 'available' | 'started' | 'waiting' | 'blocked' | 'completed';
+export type EntryStatus = 'available' | 'started' | 'advanced' | 'waiting' | 'blocked' | 'completed';
 export type AppTab = 'today' | 'quests' | 'map' | 'toolkit' | 'profile' | 'advisor';
 
 export type QuestEntry = {

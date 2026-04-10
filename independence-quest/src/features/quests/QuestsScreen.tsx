@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, type CSSProperties } from 'react';
 import { useGameStore, selectAvailableBosses, selectUnlockedChapters } from '../../state/store';
 import { CelebrationParticles } from '../../components/CelebrationParticles';
 
-const STATUS_ORDER = { started: 0, available: 1, completed: 2, blocked: 3, waiting: 4 };
+const STATUS_ORDER = { started: 0, advanced: 1, available: 2, completed: 3, blocked: 4, waiting: 5 };
 function isBossQuest(title: string) { return /boss|dragon|final/i.test(title); }
 
 function ExpandedQuestScreen({
@@ -343,9 +343,11 @@ export function QuestsScreen() {
         const collapsed = collapsedChapters[chapter.id];
         const completedCount = sorted.filter((q) => q.status === 'completed').length;
         const totalCount = chapter.quests.length;
+        const requiredToAdvance = chapter.completionRule?.minCompleted ?? totalCount;
         const assignedBossId = state.chapterBosses[chapter.id] ?? chapter.bossPool[0]?.id;
         const bossCleared = assignedBossId ? state.bosses[assignedBossId]?.status === 'completed' : true;
-        const isComplete = completedCount >= totalCount && bossCleared;
+        const chapterReadyForBoss = completedCount >= requiredToAdvance;
+        const isComplete = chapterReadyForBoss && bossCleared;
 
         return (
           <div key={chapter.id} style={{ background: '#111827', borderRadius: 12, border: '1px solid #1e293b', overflow: 'hidden', position: 'relative' }}>
@@ -361,8 +363,9 @@ export function QuestsScreen() {
               <div style={{ marginRight: isComplete ? 40 : 0 }}>
                 <span style={{ color: '#94a3b8', fontSize: '0.65rem', letterSpacing: 0.05, textTransform: 'uppercase' }}>Chapter {chapter.level}</span>
                 <div style={{ fontSize: '1rem', fontWeight: 600 }}>{chapter.title}</div>
-                <span style={{ fontSize: '0.7rem', color: isComplete ? '#22c55e' : '#3b82f6' }}>{completedCount}/{totalCount} cleared {isComplete ? '✅' : ''}</span>
-                {!bossCleared && completedCount >= totalCount && <div style={{ fontSize: '0.72rem', color: '#fca5a5', marginTop: 4 }}>Boss gate active. Defeat the chapter guardian to advance.</div>}
+                <span style={{ fontSize: '0.7rem', color: isComplete ? '#22c55e' : '#3b82f6' }}>{completedCount}/{requiredToAdvance} core clears needed {isComplete ? '✅' : ''}</span>
+                {chapter.completionRule?.label && <div style={{ fontSize: '0.72rem', color: '#93c5fd', marginTop: 4 }}>{chapter.completionRule.label}</div>}
+                {!bossCleared && chapterReadyForBoss && <div style={{ fontSize: '0.72rem', color: '#fca5a5', marginTop: 4 }}>Boss gate active. Defeat the chapter guardian to advance.</div>}
               </div>
               {isComplete && (
                 <div style={{
@@ -376,7 +379,8 @@ export function QuestsScreen() {
             {!collapsed && !isComplete && (
               <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '0.5rem' }}>
                 {sorted.map(({ quest, status }) => {
-                  const statusColor = status === 'completed' ? '#22c55e' : status === 'started' ? '#f59e0b' : '#94a3b8';
+                  const statusColor = status === 'completed' ? '#22c55e' : status === 'advanced' ? '#38bdf8' : status === 'started' ? '#f59e0b' : '#94a3b8';
+                  const statusLabel = status === 'advanced' ? 'advanced' : status;
                   const isBoss = isBossQuest(quest.title);
                   return (
                     <button key={quest.id}
@@ -393,7 +397,7 @@ export function QuestsScreen() {
                         {isBoss && <span>🐉</span>}
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: '0.55rem', color: statusColor, fontWeight: 600, textTransform: 'uppercase' }}>{status}</span>
+                            <span style={{ fontSize: '0.55rem', color: statusColor, fontWeight: 600, textTransform: 'uppercase' }}>{statusLabel}</span>
                             <span style={{ fontSize: '0.9rem', fontWeight: isBoss ? 700 : 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{quest.title}</span>
                           </div>
                         </div>

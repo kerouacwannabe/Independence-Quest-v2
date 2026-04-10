@@ -80,7 +80,7 @@ export const CAMPAIGN_MOTIVATIONS = [
   {
     id: 'self-respect',
     title: 'Earn self-respect',
-    copy: 'Prove to yourself that you can trust your own follow-through again.',
+    copy: 'Gather evidence that you can trust your own follow-through again.',
   },
   {
     id: 'independence',
@@ -93,7 +93,7 @@ export const CAMPAIGN_VOWS = [
   {
     id: 'show-up',
     title: 'I will show up even when it is inconvenient.',
-    copy: 'Not perfectly. Not dramatically. Just consistently enough to become dangerous.',
+    copy: 'Not perfectly. Not dramatically. Just often enough to gather real momentum.',
   },
   {
     id: 'finish-small',
@@ -121,7 +121,7 @@ export const CAMPAIGN_FIRST_PROOFS = [
   {
     id: 'one-quest',
     title: 'Finish one small quest today',
-    copy: 'Not three. Not all of them. One real completion to prove the system works.',
+    copy: 'Not three. Not all of them. One real completion to gather evidence that the system works.',
   },
 ];
 
@@ -150,6 +150,10 @@ export const CHAPTERS = [
     level: 1,
     title: 'Proving Grounds',
     summary: 'The first steps are the hardest. Build consistency through routine.',
+    completionRule: {
+      label: 'Complete any 2 core quests to face the chapter boss.',
+      minCompleted: 2,
+    },
     quests: [
       {
         id: 'wake-with-purpose',
@@ -167,7 +171,7 @@ export const CHAPTERS = [
       {
         id: 'feed-the-adventurer',
         title: 'Feed the Adventurer',
-        summary: 'Get actual fuel in the body instead of running on fog, caffeine, and regret. Low-energy fuel still counts.',
+        summary: 'Get actual fuel in the body instead of running on fumes. Low-energy fuel still counts.',
         tags: ['routine', 'household'],
         completionBonus: 16,
         subquests: [
@@ -185,7 +189,7 @@ export const CHAPTERS = [
       {
         id: 'reset-the-lair',
         title: 'Reset the Lair',
-        summary: 'Restore the personal habitat so it stops draining hit points just by existing.',
+        summary: 'Restore the personal habitat so it supports you instead of quietly taxing you.',
         tags: ['household', 'errand'],
         completionBonus: 18,
         subquests: [

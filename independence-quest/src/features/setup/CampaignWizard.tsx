@@ -52,7 +52,7 @@ export function CampaignWizard() {
       <div style={{ maxWidth: 420, textAlign: 'center', width: '100%' }}>
         <p style={{ fontSize: '0.7rem', color: '#94a3b8', letterSpacing: 0.1 }}>INDEPENDENCE QUEST</p>
         <h1 style={{ fontSize: '1.8rem', margin: '0.25rem 0 0.75rem' }}>Claim Your Own Keep</h1>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>First real action in under a minute. No committee meeting required.</p>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Start with one useful experiment, not a moral referendum.</p>
         <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Step {step + 1} of 2</p>
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: '1.25rem' }}>
           {STEPS.map((_, i) => (
@@ -65,7 +65,7 @@ export function CampaignWizard() {
         {step === 0 && (
           <>
             <h2 style={{ textAlign: 'center', marginBottom: 4 }}>Choose your class</h2>
-            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Pick the style you want to feel today. You can deepen the lore later.</p>
+            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Pick a strategy for this phase. It is a play style, not a personality verdict.</p>
             {CLASS_DEFS.map((cls) => (
               <SelectCard key={cls.id} selected={draft.classId === cls.id} onClick={() => setDraft((d) => ({ ...d, classId: cls.id }))}>
                 <div style={{ fontSize: '1.4rem', marginBottom: 2 }}>{cls.emoji}</div>
@@ -79,7 +79,7 @@ export function CampaignWizard() {
         {step === 1 && (
           <>
             <h2 style={{ textAlign: 'center', marginBottom: 4 }}>Pick your first proof</h2>
-            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Choose one tiny win so the campaign begins with action, not paperwork.</p>
+            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Choose one tiny win so the campaign starts with evidence, not paperwork.</p>
             {CAMPAIGN_FIRST_PROOFS.map((fp) => (
               <SelectCard key={fp.id} selected={draft.firstProof === fp.id} onClick={() => setDraft((d) => ({ ...d, firstProof: fp.id }))}>
                 <strong>{fp.title}</strong>
