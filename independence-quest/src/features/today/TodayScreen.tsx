@@ -71,6 +71,19 @@ export function TodayScreen() {
     return entry?.status === 'available' || entry?.status === 'started';
   });
 
+  const doNowStrip = (() => {
+    const primary = nextMove.questId
+      ? { label: nextMove.button, action: () => { setTab('quests'); if (nextMove.questId && ui.expandedQuestId !== nextMove.questId) toggleQuestExpanded(nextMove.questId); } }
+      : { label: 'Open Quest Log', action: () => setTab('quests') };
+    const lowEnergy = blockedQuest
+      ? { label: 'Use rescue plan', action: () => { setTab('quests'); if (blockedQuest && ui.expandedQuestId !== blockedQuest.id) toggleQuestExpanded(blockedQuest.id); } }
+      : { label: 'Low-energy route', action: () => setTab('quests') };
+    const help = waitingQuest || blockedQuest
+      ? { label: 'I’m stuck', action: () => { setTab('quests'); const q = blockedQuest ?? waitingQuest; if (q && ui.expandedQuestId !== q.id) toggleQuestExpanded(q.id); } }
+      : { label: 'Find a rescue', action: () => setTab('quests') };
+    return { primary, lowEnergy, help };
+  })();
+
   const hero = (() => {
     if (activeQuest) {
       return {
@@ -144,6 +157,17 @@ export function TodayScreen() {
 
   return (
     <div className="screen-stack">
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
+        <p className="eyebrow">Do This Now</p>
+        <strong>{nextMove.heading}</strong>
+        <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{nextMove.copy}</p>
+        <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+          <button className="primary-button" onClick={doNowStrip.primary.action}>{doNowStrip.primary.label}</button>
+          <button className="ghost-button" onClick={doNowStrip.lowEnergy.action}>{doNowStrip.lowEnergy.label}</button>
+          <button className="ghost-button" onClick={doNowStrip.help.action}>{doNowStrip.help.label}</button>
+        </div>
+      </section>
+
       <section className="card compact-list-card" style={{ padding: '1rem', background: 'linear-gradient(180deg, #111827, #172554)' }}>
         <p className="eyebrow">{hero.eyebrow}</p>
         <h2 style={{ marginTop: 0, marginBottom: 8 }}>{hero.title}</h2>

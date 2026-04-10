@@ -23,6 +23,8 @@ function ExpandedQuestScreen({
   const classId = useGameStore((s) => s.state.classId);
   const monk = useGameStore((s) => s.state.monk);
   const firstStrike = useGameStore((s) => s.state.barbarian);
+  const questStarterQuestId = useGameStore((s) => s.ui.questStarterQuestId);
+  const dismissQuestStarter = useGameStore((s) => s.dismissQuestStarter);
   const confirmBarbarianFirstStrike = useGameStore((s) => s.confirmBarbarianFirstStrike);
   const dismissBarbarianFirstStrike = useGameStore((s) => s.dismissBarbarianFirstStrike);
   const rescueBlockedQuestWithDiscipline = useGameStore((s) => s.rescueBlockedQuestWithDiscipline);
@@ -51,6 +53,7 @@ function ExpandedQuestScreen({
   const allRequiredDone = quest.subquests
     .filter((s: any) => s.required)
     .every((s: any) => entry?.subquests?.[s.id]);
+  const firstRequired = quest.subquests.find((s: any) => s.required) ?? quest.subquests[0];
 
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: '#0a0e14', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
@@ -190,6 +193,27 @@ function ExpandedQuestScreen({
         {entry?.status === 'completed' && (
           <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: 10, background: '#05966922', border: '1px solid #05966944', color: '#22c55e', fontWeight: 600, fontSize: '1rem', textAlign: 'center' }}>
             ✓ Quest Completed
+          </div>
+        )}
+
+        {questStarterQuestId === questId && entry?.status === 'started' && (
+          <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: 12, background: '#111827', border: '1px solid #3b82f6' }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>Opening move</div>
+            <p style={{ color: '#cbd5e1', marginTop: 0, fontSize: '0.9rem' }}>{firstRequired?.title || 'Take the first required step.'}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button onClick={() => { if (firstRequired) toggleSubquest(questId, firstRequired.id); dismissQuestStarter(); }} style={{ padding: '0.85rem 0.95rem', borderRadius: 10, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 700, cursor: 'pointer', textAlign: 'left' }}>
+                Do the first step now
+              </button>
+              <button onClick={() => dismissQuestStarter()} style={{ padding: '0.75rem 0.95rem', borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', fontWeight: 600, cursor: 'pointer' }}>
+                Not now
+              </button>
+              <button onClick={() => { toggleQuestLowEnergy(questId); dismissQuestStarter(); }} style={{ padding: '0.75rem 0.95rem', borderRadius: 10, border: '1px solid #7c3aed', background: '#3b0764', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
+                Swap to easier version
+              </button>
+            </div>
+            <button onClick={() => { dismissQuestStarter(); }} style={{ marginTop: 10, padding: '0.55rem 0.75rem', borderRadius: 999, border: 'none', background: 'transparent', color: '#93c5fd', cursor: 'pointer' }}>
+              Dismiss
+            </button>
           </div>
         )}
       </div>

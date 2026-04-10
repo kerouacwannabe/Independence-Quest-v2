@@ -19,12 +19,14 @@ type GameStore = {
     activeTab: AppTab;
     expandedQuestId: string | null;
     lastCompletedQuestId: string | null;
+    questStarterQuestId: string | null;
     toasts: Array<{ id: number; text: string; stage: string }>;
     nextToastId: number;
   };
 
   setActiveTab: (tab: AppTab) => void;
   toggleQuestExpanded: (questId: string, forceState?: 'expanded' | 'collapsed') => void;
+  dismissQuestStarter: () => void;
 
   startCampaign: (payload: { name?: string; classId: string; origin: string; motivation: string }) => void;
   setCampaignVow: (vow: string) => void;
@@ -163,13 +165,15 @@ const initialState = loadState(meta);
 export const useGameStore = create<GameStore>((set, get) => ({
   meta,
   state: initialState,
-  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null, toasts: [], nextToastId: 1 },
+  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null, questStarterQuestId: null, toasts: [], nextToastId: 1 },
 
   setActiveTab: (tab) => set((s) => ({ ui: { ...s.ui, activeTab: tab } })),
 
   toggleQuestExpanded: (qid, force) => set((s) => ({
     ui: { ...s.ui, expandedQuestId: force === 'collapsed' ? null : (s.ui.expandedQuestId === qid && force !== 'expanded' ? null : qid) }
   })),
+
+  dismissQuestStarter: () => set((s) => ({ ui: { ...s.ui, questStarterQuestId: null } })),
 
   startCampaign: (p) => set((s) => {
     const next = {
@@ -254,7 +258,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       wizard: s.state.classId === 'wizard' ? { ...(s.state.wizard ?? { preparedSpells: [], castToday: [] }), castToday } : s.state.wizard,
     };
     persist(s.meta, ns);
-    return { state: ns, ui: { ...s.ui, activeTab: 'quests', expandedQuestId: qid } };
+    return { state: ns, ui: { ...s.ui, activeTab: 'quests', expandedQuestId: qid, questStarterQuestId: qid } };
   }),
 
   toggleSubquest: (qid, sid) => set((s) => {
