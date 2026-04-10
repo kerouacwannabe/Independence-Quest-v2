@@ -36,6 +36,7 @@ export function TodayScreen() {
   const ui = useGameStore((s) => s.ui);
   const setTab = useGameStore((s) => s.setActiveTab);
   const toggleQuestExpanded = useGameStore((s) => s.toggleQuestExpanded);
+  const completeFirstProof = useGameStore((s) => s.completeFirstProof);
   const toggleRogueRunQuest = useGameStore((s) => s.toggleRogueRunQuest);
   const startRogueRun = useGameStore((s) => s.startRogueRun);
   const clearRogueRun = useGameStore((s) => s.clearRogueRun);
@@ -62,6 +63,7 @@ export function TodayScreen() {
   const progress = chapterProgress(state, currentChapter);
   const boss = nextBossMilestone(currentChapter, progress.cleared);
   const campaignComplete = state.campaign.complete && !selectCurrentChapter(state);
+  const firstProofQuest = CHAPTERS.flatMap((chapter) => chapter.quests).find((quest) => quest.id === state.campaign.firstProof);
   const latestToast = ui.toasts?.[0];
   const availableCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'available').length;
   const completedCount = allQuests.filter((quest) => state.quests[quest.id]?.status === 'completed').length;
@@ -203,6 +205,19 @@ export function TodayScreen() {
         <button className="primary-button" style={{ marginTop: 10, width: '100%' }} onClick={hero.onClick}>{hero.cta}</button>
       </section>
 
+      {!state.campaign.firstProofDone && firstProofQuest && (
+        <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
+          <p className="eyebrow">Guided First Proof</p>
+          <strong>{firstProofQuest.title}</strong>
+          <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{firstProofQuest.summary}</p>
+          <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+            <button className="primary-button" onClick={() => { setTab('quests'); if (ui.expandedQuestId !== firstProofQuest.id) toggleQuestExpanded(firstProofQuest.id); }}>Open first proof quest</button>
+            <button className="ghost-button" onClick={() => completeFirstProof()}>Mark evidence collected</button>
+          </div>
+          <p style={{ marginTop: 8, color: '#ddd6fe', fontSize: '0.8rem' }}>Do it once, then the setup stops pretending you need more ceremony.</p>
+        </section>
+      )}
+
       <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#1d4ed8', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
         <p className="eyebrow">Re-entry Ritual</p>
         <strong>Open fast, understand the board, hit one thing.</strong>
@@ -286,7 +301,7 @@ export function TodayScreen() {
 
       <section className="card compact-list-card">
         <p className="eyebrow">Daily Mode</p>
-        <strong>{state.settings?.dailyMode === 'speed' ? 'Speed' : state.settings?.dailyMode === 'social' ? 'Social' : state.settings?.dailyMode === 'low-energy' ? 'Low-energy' : 'Balanced'}</strong>
+        <strong>{state.settings?.dailyMode === 'speed' ? 'Speed' : state.settings?.dailyMode === 'social' ? 'Social' : state.settings?.dailyMode === 'low-energy' ? 'Low-energy' : state.settings?.dailyMode === 'micro-win' ? 'Micro-win' : 'Balanced'}</strong>
         <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>Pick the shape of today. The route changes, but it still counts.</p>
         <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
           {[
@@ -294,6 +309,7 @@ export function TodayScreen() {
             { id: 'speed', title: 'Speed', copy: 'Fast burst, quick closure.' },
             { id: 'social', title: 'Social', copy: 'Use support and body-doubling.' },
             { id: 'low-energy', title: 'Low-energy', copy: 'Tiny legitimate progress only.' },
+            { id: 'micro-win', title: 'Micro-win', copy: 'Two minutes, one finish, still counts.' },
           ].map((mode) => (
             <button key={mode.id} className="quest-card-head" onClick={() => setSetting('dailyMode', mode.id)}>
               <span><strong>{mode.title}</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{mode.copy}</span></span>
@@ -301,6 +317,20 @@ export function TodayScreen() {
             </button>
           ))}
         </div>
+        {state.settings?.dailyMode === 'micro-win' && (
+          <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #7c3aed' }}>
+              <strong style={{ display: 'block' }}>Micro-win mode</strong>
+              <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Pick one two-minute action and stop when it’s done. Small counts. That’s the whole point.</span>
+            </div>
+            {LOW_ENERGY_OPTIONS.slice(0, 2).map((opt) => (
+              <div key={opt.id} style={{ padding: '0.7rem', borderRadius: 10, background: '#0f172a', border: '1px solid #1e293b' }}>
+                <strong style={{ display: 'block' }}>{opt.title}</strong>
+                <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>{opt.copy}</span>
+              </div>
+            ))}
+          </div>
+        )}
         {state.settings?.dailyMode === 'low-energy' && (
           <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
             {LOW_ENERGY_OPTIONS.map((opt) => (

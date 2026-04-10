@@ -31,6 +31,19 @@ export function ProfileScreen() {
           </ul>
         </div>
         <div className="stack-list" style={{ marginTop: '0.85rem' }}>
+          <strong style={{ fontSize: '0.9rem' }}>Accountability mode</strong>
+          <button className="quest-card-head" onClick={() => setSetting('focusMode', !state.settings.focusMode)}>
+            <span><strong>Body-double mode</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Adds a gentle “someone is watching the plan” feeling without making it weird.</span></span>
+            <span className="pill">{state.settings.focusMode ? 'On' : 'Off'}</span>
+          </button>
+          {state.settings.focusMode && (
+            <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
+              <strong style={{ display: 'block' }}>Check-in hook</strong>
+              <p style={{ marginTop: 6, color: '#cbd5e1', fontSize: '0.84rem' }}>Use the comeback reminder and keep one person in the loop, even if it’s just a short message saying what you’re doing next.</p>
+            </div>
+          )}
+        </div>
+        <div className="stack-list" style={{ marginTop: '0.85rem' }}>
           <strong style={{ fontSize: '0.9rem' }}>Respec strategy</strong>
           <div style={{ display: 'grid', gap: 8 }}>
             {CLASS_DEFS.map((cls) => (
