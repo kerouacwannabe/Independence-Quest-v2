@@ -8,6 +8,11 @@ const PROACTIVE_SUGGESTIONS = [
   { id: 'discover', title: 'Find a tool', why: 'Opens the discovery surface when the user is exploring.' },
 ];
 
+const EXPLANATION_CARD = {
+  title: 'Why this tool',
+  copy: 'Every tool now carries a short reason so the app tells you why it exists, not just where to click.',
+};
+
 const DISCOVERY_ITEMS = [
   { id: 'rescue', title: 'Rescue plan', copy: 'Quick way to recover a stuck quest.', rationale: 'Use when the next step is blocked or the task feels too big.' },
   { id: 'micro-win', title: 'Micro-win route', copy: 'Two-minute progress for bad days.', rationale: 'Best when the user needs momentum without committing to a full session.' },
@@ -66,6 +71,14 @@ export function ToolkitScreen() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="card">
+        <p className="eyebrow">Lightweight explanation</p>
+        <article className="inline-card">
+          <h3>{EXPLANATION_CARD.title}</h3>
+          <p>{EXPLANATION_CARD.copy}</p>
+        </article>
       </section>
 
       <section className="card">
