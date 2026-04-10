@@ -6,6 +6,7 @@ import {
   selectCurrentChapter,
   selectDailyObjective,
   selectDailyAdvice,
+  selectProgressUnlocks,
   selectNextMove,
   selectPlanningEligibleQuestIds,
   selectRogueEligibleQuestIds,
@@ -46,6 +47,7 @@ export function TodayScreen() {
   const classObjective = selectClassObjective(state);
   const comebackMessage = selectComebackMessage(state);
   const dailyObjective = selectDailyObjective(state);
+  const progressUnlocks = selectProgressUnlocks(state);
   const level = selectLevel(state);
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
@@ -217,6 +219,14 @@ export function TodayScreen() {
         <p className="eyebrow">Daily Win</p>
         <strong>{dailyObjective}</strong>
         <p style={{ marginTop: 8, color: '#bbf7d0', fontSize: '0.84rem' }}>{classObjective}</p>
+      </section>
+
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
+        <p className="eyebrow">Progress Unlocks</p>
+        <strong>What this run has changed</strong>
+        <ul style={{ marginTop: 8, paddingLeft: 18, color: '#ddd6fe', fontSize: '0.84rem' }}>
+          {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
+        </ul>
       </section>
 
       <section className="card compact-list-card" style={{ padding: '1rem' }}>

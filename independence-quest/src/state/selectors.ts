@@ -255,6 +255,31 @@ export function selectClassObjective(state: GameState) {
   }
 }
 
+export function selectProgressUnlocks(state: GameState) {
+  const xp = selectTotalXP(state);
+  const completions = selectTotalCompletions(state);
+  const unlocks: string[] = [];
+  if (completions >= 2) unlocks.push('Map pins become more visible and urgent.');
+  if (xp >= 50) unlocks.push('You unlock stronger recovery and rescue signals.');
+  if (xp >= 100) unlocks.push('Boss rewards start feeling like real progression, not decoration.');
+  if (xp >= 150) unlocks.push('The campaign reveals more of the long-term route.');
+  switch (state.classId) {
+    case 'barbarian':
+      unlocks.push(state.barbarian?.completedAt ? 'Momentum is live, so your first action matters more.' : 'First Strike is ready, waiting for a clean opening hit.');
+      break;
+    case 'rogue':
+      unlocks.push(state.rogueRun?.active ? 'Route combo power is active for quick chained wins.' : 'A 2-quest route combo is waiting to be assembled.');
+      break;
+    case 'monk':
+      unlocks.push(`Breath beads: ${state.monk?.discipline ?? 0}. Three beads unlock a rescue.`);
+      break;
+    case 'wizard':
+      unlocks.push(`${state.wizard?.preparedSpells?.length ?? 0} spells prepared. Prep more to shape the board.`);
+      break;
+  }
+  return unlocks;
+}
+
 export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } {
   const cc = Object.values(state.quests as Record<string, QuestEntry>).filter((e) => e.status === 'completed').length;
   const ch = selectCurrentChapter(state);

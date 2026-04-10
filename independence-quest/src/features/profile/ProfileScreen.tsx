@@ -1,5 +1,5 @@
 import { CLASS_DEFS, CAMPAIGN_FIRST_PROOFS } from '../../content';
-import { useGameStore, selectCurrentChapter } from '../../state/store';
+import { useGameStore, selectCurrentChapter, selectProgressUnlocks } from '../../state/store';
 import { ensureNotificationPermission, scheduleReengagementReminder, triggerHaptic } from '../../lib/native';
 
 export function ProfileScreen() {
@@ -10,6 +10,7 @@ export function ProfileScreen() {
   const firstProof = CAMPAIGN_FIRST_PROOFS.find((item) => item.id === state.campaign.firstProof);
   const currentChapter = selectCurrentChapter(state);
   const campaignComplete = !currentChapter && state.campaign.complete;
+  const progressUnlocks = selectProgressUnlocks(state);
 
   return (
     <div className="screen-stack">
@@ -22,6 +23,12 @@ export function ProfileScreen() {
           <div className="inline-card"><strong>Motivation</strong><p>{state.campaign.motivation || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
           <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
+        </div>
+        <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: '#111827', border: '1px solid #334155' }}>
+          <strong style={{ display: 'block', marginBottom: 6 }}>What your run unlocks</strong>
+          <ul style={{ margin: 0, paddingLeft: 18, color: '#cbd5e1', fontSize: '0.84rem' }}>
+            {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
+          </ul>
         </div>
         <div className="stack-list" style={{ marginTop: '0.85rem' }}>
           <strong style={{ fontSize: '0.9rem' }}>Respec strategy</strong>
