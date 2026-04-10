@@ -12,19 +12,24 @@ export function ProfileScreen() {
   const currentChapter = selectCurrentChapter(state);
   const campaignComplete = !currentChapter && state.campaign.complete;
   const progressUnlocks = selectProgressUnlocks(state);
+  const topUnlock = progressUnlocks[0];
 
   return (
     <div className="screen-stack">
-      <section className="card">
+      <section className="card" style={{ paddingBottom: 12 }}>
         <p className="eyebrow">Profile</p>
         <h2>{state.characterName || 'Unnamed Hero'}</h2>
-        <p>{currentClass?.name || 'No class locked yet'}</p>
-        <div className="stack-list">
-          <div className="inline-card"><strong>Origin</strong><p>{state.campaign.origin || 'Not chosen yet'}</p></div>
-          <div className="inline-card"><strong>Motivation</strong><p>{state.campaign.motivation || 'Not chosen yet'}</p></div>
-          <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
+        <p style={{ marginBottom: 12 }}>{currentClass?.name || 'No class locked yet'}</p>
+        <div className="stack-list" style={{ gap: 8 }}>
           <div className="inline-card"><strong>Current strategy</strong><p>{currentClass ? `${currentClass.name} is your current mode, not a permanent identity.` : 'Choose a class when the campaign begins.'}</p></div>
+          <div className="inline-card"><strong>First evidence</strong><p>{firstProof?.title || 'Not chosen yet'}</p></div>
         </div>
+        {topUnlock && (
+          <div style={{ marginTop: 12, padding: '0.8rem 0.95rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
+            <strong style={{ display: 'block', marginBottom: 4 }}>Next unlock</strong>
+            <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>{topUnlock}</p>
+          </div>
+        )}
         <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
           <strong style={{ display: 'block', marginBottom: 6 }}>Recent wins</strong>
           <ul style={{ margin: 0, paddingLeft: 18, color: '#cbd5e1', fontSize: '0.84rem' }}>
@@ -38,21 +43,22 @@ export function ProfileScreen() {
             {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
           </ul>
         </div>
-        <div className="stack-list" style={{ marginTop: '0.85rem' }}>
-          <strong style={{ fontSize: '0.9rem' }}>Accountability mode</strong>
-          <button className="quest-card-head" onClick={() => setSetting('focusMode', !state.settings.focusMode)}>
-            <span><strong>Body-double mode</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Adds a gentle “someone is watching the plan” feeling without making it weird.</span></span>
-            <span className="pill">{state.settings.focusMode ? 'On' : 'Off'}</span>
-          </button>
-          {state.settings.focusMode && (
-            <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
-              <strong style={{ display: 'block' }}>Check-in hook</strong>
-              <p style={{ marginTop: 6, color: '#cbd5e1', fontSize: '0.84rem' }}>Use the comeback reminder and keep one person in the loop, even if it’s just a short message saying what you’re doing next.</p>
-            </div>
-          )}
-        </div>
-        <div className="stack-list" style={{ marginTop: '0.85rem' }}>
-          <strong style={{ fontSize: '0.9rem' }}>Respec strategy</strong>
+        <details style={{ marginTop: '0.85rem' }}>
+          <summary style={{ cursor: 'pointer', fontWeight: 700 }}>More profile detail</summary>
+          <div className="stack-list" style={{ marginTop: 12, gap: 8 }}>
+            <strong style={{ fontSize: '0.9rem' }}>Accountability mode</strong>
+            <button className="quest-card-head" onClick={() => setSetting('focusMode', !state.settings.focusMode)}>
+              <span><strong>Body-double mode</strong><br /><span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>Adds a gentle “someone is watching the plan” feeling without making it weird.</span></span>
+              <span className="pill">{state.settings.focusMode ? 'On' : 'Off'}</span>
+            </button>
+            {state.settings.focusMode && (
+              <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: '#0f172a', border: '1px solid #334155' }}>
+                <strong style={{ display: 'block' }}>Check-in hook</strong>
+                <p style={{ marginTop: 6, color: '#cbd5e1', fontSize: '0.84rem' }}>Use the comeback reminder and keep one person in the loop, even if it’s just a short message saying what you’re doing next.</p>
+              </div>
+            )}
+            <strong style={{ fontSize: '0.9rem' }}>Respec strategy</strong>
+          </div>
           <div style={{ display: 'grid', gap: 8 }}>
             {CLASS_DEFS.map((cls) => (
               <button key={cls.id} className="quest-card-head" onClick={() => respecClass(cls.id)} disabled={state.classId === cls.id}>
@@ -61,7 +67,7 @@ export function ProfileScreen() {
               </button>
             ))}
           </div>
-        </div>
+        </details>
         {campaignComplete && (
           <div style={{ marginTop: '0.9rem', padding: '0.9rem 1rem', borderRadius: 12, background: 'linear-gradient(180deg, #1e1b4b, #111827)', border: '1px solid #7c3aed' }}>
             <strong>Final win unlocked</strong>
