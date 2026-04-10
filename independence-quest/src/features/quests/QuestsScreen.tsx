@@ -50,6 +50,13 @@ function ExpandedQuestScreen({
     'Need delivery/item': { followup: 'Check status or shipping.', retryWhen: 'When tracking updates' },
     'Need meeting/time': { followup: 'Propose two concrete times.', retryWhen: 'Tomorrow afternoon' },
   };
+  const rescuePresets = [
+    { label: 'Shrink it', reason: 'Too big/confusing', blockerType: 'scope', smallestStep: 'Reduce this to the smallest meaningful next action.', support: 'Split into a smaller subquest.', retryWhen: 'Later today' },
+    { label: 'Ask for help', reason: 'Need help', blockerType: 'support', smallestStep: 'Write the exact ask in one sentence.', support: 'Send the ask to a human now.', retryWhen: 'After reply' },
+    { label: 'Use low-energy', reason: 'No energy', blockerType: 'energy', smallestStep: 'Do the 5-minute version only.', support: 'Switch to low-energy route.', retryWhen: 'Tonight' },
+    { label: 'Follow up', reason: 'Waiting on reply', blockerType: 'waiting', smallestStep: 'Draft a concise follow-up message.', support: 'Schedule a check-in.', retryWhen: 'Tomorrow morning' },
+    { label: 'Park it', reason: 'Need meeting/time', blockerType: 'timing', smallestStep: 'Set a future follow-up slot and move on.', support: 'Revisit when the calendar opens.', retryWhen: 'Tomorrow afternoon' },
+  ];
   const allRequiredDone = quest.subquests
     .filter((s: any) => s.required)
     .every((s: any) => entry?.subquests?.[s.id]);
@@ -236,6 +243,21 @@ function ExpandedQuestScreen({
                 <input value={smallestStep} onChange={(e) => setSmallestStep(e.target.value)} placeholder='Smallest next step' style={sheetInputStyle} />
                 <input value={support} onChange={(e) => setSupport(e.target.value)} placeholder='Support needed' style={sheetInputStyle} />
                 <input value={blockRetryWhen} onChange={(e) => setBlockRetryWhen(e.target.value)} placeholder='Retry when' style={sheetInputStyle} />
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ color: '#94a3b8', fontSize: '0.82rem' }}>Quick rescues</div>
+                  {rescuePresets.map((preset) => (
+                    <button key={preset.label} onClick={() => {
+                      setBlockedReason(preset.reason);
+                      setBlockerType(preset.blockerType);
+                      setSmallestStep(preset.smallestStep);
+                      setSupport(preset.support);
+                      setBlockRetryWhen(preset.retryWhen);
+                    }} style={{ padding: '0.7rem 0.85rem', borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', textAlign: 'left', cursor: 'pointer' }}>
+                      <strong>{preset.label}</strong>
+                      <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: 4 }}>{preset.smallestStep}</div>
+                    </button>
+                  ))}
+                </div>
                 <button onClick={() => { setQuestBlocked(questId, { blockedReason, blockerType, smallestStep, support, retryWhen: blockRetryWhen }); setSheet(null); }} style={sheetPrimaryButton}>Save blocked plan</button>
               </div>
             ) : (
@@ -248,6 +270,12 @@ function ExpandedQuestScreen({
                 <input value={waitingReason} onChange={(e) => setWaitingReason(e.target.value)} placeholder='What are you waiting on?' style={sheetInputStyle} />
                 <input value={followup} onChange={(e) => setFollowup(e.target.value)} placeholder='Follow-up action' style={sheetInputStyle} />
                 <input value={waitingRetryWhen} onChange={(e) => setWaitingRetryWhen(e.target.value)} placeholder='Check again when' style={sheetInputStyle} />
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ color: '#94a3b8', fontSize: '0.82rem' }}>Quick rescues</div>
+                  <button onClick={() => { setWaitingReason('Waiting on reply'); setFollowup('Send a concise follow-up.'); setWaitingRetryWhen('Tomorrow morning'); }} style={{ padding: '0.7rem 0.85rem', borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', textAlign: 'left', cursor: 'pointer' }}><strong>Follow up</strong><div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: 4 }}>Send a concise follow-up.</div></button>
+                  <button onClick={() => { setWaitingReason('Need approval'); setFollowup('Ask for approval with a deadline.'); setWaitingRetryWhen('In 2 days'); }} style={{ padding: '0.7rem 0.85rem', borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', textAlign: 'left', cursor: 'pointer' }}><strong>Ask for approval</strong><div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: 4 }}>Ask with a deadline.</div></button>
+                  <button onClick={() => { setWaitingReason('Need delivery/item'); setFollowup('Check status or shipping.'); setWaitingRetryWhen('When tracking updates'); }} style={{ padding: '0.7rem 0.85rem', borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', textAlign: 'left', cursor: 'pointer' }}><strong>Check delivery</strong><div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: 4 }}>Check status or shipping.</div></button>
+                </div>
                 <button onClick={() => { setQuestWaiting(questId, { reason: waitingReason, followup, retryWhen: waitingRetryWhen }); setSheet(null); }} style={sheetPrimaryButton}>Save waiting plan</button>
               </div>
             )}

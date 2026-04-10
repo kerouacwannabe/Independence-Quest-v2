@@ -151,9 +151,25 @@ export function TodayScreen() {
       ? (state.rogueRun?.active ? 'Today you win by clearing your route before the context goes cold.' : 'Today you win by bundling clever small wins into one run.')
       : classId === 'monk'
         ? ((state.monk?.discipline ?? 0) >= 3 ? 'Today you can cash in discipline to rescue a blocked quest.' : 'Today you win by stacking calm basics until they turn into power.')
-        : classId === 'wizard'
+          : classId === 'wizard'
           ? ((state.wizard?.preparedSpells?.length ?? 0) > 0 ? 'Today you win by using preparation to shape what happens next.' : 'Today you win by preparing the board before you act.')
           : '';
+
+  const classCoachmark = (() => {
+    if (classId === 'rogue' && !state.rogueRun?.active && rogueEligible.length >= 2) {
+      return { title: 'Rogue combo ready', copy: 'Bundle 2 or 3 quick wins into one route and cash it in.' };
+    }
+    if (classId === 'monk' && (state.monk?.discipline ?? 0) >= 3) {
+      return { title: 'Monk rescue ready', copy: 'Spend 3 beads to rescue a blocked quest without drama.' };
+    }
+    if (classId === 'wizard' && planningEligibleIds.length > 0 && (state.wizard?.preparedSpells?.length ?? 0) < 2) {
+      return { title: 'Wizard prep window', copy: 'Prepare a spell now so the board is easier later.' };
+    }
+    if (classId === 'barbarian' && !state.barbarian?.completedAt) {
+      return { title: 'Barbarian strike window', copy: 'Open a quest and move first. Momentum likes motion.' };
+    }
+    return null;
+  })();
 
   return (
     <div className="screen-stack">
@@ -239,6 +255,14 @@ export function TodayScreen() {
         <strong>{advice.message}</strong>
         <p style={{ marginTop: 8, color: '#cbd5e1' }}>Phase: {advice.dayPhase}</p>
       </section>
+
+      {classCoachmark && (
+        <section className="card compact-list-card" style={{ borderColor: '#7c3aed', background: 'linear-gradient(180deg, #1e1b4b, #111827)' }}>
+          <p className="eyebrow">Class Coachmark</p>
+          <strong>{classCoachmark.title}</strong>
+          <p style={{ marginTop: 8, color: '#cbd5e1', fontSize: '0.84rem' }}>{classCoachmark.copy}</p>
+        </section>
+      )}
 
       <section className="card compact-list-card">
         <p className="eyebrow">Daily Mode</p>
