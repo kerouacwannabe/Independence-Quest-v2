@@ -1,5 +1,5 @@
 import { CHAPTERS, REWARDS, getQuestMechanicMeta } from '../content';
-import type { GameState, QuestEntry } from './types';
+import type { GameState, QuestEntry, ProgressPathNode } from './types';
 
 function isChapterRequirementMet(state: GameState, chapter: any) {
   const cleared = chapter.quests.filter((q: any) => state.quests[q.id]?.status === 'completed').length;
@@ -278,6 +278,39 @@ export function selectProgressUnlocks(state: GameState) {
       break;
   }
   return unlocks;
+}
+
+export function selectProgressPath(state: GameState): ProgressPathNode[] {
+  const currentChapter = selectCurrentChapter(state) ?? CHAPTERS[0] ?? null;
+  if (!currentChapter) return [];
+  const currentIdx = CHAPTERS.findIndex((chapter) => chapter.id === currentChapter.id);
+  const path: ProgressPathNode[] = [];
+
+  CHAPTERS.slice(Math.max(0, currentIdx - 1), Math.min(CHAPTERS.length, currentIdx + 2)).forEach((chapter, index) => {
+    const chapterIdx = CHAPTERS.findIndex((c) => c.id === chapter.id);
+    const completedQuests = chapter.quests.filter((quest) => state.quests[quest.id]?.status === 'completed').length;
+    const chapterComplete = completedQuests >= (chapter.completionRule?.minCompleted ?? chapter.quests.length);
+    const bossId = state.chapterBosses[chapter.id] ?? chapter.bossPool[0]?.id;
+    const bossDone = bossId ? state.bosses[bossId]?.status === 'completed' : true;
+    const completed = chapterComplete && bossDone;
+    const isCurrent = chapter.id === currentChapter.id;
+    const isNext = !isCurrent && chapterIdx === currentIdx + 1;
+    const isBossGate = chapter.bossPool.length > 0 && !bossDone && completedQuests >= (chapter.bossRevealAt ?? 2);
+    path.push({
+      id: chapter.id,
+      title: chapter.title,
+      subtitle: completed
+        ? 'Complete'
+        : isBossGate
+          ? 'Boss gate'
+          : `${completedQuests}/${chapter.quests.length} quests`,
+      kind: completed ? 'complete' : isCurrent ? 'current' : isNext ? 'next' : 'upcoming',
+      completed,
+      isBossGate,
+    });
+  });
+
+  return path;
 }
 
 export function selectDailyAdvice(state: GameState): { message: string; dayPhase: string } {

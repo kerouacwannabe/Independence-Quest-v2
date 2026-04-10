@@ -55,3 +55,12 @@ export interface GameState {
   };
   version: number;
 }
+
+export type ProgressPathNode = {
+  id: string;
+  title: string;
+  subtitle: string;
+  kind: 'current' | 'next' | 'upcoming' | 'complete';
+  completed: boolean;
+  isBossGate: boolean;
+};
