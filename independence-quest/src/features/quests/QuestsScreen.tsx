@@ -5,6 +5,24 @@ import { CelebrationParticles } from '../../components/CelebrationParticles';
 const STATUS_ORDER = { started: 0, advanced: 1, available: 2, completed: 3, blocked: 4, waiting: 5 };
 function isBossQuest(title: string) { return /boss|dragon|final/i.test(title); }
 
+function bossAntiQuestLines(title: string) {
+  const key = title.toLowerCase();
+  if (key.includes('slime')) return ['Go back to bed', 'Leave the cup for later', 'Ignore the pile until it breeds'];
+  if (key.includes('clockwork') || key.includes('sleep')) return ['Just one more snooze', 'Skip the wake routine', 'Start the day with screens'];
+  if (key.includes('notification')) return ['Check the phone again', 'Let the pings run your brain', 'Open every alert immediately'];
+  if (key.includes('friction')) return ['Keep the friction where it is', 'Let the tool hide in a drawer', 'Make tomorrow harder on purpose'];
+  return ['Delay the first move', 'Tell yourself it can wait', 'Protect the avoidance'];
+}
+
+function bossHabitSwaps(title: string) {
+  const key = title.toLowerCase();
+  if (key.includes('slime')) return ['Set out one trash bag', 'Put one cup in the sink', 'Make one tiny cleanup sweep'];
+  if (key.includes('clockwork') || key.includes('sleep')) return ['Stand up on the first alarm', 'Open the curtains', 'Do 5 minutes of movement'];
+  if (key.includes('notification')) return ['Silence notifications for 2 hours', 'Mute one noisy account', 'Put the phone face down'];
+  if (key.includes('friction')) return ['Remove one micro-friction', 'Stage the tool before bed', 'Automate one repeat step'];
+  return ['Pick one good habit', 'Do the smallest useful action', 'Turn avoidance into motion'];
+}
+
 function ExpandedQuestScreen({
   questId, onBack,
   quest, entry, toggleSubquest, startQuest, toggleQuestLowEnergy, setQuestBlocked, setQuestWaiting, resumeQuestFlow
@@ -330,6 +348,7 @@ export function QuestsScreen() {
   const resumeQuestFlow = useGameStore((s) => s.resumeQuestFlow);
   const startBoss = useGameStore((s) => s.startBoss);
   const toggleBossSubquest = useGameStore((s) => s.toggleBossSubquest);
+  const toggleBossHabitSwap = useGameStore((s) => s.toggleBossHabitSwap);
   const completeBoss = useGameStore((s) => s.completeBoss);
 
   const unlockedChapters = useMemo(() => selectUnlockedChapters(state), [state]);
@@ -480,6 +499,8 @@ export function QuestsScreen() {
                   const completed = bossEntry?.status === 'completed';
                   const canFight = bossEntry?.status === 'available' || started;
                   const allDone = boss.subquests.every((sub) => bossEntry?.subquests?.[sub.id]);
+                  const antiQuest = bossAntiQuestLines(boss.title);
+                  const goodSwaps = bossHabitSwaps(boss.title);
                   return (
                     <div key={boss.id} style={{ margin: '0.5rem 0.75rem 0', border: '1px solid #7f1d1d', borderRadius: 10, overflow: 'hidden', background: '#1f1115' }}>
                       <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #7f1d1d', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
@@ -503,13 +524,33 @@ export function QuestsScreen() {
                         </button>
                       </div>
                       {started && !completed && (
-                        <div style={{ padding: '0.75rem 1rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ padding: '0.75rem 1rem', display: 'grid', gap: 10 }}>
+                          <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
+                            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#2a1318', border: '1px solid #7f1d1d' }}>
+                              <strong style={{ display: 'block', color: '#fca5a5', marginBottom: 6 }}>Anti-quest checklist</strong>
+                              <ul style={{ margin: 0, paddingLeft: 18, color: '#fecaca', fontSize: '0.78rem' }}>
+                                {antiQuest.map((line) => <li key={line}>{line}</li>)}
+                              </ul>
+                            </div>
+                            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f1f16', border: '1px solid #166534' }}>
+                              <strong style={{ display: 'block', color: '#86efac', marginBottom: 6 }}>Swap into good habits</strong>
+                              <ul style={{ margin: 0, paddingLeft: 18, color: '#bbf7d0', fontSize: '0.78rem' }}>
+                                {goodSwaps.map((line) => <li key={line}>{line}</li>)}
+                              </ul>
+                            </div>
+                          </div>
                           {boss.subquests.map((sub, i) => {
                             const done = !!bossEntry?.subquests?.[sub.id];
+                            const swapped = !!bossEntry?.swapped?.[sub.id];
                             return (
                               <label key={sub.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', color: done ? '#94a3b8' : '#e2e8f0', textDecoration: done ? 'line-through' : 'none' }}>
                                 <input type="checkbox" checked={done} onChange={() => toggleBossSubquest(boss.id, sub.id)} style={{ marginTop: 2 }} />
-                                <span><span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}</span>
+                                <div style={{ flex: 1 }}>
+                                  <div><span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}</div>
+                                  <button onClick={() => toggleBossHabitSwap(boss.id, sub.id)} style={{ marginTop: 4, padding: '0.35rem 0.6rem', borderRadius: 999, border: '1px solid #166534', background: swapped ? '#14532d' : '#0f172a', color: swapped ? '#bbf7d0' : '#86efac', cursor: 'pointer', fontSize: '0.72rem' }}>
+                                    {swapped ? 'Habit swap locked in' : 'Swap to habit'}
+                                  </button>
+                                </div>
                               </label>
                             );
                           })}

@@ -54,6 +54,7 @@ type GameStore = {
 
   startBoss: (bossId: string) => void;
   toggleBossSubquest: (bossId: string, subquestId: string) => void;
+  toggleBossHabitSwap: (bossId: string, subquestId: string) => void;
   completeBoss: (bossId: string) => void;
 
   claimReward: (rewardIndex: number) => void;
@@ -104,7 +105,7 @@ function hydrateState(incoming = defaultState()) {
       state.quests[quest.id] = entry;
     });
     const bossDef = chapter.bossPool.find((b) => b.id === state.chapterBosses[chapter.id]) || chapter.bossPool[0];
-    state.bosses[bossDef.id] = state.bosses[bossDef.id] || { status: 'locked', subquests: {} };
+    state.bosses[bossDef.id] = state.bosses[bossDef.id] || { status: 'locked', subquests: {}, swapped: {} };
     bossDef.subquests.forEach((s) => {
       if (typeof state.bosses[bossDef.id].subquests[s.id] !== 'boolean') state.bosses[bossDef.id].subquests[s.id] = false;
     });
@@ -499,6 +500,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       persist(s.meta, ns);
       return { state: ns, ui: { ...s.ui, lastCompletedQuestId: bid } };
     }
+    persist(s.meta, ns); return { state: ns };
+  }),
+
+  toggleBossHabitSwap: (bid, sid) => set((s) => {
+    const b = s.state.bosses[bid];
+    if (!b) return s;
+    const nb = { ...b, swapped: { ...(b.swapped || {}), [sid]: !b.swapped?.[sid] } };
+    const ns = { ...s.state, bosses: { ...s.state.bosses, [bid]: nb } };
     persist(s.meta, ns); return { state: ns };
   }),
 

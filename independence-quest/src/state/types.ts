@@ -15,7 +15,7 @@ export type QuestEntry = {
 };
 
 export type BossStatus = 'locked' | 'available' | 'started' | 'completed';
-export type BossEntryStatus = { status: BossStatus; subquests: Record<string, boolean>; completedAt?: number };
+export type BossEntryStatus = { status: BossStatus; subquests: Record<string, boolean>; swapped?: Record<string, boolean>; completedAt?: number };
 
 export interface GameState {
   classId: string;
