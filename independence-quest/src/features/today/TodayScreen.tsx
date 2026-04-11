@@ -14,6 +14,7 @@ import {
   selectTotalXP,
   selectStreaks,
   selectNextProgressStep,
+  selectProgressPath,
 } from '../../state/store';
 import { InstallPromptCard } from '../../components/InstallPromptCard';
 
@@ -49,6 +50,7 @@ export function TodayScreen() {
   const comebackMessage = selectComebackMessage(state);
   const progressUnlocks = selectProgressUnlocks(state);
   const nextProgressStep = selectNextProgressStep(state);
+  const progressPath = selectProgressPath(state);
   const totalXP = selectTotalXP(state);
   const streaks = selectStreaks(state);
   const level = selectLevel(state);
@@ -294,6 +296,23 @@ export function TodayScreen() {
             <strong style={{ display: 'block' }}>Reset guardrail: {resetHealth?.status === 'ok' ? 'OK' : resetHealth?.status === 'stale' ? 'Stale' : 'Needs check'}</strong>
             <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{resetHealth?.note || 'Watching daily reset behavior.'}</span>
           </div>
+        </div>
+      </section>
+
+      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
+        <p className="eyebrow">Quest Focus Rail</p>
+        <strong>One obvious route, not a pile of cards.</strong>
+        <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+          {progressPath.map((node) => (
+            <div key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0.7rem 0.8rem', borderRadius: 12, background: node.kind === 'current' ? '#1d4ed8' : node.kind === 'next' ? '#0f172a' : '#111827', border: node.kind === 'current' ? '1px solid #60a5fa' : '1px solid #334155' }}>
+              <div style={{ width: 12, height: 12, borderRadius: 999, background: node.kind === 'complete' ? '#22c55e' : node.isBossGate ? '#f59e0b' : node.kind === 'current' ? '#93c5fd' : '#475569', flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <strong style={{ display: 'block' }}>{node.title}</strong>
+                <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{node.subtitle}</span>
+              </div>
+              <span className="pill" style={{ marginLeft: 'auto' }}>{node.kind}</span>
+            </div>
+          ))}
         </div>
       </section>
 
