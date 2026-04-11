@@ -39,6 +39,7 @@ export function TodayScreen() {
   const setTab = useGameStore((s) => s.setActiveTab);
   const toggleQuestExpanded = useGameStore((s) => s.toggleQuestExpanded);
   const completeFirstProof = useGameStore((s) => s.completeFirstProof);
+  const dismissFirstProofPrompt = useGameStore((s) => s.dismissFirstProofPrompt);
   const toggleRogueRunQuest = useGameStore((s) => s.toggleRogueRunQuest);
   const startRogueRun = useGameStore((s) => s.startRogueRun);
   const clearRogueRun = useGameStore((s) => s.clearRogueRun);
@@ -214,7 +215,7 @@ export function TodayScreen() {
         <button className="primary-button" style={{ marginTop: 10, width: '100%' }} onClick={hero.onClick}>{hero.cta}</button>
       </section>
 
-      {!state.campaign.firstProofDone && firstProofQuest && (
+      {!state.campaign.firstProofDone && firstProofQuest && !ui.dismissedFirstProofPrompt && (
         <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
           <p className="eyebrow">Guided First Proof</p>
           <strong>{firstProofQuest.title}</strong>
@@ -222,99 +223,105 @@ export function TodayScreen() {
           <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
             <button className="primary-button" onClick={() => { setTab('quests'); if (ui.expandedQuestId !== firstProofQuest.id) toggleQuestExpanded(firstProofQuest.id); }}>Open first proof quest</button>
             <button className="ghost-button" onClick={() => completeFirstProof()}>Mark evidence collected</button>
+            <button className="ghost-button" onClick={() => dismissFirstProofPrompt()}>Dismiss this prompt</button>
           </div>
           <p style={{ marginTop: 8, color: '#ddd6fe', fontSize: '0.8rem' }}>Do it once, then the setup stops pretending you need more ceremony.</p>
         </section>
       )}
 
-      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#1d4ed8', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
-        <p className="eyebrow">Re-entry Ritual</p>
-        <strong>Open fast, understand the board, hit one thing.</strong>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
-          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Available</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{availableCount}</div></div>
-          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Started</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{activeQuest ? 1 : 0}</div></div>
-          <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Cleared</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{completedCount}</div></div>
-        </div>
-        <p style={{ marginTop: 10, color: '#cbd5e1', fontSize: '0.84rem' }}>The loop should be immediate: know your strongest move, feel progress pressure, then act before your brain starts a committee meeting.</p>
-        <p style={{ marginTop: 8, color: '#93c5fd', fontSize: '0.83rem' }}>{comebackMessage}</p>
-      </section>
-
-      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: 'linear-gradient(180deg, #111827, #1e1b4b)' }}>
-        <p className="eyebrow">Next Lesson</p>
-        {nextProgressStep ? (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-              <strong>{nextProgressStep.title}</strong>
-              <span className="pill">{nextProgressStep.kind}</span>
+      <details className="card compact-list-card" style={{ padding: '1rem', borderColor: '#1d4ed8', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>More panels</summary>
+        <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
+          <section className="card compact-list-card" style={{ margin: 0 }}>
+            <p className="eyebrow">Re-entry Ritual</p>
+            <strong>Open fast, understand the board, hit one thing.</strong>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
+              <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Available</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{availableCount}</div></div>
+              <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Started</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{activeQuest ? 1 : 0}</div></div>
+              <div style={{ padding: '0.7rem', borderRadius: 12, background: '#0f172a' }}><div style={{ fontSize: '0.74rem', color: '#93c5fd' }}>Cleared</div><div style={{ fontWeight: 700, fontSize: '1.15rem' }}>{completedCount}</div></div>
             </div>
-            <p style={{ marginTop: 0, color: '#ddd6fe', fontSize: '0.84rem' }}>{nextProgressStep.subtitle}</p>
-            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-              {nextProgressStep.isBossGate && <span className="pill">Boss gate</span>}
-              {nextProgressStep.reward && <span className="pill">Reward: {nextProgressStep.reward}</span>}
-            </div>
-            <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, background: '#0f172a', border: '1px solid #4c1d95' }}>
-              <strong style={{ display: 'block', marginBottom: 4 }}>What you get next</strong>
-              <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>{nextProgressStep.rewardText || nextProgressStep.subtitle}</p>
-            </div>
-          </>
-        ) : (
-          <>
-            <strong>What this run has changed</strong>
-            <ul style={{ marginTop: 8, paddingLeft: 18, color: '#ddd6fe', fontSize: '0.84rem' }}>
-              {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
-            </ul>
-          </>
-        )}
-      </section>
+            <p style={{ marginTop: 10, color: '#cbd5e1', fontSize: '0.84rem' }}>The loop should be immediate: know your strongest move, feel progress pressure, then act before your brain starts a committee meeting.</p>
+            <p style={{ marginTop: 8, color: '#93c5fd', fontSize: '0.83rem' }}>{comebackMessage}</p>
+          </section>
 
-      <section className="card compact-list-card" style={{ padding: '1rem' }}>
-        <p className="eyebrow">Progress Rails</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div>
-            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Hero Level</div>
-            <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>Lv. {level}</div>
-            <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>{totalXP} XP total</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Streak</div>
-            <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>{streaks.daily} days</div>
-            <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>Weekly chain: {streaks.weekly}</div>
-          </div>
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#cbd5e1' }}>
-            <span>{currentChapter.title}</span>
-            <span>{progress.cleared}/{progress.total} quests</span>
-          </div>
-          <div style={{ marginTop: 6, height: 10, borderRadius: 999, background: '#1e293b', overflow: 'hidden' }}>
-            <div style={{ width: `${progress.percent}%`, height: '100%', background: 'linear-gradient(90deg, #22c55e, #3b82f6)' }} />
-          </div>
-          <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#cbd5e1' }}>
-            {boss.remaining > 0 ? `${boss.remaining} more quest${boss.remaining === 1 ? '' : 's'} to reveal the boss.` : 'Boss ready or already active.'}
-          </div>
-          <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, border: '1px solid #334155', background: resetHealth?.status === 'stale' ? '#3f1d1d' : '#0f172a' }}>
-            <strong style={{ display: 'block' }}>Reset guardrail: {resetHealth?.status === 'ok' ? 'OK' : resetHealth?.status === 'stale' ? 'Stale' : 'Needs check'}</strong>
-            <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{resetHealth?.note || 'Watching daily reset behavior.'}</span>
-          </div>
-        </div>
-      </section>
+          <section className="card compact-list-card" style={{ margin: 0 }}>
+            <p className="eyebrow">Next Lesson</p>
+            {nextProgressStep ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+                  <strong>{nextProgressStep.title}</strong>
+                  <span className="pill">{nextProgressStep.kind}</span>
+                </div>
+                <p style={{ marginTop: 0, color: '#ddd6fe', fontSize: '0.84rem' }}>{nextProgressStep.subtitle}</p>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                  {nextProgressStep.isBossGate && <span className="pill">Boss gate</span>}
+                  {nextProgressStep.reward && <span className="pill">Reward: {nextProgressStep.reward}</span>}
+                </div>
+                <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, background: '#0f172a', border: '1px solid #4c1d95' }}>
+                  <strong style={{ display: 'block', marginBottom: 4 }}>What you get next</strong>
+                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>{nextProgressStep.rewardText || nextProgressStep.subtitle}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <strong>What this run has changed</strong>
+                <ul style={{ marginTop: 8, paddingLeft: 18, color: '#ddd6fe', fontSize: '0.84rem' }}>
+                  {progressUnlocks.slice(0, 4).map((line) => <li key={line}>{line}</li>)}
+                </ul>
+              </>
+            )}
+          </section>
 
-      <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
-        <p className="eyebrow">Quest Focus Rail</p>
-        <strong>One obvious route, not a pile of cards.</strong>
-        <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
-          {progressPath.map((node) => (
-            <div key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0.7rem 0.8rem', borderRadius: 12, background: node.kind === 'current' ? '#1d4ed8' : node.kind === 'next' ? '#0f172a' : '#111827', border: node.kind === 'current' ? '1px solid #60a5fa' : '1px solid #334155' }}>
-              <div style={{ width: 12, height: 12, borderRadius: 999, background: node.kind === 'complete' ? '#22c55e' : node.isBossGate ? '#f59e0b' : node.kind === 'current' ? '#93c5fd' : '#475569', flexShrink: 0 }} />
-              <div style={{ minWidth: 0 }}>
-                <strong style={{ display: 'block' }}>{node.title}</strong>
-                <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{node.subtitle}</span>
+          <section className="card compact-list-card" style={{ margin: 0 }}>
+            <p className="eyebrow">Progress Rails</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Hero Level</div>
+                <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>Lv. {level}</div>
+                <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>{totalXP} XP total</div>
               </div>
-              <span className="pill" style={{ marginLeft: 'auto' }}>{node.kind}</span>
+              <div>
+                <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Streak</div>
+                <div style={{ fontWeight: 700, fontSize: '1.25rem' }}>{streaks.daily} days</div>
+                <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>Weekly chain: {streaks.weekly}</div>
+              </div>
             </div>
-          ))}
+            <div style={{ marginTop: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                <span>{currentChapter.title}</span>
+                <span>{progress.cleared}/{progress.total} quests</span>
+              </div>
+              <div style={{ marginTop: 6, height: 10, borderRadius: 999, background: '#1e293b', overflow: 'hidden' }}>
+                <div style={{ width: `${progress.percent}%`, height: '100%', background: 'linear-gradient(90deg, #22c55e, #3b82f6)' }} />
+              </div>
+              <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#cbd5e1' }}>
+                {boss.remaining > 0 ? `${boss.remaining} more quest${boss.remaining === 1 ? '' : 's'} to reveal the boss.` : 'Boss ready or already active.'}
+              </div>
+              <div style={{ marginTop: 10, padding: '0.75rem', borderRadius: 10, border: '1px solid #334155', background: resetHealth?.status === 'stale' ? '#3f1d1d' : '#0f172a' }}>
+                <strong style={{ display: 'block' }}>Reset guardrail: {resetHealth?.status === 'ok' ? 'OK' : resetHealth?.status === 'stale' ? 'Stale' : 'Needs check'}</strong>
+                <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{resetHealth?.note || 'Watching daily reset behavior.'}</span>
+              </div>
+            </div>
+          </section>
+
+          <section className="card compact-list-card" style={{ margin: 0, borderColor: '#2563eb', background: 'linear-gradient(180deg, #0b1220, #111827)' }}>
+            <p className="eyebrow">Quest Focus Rail</p>
+            <strong>One obvious route, not a pile of cards.</strong>
+            <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+              {progressPath.map((node) => (
+                <div key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0.7rem 0.8rem', borderRadius: 12, background: node.kind === 'current' ? '#1d4ed8' : node.kind === 'next' ? '#0f172a' : '#111827', border: node.kind === 'current' ? '1px solid #60a5fa' : '1px solid #334155' }}>
+                  <div style={{ width: 12, height: 12, borderRadius: 999, background: node.kind === 'complete' ? '#22c55e' : node.isBossGate ? '#f59e0b' : node.kind === 'current' ? '#93c5fd' : '#475569', flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: 'block' }}>{node.title}</strong>
+                    <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{node.subtitle}</span>
+                  </div>
+                  <span className="pill" style={{ marginLeft: 'auto' }}>{node.kind}</span>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </section>
+      </details>
 
       {latestToast && (
         <section className="card compact-list-card" style={{ padding: '1rem', borderColor: '#7c3aed', background: '#1e1b4b' }}>

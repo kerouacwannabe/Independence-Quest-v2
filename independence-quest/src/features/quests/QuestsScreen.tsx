@@ -501,6 +501,9 @@ export function QuestsScreen() {
                   const allDone = boss.subquests.every((sub) => bossEntry?.subquests?.[sub.id]);
                   const antiQuest = bossAntiQuestLines(boss.title);
                   const goodSwaps = bossHabitSwaps(boss.title);
+                  const swappedCount = Object.values(bossEntry?.swapped || {}).filter(Boolean).length;
+                  const isFirstBoss = chapter.bossPool[0]?.id === boss.id;
+                  const finishReady = isFirstBoss ? swappedCount >= 3 : allDone;
                   return (
                     <div key={boss.id} style={{ margin: '0.5rem 0.75rem 0', border: '1px solid #7f1d1d', borderRadius: 10, overflow: 'hidden', background: '#1f1115' }}>
                       <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #7f1d1d', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
@@ -512,7 +515,7 @@ export function QuestsScreen() {
                         <button
                           onClick={() => {
                             if (!started) startBoss(boss.id);
-                            else if (allDone && !completed) completeBoss(boss.id);
+                            else if (finishReady && !completed) completeBoss(boss.id);
                           }}
                           disabled={!canFight || completed}
                           style={{
@@ -520,40 +523,62 @@ export function QuestsScreen() {
                             background: completed ? '#14532d' : '#b91c1c', color: '#fff', fontWeight: 700, flexShrink: 0
                           }}
                         >
-                          {completed ? '✓ Defeated' : started ? (allDone ? 'Finish Boss' : 'Boss Active') : 'Face Boss'}
+                          {completed ? '✓ Defeated' : started ? (finishReady ? 'Finish Boss' : 'Boss Active') : 'Face Boss'}
                         </button>
                       </div>
                       {started && !completed && (
                         <div style={{ padding: '0.75rem 1rem', display: 'grid', gap: 10 }}>
-                          <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
-                            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#2a1318', border: '1px solid #7f1d1d' }}>
-                              <strong style={{ display: 'block', color: '#fca5a5', marginBottom: 6 }}>Anti-quest checklist</strong>
-                              <ul style={{ margin: 0, paddingLeft: 18, color: '#fecaca', fontSize: '0.78rem' }}>
-                                {antiQuest.map((line) => <li key={line}>{line}</li>)}
-                              </ul>
+                          {isFirstBoss ? (
+                            <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
+                              <div style={{ padding: '0.7rem', borderRadius: 10, background: '#2a1318', border: '1px solid #7f1d1d' }}>
+                                <strong style={{ display: 'block', color: '#fca5a5', marginBottom: 6 }}>Anti-quest checklist</strong>
+                                <ul style={{ margin: 0, paddingLeft: 18, color: '#fecaca', fontSize: '0.78rem' }}>
+                                  {antiQuest.map((line) => <li key={line}>{line}</li>)}
+                                </ul>
+                              </div>
+                              <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f1f16', border: '1px solid #166534' }}>
+                                <strong style={{ display: 'block', color: '#86efac', marginBottom: 6 }}>Good checklist</strong>
+                                <ul style={{ margin: 0, paddingLeft: 18, color: '#bbf7d0', fontSize: '0.78rem' }}>
+                                  {goodSwaps.map((line) => <li key={line}>{line}</li>)}
+                                </ul>
+                              </div>
                             </div>
-                            <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f1f16', border: '1px solid #166534' }}>
-                              <strong style={{ display: 'block', color: '#86efac', marginBottom: 6 }}>Swap into good habits</strong>
-                              <ul style={{ margin: 0, paddingLeft: 18, color: '#bbf7d0', fontSize: '0.78rem' }}>
-                                {goodSwaps.map((line) => <li key={line}>{line}</li>)}
-                              </ul>
+                          ) : (
+                            <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
+                              <div style={{ padding: '0.7rem', borderRadius: 10, background: '#2a1318', border: '1px solid #7f1d1d' }}>
+                                <strong style={{ display: 'block', color: '#fca5a5', marginBottom: 6 }}>Anti-quest checklist</strong>
+                                <ul style={{ margin: 0, paddingLeft: 18, color: '#fecaca', fontSize: '0.78rem' }}>
+                                  {antiQuest.map((line) => <li key={line}>{line}</li>)}
+                                </ul>
+                              </div>
+                              <div style={{ padding: '0.7rem', borderRadius: 10, background: '#0f1f16', border: '1px solid #166534' }}>
+                                <strong style={{ display: 'block', color: '#86efac', marginBottom: 6 }}>Swap into good habits</strong>
+                                <ul style={{ margin: 0, paddingLeft: 18, color: '#bbf7d0', fontSize: '0.78rem' }}>
+                                  {goodSwaps.map((line) => <li key={line}>{line}</li>)}
+                                </ul>
+                              </div>
                             </div>
+                          )}
+                          <div style={{ display: 'grid', gap: 8 }}>
+                            {boss.subquests.map((sub, i) => {
+                              const done = !!bossEntry?.subquests?.[sub.id];
+                              const swapped = !!bossEntry?.swapped?.[sub.id];
+                              return (
+                                <label key={sub.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', color: done ? '#94a3b8' : '#e2e8f0', textDecoration: done ? 'line-through' : 'none' }}>
+                                  <input type="checkbox" checked={done} onChange={() => toggleBossSubquest(boss.id, sub.id)} style={{ marginTop: 2 }} />
+                                  <div style={{ flex: 1 }}>
+                                    <div><span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}</div>
+                                    <button onClick={() => toggleBossHabitSwap(boss.id, sub.id)} style={{ marginTop: 4, padding: '0.35rem 0.6rem', borderRadius: 999, border: '1px solid #166534', background: swapped ? '#14532d' : '#0f172a', color: swapped ? '#bbf7d0' : '#86efac', cursor: 'pointer', fontSize: '0.72rem' }}>
+                                      {swapped ? 'Habit swap locked in' : 'Swap to habit'}
+                                    </button>
+                                  </div>
+                                </label>
+                              );
+                            })}
                           </div>
-                          {boss.subquests.map((sub, i) => {
-                            const done = !!bossEntry?.subquests?.[sub.id];
-                            const swapped = !!bossEntry?.swapped?.[sub.id];
-                            return (
-                              <label key={sub.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', color: done ? '#94a3b8' : '#e2e8f0', textDecoration: done ? 'line-through' : 'none' }}>
-                                <input type="checkbox" checked={done} onChange={() => toggleBossSubquest(boss.id, sub.id)} style={{ marginTop: 2 }} />
-                                <div style={{ flex: 1 }}>
-                                  <div><span style={{ color: '#64748b', marginRight: 6 }}>{i + 1}.</span>{sub.title}</div>
-                                  <button onClick={() => toggleBossHabitSwap(boss.id, sub.id)} style={{ marginTop: 4, padding: '0.35rem 0.6rem', borderRadius: 999, border: '1px solid #166534', background: swapped ? '#14532d' : '#0f172a', color: swapped ? '#bbf7d0' : '#86efac', cursor: 'pointer', fontSize: '0.72rem' }}>
-                                    {swapped ? 'Habit swap locked in' : 'Swap to habit'}
-                                  </button>
-                                </div>
-                              </label>
-                            );
-                          })}
+                          {isFirstBoss && (
+                            <div style={{ color: '#fecaca', fontSize: '0.78rem' }}>Finish unlocks when 3 habit swaps are locked in.</div>
+                          )}
                         </div>
                       )}
                     </div>

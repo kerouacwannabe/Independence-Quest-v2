@@ -21,6 +21,7 @@ type GameStore = {
     expandedQuestId: string | null;
     lastCompletedQuestId: string | null;
     questStarterQuestId: string | null;
+    dismissedFirstProofPrompt: boolean;
     toasts: Array<{ id: number; text: string; stage: string }>;
     nextToastId: number;
   };
@@ -28,6 +29,7 @@ type GameStore = {
   setActiveTab: (tab: AppTab) => void;
   toggleQuestExpanded: (questId: string, forceState?: 'expanded' | 'collapsed') => void;
   dismissQuestStarter: () => void;
+  dismissFirstProofPrompt: () => void;
 
   startCampaign: (payload: { name?: string; classId: string; origin: string; motivation: string }) => void;
   setCampaignVow: (vow: string) => void;
@@ -187,7 +189,7 @@ const initialState = loadState(meta);
 export const useGameStore = create<GameStore>((set, get) => ({
   meta,
   state: initialState,
-  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null, questStarterQuestId: null, toasts: [], nextToastId: 1 },
+  ui: { activeTab: 'today', expandedQuestId: null, lastCompletedQuestId: null, questStarterQuestId: null, dismissedFirstProofPrompt: false, toasts: [], nextToastId: 1 },
 
   setActiveTab: (tab) => set((s) => ({ ui: { ...s.ui, activeTab: tab } })),
 
@@ -196,6 +198,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   })),
 
   dismissQuestStarter: () => set((s) => ({ ui: { ...s.ui, questStarterQuestId: null } })),
+  dismissFirstProofPrompt: () => set((s) => ({ ui: { ...s.ui, dismissedFirstProofPrompt: true } })),
 
   startCampaign: (p) => set((s) => {
     const next = {
